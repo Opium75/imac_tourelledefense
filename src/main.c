@@ -12,6 +12,10 @@ int main(int argc, char *argv[])
 	int energie;
 	unsigned char couleurClef[NB_COULEURS_CLEFS][NB_COULEURS];
 
+	/*données de l'arbre*/
+	int nombreNoeuds;
+	Arbre *chemins;
+
 	/*vérif rapide.*/
 	if(argc < 2)
 	{
@@ -30,8 +34,11 @@ int main(int argc, char *argv[])
 	}
 
 	/*premier essai*/
-	lireCarte(carte, &energie, nomImage, couleurClef);
+	lireCarte(carte, &energie, nomImage, couleurClef, &nombreNoeuds, chemins);
 
-	
+	/*Fermeture des ressources ouvertes.*/
+	fclose(carte);
+
+
 	return EXIT_SUCCESS;
 }

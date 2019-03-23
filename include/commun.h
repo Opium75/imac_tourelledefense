@@ -4,7 +4,7 @@
 
 /****** COULEURS ****/
 
-#define NB_COULEURS 3
+#define NB_COULEURS 3 /*égal à 3 et ne pas modifier*/
 typedef enum {rouge, vert, bleu} Couleur;
 
 /***** CARTES *******/
@@ -13,57 +13,50 @@ typedef enum {rouge, vert, bleu} Couleur;
 #define MAX_TAILLE_NOM_FICHIER 20
 #define MAX_TAILLE_CHEMIN_FICHIER 30
 #define TAILLE_CODE 4
-#define NB_COULEURS_CLEFS 5  /* à ne pas modifier*/
+#define NB_COULEURS_CLEFS 5  /* égal à 5 et ne pas modifier*/
 
 
 /*Constantes relatives aux versions des cartes*/
 #define NB_VERSIONS 1
 #define NB_PARAM_VERSION_1 7
 
-
+static const int NB_PARAM_PAR_VERSION[NB_VERSIONS] = {NB_PARAM_VERSION_1};
 
 /*Constantes pour fichiers .itd*/
 
 #define MAX_TAILLE_MOTCLEF 10
 
 #define CODE_COM '#'
+#define CODE_SAUT_LIGNE '\n' /*ne pas modifier*/
+
 static const char CODE_PROJET[] = "@ITD";
 
-/*static const char MOTCLEF_CARTE[] = "carte";
-static const char MOTCLEF_ENERGIE[] = "energie";
-static const char MOTCLEF_CHEMIN[]  = "chemin";
-static const char MOTCLEF_NOEUD[] = "noeud";
-static const char MOTCLEF_CONSTRUCT[] = "construct";
-static const char MOTCLEF_IN[] = "in";
-static const char MOTCLEF_OUT[] = "out";*/
-
 /**** ATTENTION : les éléments de MOTCLEFS et l'énum doivent rester dans le même ordre !! *******/
-
-typedef enum {  CC_chemin,
-				CC_noeud,
-				CC_construct,
-				CC_in,
-				CC_out} CouleurClef;
+/**** ET Garder chemin, noeud, construct, in, out, en premier. On s'en saert pour parcourir un tableau dans les vérifications*/
 
 static const char *MOTCLEFS[] = 
-{ "carte",
-  "energie",
+{ 
   "chemin",
   "noeud",
   "construct",
   "in",
-  "out"
+  "out",
+  "carte",
+  "energie",
 };
 
-typedef enum {  MC_carte, 
-				MC_energie,
-				MC_chemin,
+typedef enum {  MC_chemin,
 				MC_noeud,
 				MC_construct,
 				MC_in,
-				MC_out} MotClef;
+				MC_out,
+				MC_carte, 
+				MC_energie,} MotClef;
 
-static const int NB_PARAM_PAR_VERSION[NB_VERSIONS] = {NB_PARAM_VERSION_1};
+/*Constantes pour structure de Noeuds*/
+
+/*Au moins deux noeuds : un noeud d'entrée et un de sortie.*/
+#define NB_MIN_NOEUDS 2
 
 
 

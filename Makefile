@@ -12,6 +12,7 @@ ENTREP  = include/
 # Fichiers principaux
 OBJ_MAIN = main.o
 OBJ_FICHIER_CARTE = gestion_fichier_carte.o
+OBJ_NOEUD = noeud.o
 
 #Fichiers annexes
 ENT_COMMUN = commun
@@ -26,7 +27,7 @@ EXEC_ITD = itd
 
 all :
 
-itd : $(OBJREP)$(OBJ_MAIN) $(OBJREP)$(OBJ_FICHIER_CARTE)
+itd : $(OBJREP)$(OBJ_MAIN) $(OBJREP)$(OBJ_FICHIER_CARTE) $(OBJREP)$(OBJ_NOEUD)
 	$(CC) $(CFLAGS) $^ -o $(BINREP)$(EXEC_ITD) $(LDFLAGS)
 
 clean :
