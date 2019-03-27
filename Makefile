@@ -11,8 +11,15 @@ ENTREP  = include/
 
 # Fichiers principaux
 OBJ_MAIN = main.o
-OBJ_FICHIER_CARTE = gestion_fichier_carte.o
-OBJ_NOEUD = noeud.o
+OBJ_POINT = point.o
+OBJ_GRAPHE = graphe.o
+OBJ_CARTE = carte.o
+OBJ_VERIF_CARTE =  verif_carte.o
+OBJ_LECTURE_FICHIER_CARTE = lecture_fichier_carte.o
+OBJ_PPM_IMAGE = ./PPM_image/PPM_image.o
+OBJ_PPM_ENTETE = ./PPM_image/PPM_entete.o
+
+LISTE_OBJ = $(OBJREP)$(OBJ_POINT) $(OBJREP)$(OBJ_GRAPHE) $(OBJREP)$(OBJ_CARTE) $(OBJREP)$(OBJ_LECTURE_FICHIER_CARTE) $(OBJREP)$(OBJ_PPM_IMAGE) $(OBJREP)$(OBJ_PPM_ENTETE)
 
 #Fichiers annexes
 ENT_COMMUN = commun
@@ -22,12 +29,11 @@ EXEC_ITD = itd
 
 
 
-
 # Regles compilation TD 05
 
 all :
 
-itd : $(OBJREP)$(OBJ_MAIN) $(OBJREP)$(OBJ_FICHIER_CARTE) $(OBJREP)$(OBJ_NOEUD)
+itd : $(OBJREP)$(OBJ_MAIN) $(LISTE_OBJ)
 	$(CC) $(CFLAGS) $^ -o $(BINREP)$(EXEC_ITD) $(LDFLAGS)
 
 clean :

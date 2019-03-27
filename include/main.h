@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "gestion_fichier_carte.h"
-#include "noeud.h"
+#include "graphe.h"
+#include "carte.h"
+#include "lecture_fichier_carte.h"
+#include "./PPM_image/PPM_image.h"
 #include "commun.h"

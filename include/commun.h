@@ -1,6 +1,7 @@
-#ifndef _CONSTANTES_GLOBALES
+#ifndef __CONSTANTES_GLOBALES
 
-#define _CONSTANTES_GLOBALES
+#define __CONSTANTES_GLOBALES
+
 
 /****** COULEURS ****/
 
@@ -9,30 +10,31 @@ typedef enum {rouge, vert, bleu} Couleur;
 
 /***** CARTES *******/
 
-/*Constantes tailles maximales des noms et chemins*/
-#define MAX_TAILLE_NOM_FICHIER 20
-#define MAX_TAILLE_CHEMIN_FICHIER 30
-#define TAILLE_CODE 4
-#define NB_COULEURS_CLEFS 5  /* égal à 5 et ne pas modifier*/
-
-
-/*Constantes relatives aux versions des cartes*/
-#define NB_VERSIONS 1
-#define NB_PARAM_VERSION_1 7
-
-static const int NB_PARAM_PAR_VERSION[NB_VERSIONS] = {NB_PARAM_VERSION_1};
-
 /*Constantes pour fichiers .itd*/
 
 #define MAX_TAILLE_MOTCLEF 10
 
 #define CODE_COM '#'
 #define CODE_SAUT_LIGNE '\n' /*ne pas modifier*/
+#define MAX_VAL_COULEUR 255 /* garder <= 255 */
+
+static const char REP_DONNEES_CARTE[] = "./data"; /*répertoire des fichiers .itd*/
+static const char REP_DONNEES_IMAGE[] = "./images";
 
 static const char CODE_PROJET[] = "@ITD";
 
+
+
 /**** ATTENTION : les éléments de MOTCLEFS et l'énum doivent rester dans le même ordre !! *******/
 /**** ET Garder chemin, noeud, construct, in, out, en premier. On s'en saert pour parcourir un tableau dans les vérifications*/
+
+typedef enum {  MC_chemin,
+        MC_noeud,
+        MC_construct,
+        MC_in,
+        MC_out,
+        MC_carte, 
+        MC_energie,} MotClef;
 
 static const char *MOTCLEFS[] = 
 { 
@@ -45,13 +47,19 @@ static const char *MOTCLEFS[] =
   "energie",
 };
 
-typedef enum {  MC_chemin,
-				MC_noeud,
-				MC_construct,
-				MC_in,
-				MC_out,
-				MC_carte, 
-				MC_energie,} MotClef;
+/*Constantes tailles maximales des noms et chemins*/
+#define MAX_TAILLE_NOM_FICHIER 20
+#define MAX_TAILLE_CHEMIN_FICHIER 30
+#define MAX_TAILLE_CODE 10 /*on prévoit large, dans le cads où le code est incorrect.*/
+#define NB_COULEURS_CLEFS 5  /* égal à 5 et ne pas modifier*/
+
+
+/*Constantes relatives aux versions des cartes*/
+#define NB_VERSIONS 1
+#define NB_PARAM_VERSION_1 7
+
+static const int NB_PARAM_PAR_VERSION[NB_VERSIONS] = {NB_PARAM_VERSION_1};
+
 
 /*Constantes pour structure de Noeuds*/
 
