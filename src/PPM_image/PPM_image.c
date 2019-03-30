@@ -74,3 +74,41 @@ bool PPM_lireImage(FILE *src, PPM_Image **img)
 	}
 	return valide;
 }
+
+void PPM_ecrireCanaux(FILE *dest, PPM_Image *img) 
+{
+	int j, canal;
+	for(j=0;j<img->largeur*img->hauteur;j++) 
+	{
+		for(canal=0; canal<NB_COULEURS; canal++)
+		{
+			fwrite( (img->canaux[canal])+j, sizeof(unsigned char), 1, dest );
+		}
+	}
+}
+
+bool PPM_ecrireImage(FILE *dest, PPM_Image*img) {
+	PPM_ecrireEntete(dest,img->largeur,img->hauteur);
+	PPM_ecrireCanaux(dest,img);
+	/*PPM_libererImage(img);*/
+	return true;
+}
+
+
+void PPM_accesCouleur(PPM_Image *img, unsigned int ligne, unsigned int colonne, unsigned char couleur[])
+{
+	int c;
+	for(c=0; c<NB_COULEURS; c++)
+	{
+		couleur[c] = img->canaux[c][img->largeur*ligne + colonne];
+	}
+}
+
+void PPM_modifierCouleur(PPM_Image *img, unsigned int ligne, unsigned int colonne, unsigned char couleur[])
+{
+	int c;
+	for(c=0; c<NB_COULEURS; c++)
+	{
+		img->canaux[c][img->largeur*ligne + colonne] = couleur[c];
+	}
+}

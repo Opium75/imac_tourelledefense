@@ -23,5 +23,7 @@ void libererCarte(Carte *carte);
 
 void afficherCarte(Carte *carte); /*affichage sur console*/
 
+MotClef correspondanceType(TypeNoeud type);
+
 
 #endif

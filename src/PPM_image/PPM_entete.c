@@ -24,6 +24,12 @@ bool PPM_lireEntete(FILE *src, unsigned int *largeur, unsigned int *hauteur)
 	return true;
 }
 
+void PPM_ecrireEntete(FILE*dest,unsigned int largeur, unsigned int hauteur) 
+{
+	fputs(CODE_PPM,dest);
+	fprintf(dest,"\n%u %u\n%hhu\n",largeur,hauteur,MAX_VAL_COULEUR);
+}
+
 
 
 void lireCommentaire(FILE *src) 
@@ -45,12 +51,8 @@ void lireCommentaire(FILE *src)
 void PPM_sautLigne(FILE *src)
 {
 	int i=0;
-	printf("Coucou !\n");
 	while( fgetc(src) != CODE_SAUT_LIGNE_PPM || feof(src) )
 	{
 		i++;
-		printf("%d\n", i);
-					/*rien à faire ici */
 	}
-	printf("Coucou !\n");
 }

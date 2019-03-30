@@ -13,6 +13,11 @@ Point* creerPoint(unsigned int x, unsigned int y)
 	return point;
 }
 
+Point* copiePoint(Point *point)
+{
+	return ( creerPoint(point->x, point->y) ) ;
+}
+
 void libererPoint(Point *point)
 {
 	free(point);
@@ -34,12 +39,17 @@ ListePoint* allouerListePoint(int nombrePoints)
 	return listePoint;
 }
 
-void libererListePoint(int nombrePoints, ListePoint *listePoint)
+
+void libererListePoint(int nombrePoints, ListePoint *listePoint, bool avecContenu )
 {
+
 	int i;
-	for(i=0; i<nombrePoints; i++)
+	if( avecContenu )
 	{
-		free(listePoint[i]);
+			for(i=0; i<nombrePoints; i++)
+		{
+			free(listePoint[i]);
+		}
 	}
 	free(listePoint);
 }

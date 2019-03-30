@@ -6,8 +6,7 @@ bool lireCarte(FILE *fichierCarte, Carte *carte)
 {
 	bool valide; /*booléen*/
 	int version;
-	unsigned int energie; 
-	char nomImage[MAX_TAILLE_NOM_FICHIER];
+	unsigned int energie;
 	unsigned char couleurClef[NB_COULEURS_CLEFS][NB_COULEURS];
 	int nombreNoeuds;
 	Graphe *chemins;
@@ -228,6 +227,7 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 		if( type < 1 || type > NB_TYPE_NOEUD )
 		{
 			printf("Graphe -- Ligne n°%d, type n°%d non reconnu : doit être entre %d et %d.\n", k, type, 1, NB_TYPE_NOEUD);
+			return false;
 		}
 		/*VÉRIF ENTRÉE-SORTIE*/
 		if( type == entree )
@@ -238,6 +238,7 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 		if( x < 0 || y < 0)
 		{
 			printf("Graphe -- Ligne n°%d, coordonnées (%d,%d) incorrectes : doivent être positives.\n", k, x, y);
+			return false;
 		}
 
 		coord = creerPoint( (unsigned int) x, (unsigned int) y );
@@ -276,8 +277,10 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 		return false;
 	}
 	*chemins = matriceVersListeGraphe( *nombreNoeuds, grapheMat );
-	/*On n'aura plus besoin de notre graphe sous forme de matrice d'adjacence, on le libère.*/
-	libererGrapheMatrice(*nombreNoeuds, grapheMat);
+	/*On n'aura plus besoin de notre graphe sous forme de matrice d'adjacence, on le libère.
+	*On libère entre autres la liste de points, mais pas les points eux-mêmes,
+	*Qu'on passe ensuite aux noeuds*/
+	libererGrapheMatrice(*nombreNoeuds, grapheMat, false);
 	return true;
 }
 
@@ -308,7 +311,8 @@ int lireEntier(FILE *fichierCarte, char position[],int ligne, int *e)
 	int format = fscanf(fichierCarte, "%d", e);
 	if( !format )
 	{
-				printf("%s -- Ligne n°%d, erreur de formatage : entier attendu.\n", position, ligne);
+		printf("%s -- Ligne n°%d, erreur de formatage : entier attendu.\n", position, ligne);
+		return 0;	
 	}
 	return format;
 }
@@ -318,7 +322,8 @@ int lireChaine(FILE *fichierCarte, char position[],int ligne, char chaine[])
 	int format = fscanf(fichierCarte, "%s", chaine);
 	if( !format )
 	{
-				printf("%s -- Ligne n°%d, erreur de formatage : chaîne de caractères attendue.\n", position, ligne);
+		printf("%s -- Ligne n°%d, erreur de formatage : chaîne de caractères attendue.\n", position, ligne);
+		return 0;
 	}
 	return format;
 }

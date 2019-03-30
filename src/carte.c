@@ -29,7 +29,7 @@ void afficherCarte(Carte *carte)
 	/*** Paramètres ***/
 	printf("Énergie : %u\n", carte->energie);
 	
-	for( MC_lu=0; MC_lu < NB_PARAM_PAR_VERSION[carte->version-1]; MC_lu++) /*NB_PARAM_PAR_VERSION[carte->version-1] correspond au nombre de mot-clefs pour la carte->version*/
+	for( MC_lu=0; MC_lu < NB_COULEURS_CLEFS; MC_lu++) /*NB_PARAM_PAR_VERSION[carte->version-1] correspond au nombre de mot-clefs pour la carte->version*/
 	{
 		printf("Couleur %s : (", MOTCLEFS[MC_lu]);
 		for(couleur=0; couleur < NB_COULEURS; couleur++)
@@ -43,12 +43,28 @@ void afficherCarte(Carte *carte)
 	printf("Nombre de noeuds : %d\n", carte->nombreNoeuds);
 	for(indice=0; indice < carte->nombreNoeuds; indice++)
 	{
-		printf("Noeud d'indice %d : type : %s, coord : (%u, %u)\n", indice, TYPENOEUD[(carte->chemins)[indice]->type], (carte->chemins)[indice]->x, (carte->chemins)[indice]->y);
+		printf("Noeud d'indice %d : type : %s, coord : (%u, %u)\n", indice, TYPENOEUD[(carte->chemins)[indice]->type], ((carte->chemins)[indice]->coord)->x, ((carte->chemins)[indice]->coord)->y);
 		printf("Successeurs (nombre = %d) : ", (carte->chemins)[indice]->nombreSuccesseurs);
 		for(j=0; j < (carte->chemins)[indice]->nombreSuccesseurs; j++)
 		{
 			printf("%d, ", ((carte->chemins)[indice]->successeurs[j])->indice);
 		}
 		printf("\n");
+	}
+}
+
+MotClef correspondanceType(TypeNoeud type)
+{
+	switch(type)
+	{
+		case entree :
+			return MC_in;
+		case sortie :
+			return MC_out;
+		case coude: case intersection :
+			return MC_chemin;
+		default :
+			printf("Échec de correspondance du type %d à un mot-clef.\n", type);
+			exit(EXIT_FAILURE);
 	}
 }

@@ -18,6 +18,8 @@ static const char CODE_PPM[] = "P6";
 n'est pas conforme au format du projet.*/
 
 bool PPM_lireEntete(FILE *src, unsigned int *largeur, unsigned int *hauteur);
+void PPM_ecrireEntete(FILE *dest,unsigned int largeur, unsigned int hauteur);
+
 void lireCommentaire(FILE *src);
 void PPM_sautLigne(FILE *src);
 

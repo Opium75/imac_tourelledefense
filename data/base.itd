@@ -1,15 +1,13 @@
 @ITD 1
 #There was a button, I pushed it.
-carte bab.ppm
+carte base.ppm
 construct 255 200 80
 in 0 200 0
 out 200 0 0
 energie 100
 chemin 255 255 255
-noeud 0 0 0
-5
-0 1 10 20 3 2 4
-1 2 68 30 2 4
-2 4 30 103 3 1 0
-3 3 40 89 0 2
-4 4 10 130 0 2 1
+noeud 0 0 240
+3
+0 1 10 10 1
+1 2 40 10 2
+2 1 42 42 0

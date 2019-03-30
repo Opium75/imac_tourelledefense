@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 	Carte *carte = allouerCarte();
 
 	/*Données image*/
-	PPM_Image *img;
+	PPM_Image *imageCarte;
 
 	/*vérif rapide.*/
 	if(argc < 2)
@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
 	/*** Chargement de l'image associée ***/
 	printf("Chargement de l'image...");
 	sprintf(cheminImage, "%s/%s", REP_DONNEES_IMAGE, carte->nomImage);
-	FILE *imageCarte = fopen(cheminImage, "r");
-	if( !imageCarte )
+	FILE *fichierImage = fopen(cheminImage, "r");
+	if( !fichierImage )
 	{
 		printf("Échec d'ouverture de l'image au chemin : %s\n", cheminImage );
 		return EXIT_FAILURE;
@@ -54,22 +54,48 @@ int main(int argc, char *argv[])
 	printf(" Fait !\n");
 	/*Lecture de l'image associée*/
 	printf("Lecture des données image...");
-	if( !PPM_lireImage(imageCarte, &img) )
+	if( !PPM_lireImage(fichierImage, &imageCarte) )
 		return EXIT_FAILURE;
 	
-	fclose(imageCarte);
+	fclose(fichierImage);
 	printf(" Fait !\n");
 	/*****/
 
 	/*Affichage de l'image (console, crade)*/
-	/*PPM_afficherImage(img);*/
+	/*PPM_afficherImage(imageCarte);*/
+
+	/*** Vérifications de la carte ****/
+	if( validerChemins(carte, imageCarte) )
+	{
+
+	}
+	/*****/
+
+	/*** Chargement de l'image associée ***/
+	printf("Ouverture de l'image...");
+	sprintf(cheminImage, "%s/%s_mod", REP_DONNEES_IMAGE, carte->nomImage);
+	FILE *fichierImageSortie = fopen(cheminImage, "w");
+	if( !fichierImageSortie )
+	{
+		printf("Échec d'ouverture de l'image au chemin : %s\n", cheminImage );
+		return EXIT_FAILURE;
+	}
+	printf(" Fait !\n");
+	/*Lecture de l'image associée*/
+	printf("Écriture des données image...");
+	if( !PPM_ecrireImage(fichierImageSortie, imageCarte) )
+		return EXIT_FAILURE;
+	
+	fclose(fichierImageSortie);
+	printf(" Fait !\n");
+	/*****/
 	
 
 
 	/*Fermeture des ressources ouvertes.*/
 	printf("Libération des ressources...");
 	libererCarte(carte);
-	PPM_libererImage(img);
+	PPM_libererImage(imageCarte);
 	printf(" Fait !\n");
 
 

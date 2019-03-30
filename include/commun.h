@@ -2,6 +2,11 @@
 
 #define __CONSTANTES_GLOBALES
 
+/**** AUTRES ****/
+#define max(a,b) a>b ? a : b
+#define min(a,b) a>b ? b : a
+#define abs(a) max(a,-a)
+
 
 /****** COULEURS ****/
 
@@ -34,7 +39,8 @@ typedef enum {  MC_chemin,
         MC_in,
         MC_out,
         MC_carte, 
-        MC_energie,} MotClef;
+        MC_energie
+      } MotClef;
 
 static const char *MOTCLEFS[] = 
 { 
@@ -49,7 +55,7 @@ static const char *MOTCLEFS[] =
 
 /*Constantes tailles maximales des noms et chemins*/
 #define MAX_TAILLE_NOM_FICHIER 20
-#define MAX_TAILLE_CHEMIN_FICHIER 30
+#define MAX_TAILLE_CHEMIN_FICHIER 40
 #define MAX_TAILLE_CODE 10 /*on prévoit large, dans le cads où le code est incorrect.*/
 #define NB_COULEURS_CLEFS 5  /* égal à 5 et ne pas modifier*/
 

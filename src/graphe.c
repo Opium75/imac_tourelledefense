@@ -18,10 +18,10 @@ Graphe_MatAdj* allouerGrapheMatrice(int nombreNoeuds)
 	return grapheMat;
 }
 
-void libererGrapheMatrice(int nombreNoeuds, Graphe_MatAdj *grapheMat)
+void libererGrapheMatrice(int nombreNoeuds, Graphe_MatAdj *grapheMat, bool avecContenuPoint)
 {
 	free(grapheMat->listeType);
-	libererListePoint(nombreNoeuds, grapheMat->listeCoord);
+	libererListePoint(nombreNoeuds, grapheMat->listeCoord, avecContenuPoint);
 	libererMatriceCarree(nombreNoeuds, grapheMat->adjacence);
 }
 

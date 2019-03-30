@@ -9,7 +9,7 @@
 
 
 /*Indices de TypeNoeud et TYPENOEUD doivent se correspondre.*/
-typedef enum { 	entree = 1, 
+typedef enum {	entree = 1, 
 				sortie = 2,
 				coude = 3,
 				intersection = 4} TypeNoeud;
@@ -56,7 +56,8 @@ Graphe* matriceVersListeGraphe(int nombreNoeuds, Graphe_MatAdj *grapheMat);
 /* à partir de la mmatrice d'adjacence associée*/
 
 Graphe_MatAdj* allouerGrapheMatrice(int nombreNoeuds);
-void libererGrapheMatrice(int nombreNoeuds, Graphe_MatAdj *grapheMat);
+/*Libère le graphe par matrice d'adjacence, avec la liste des noeuds, et avec ou sans les noeuds suivant avecContenuPoint*/
+void libererGrapheMatrice(int nombreNoeuds, Graphe_MatAdj *grapheMat, bool avecContenuPoint);
 
 int** allouerMatriceCarree(int rang);
 void libererMatriceCarree(int rang, int **matrice);
