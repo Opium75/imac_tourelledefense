@@ -53,7 +53,7 @@ static const char *MOTCLEFS[] =
   "energie",
 };
 
-/*Constantes tailles maximales des noms et chemins*/
+/*Constantes tailles maximales des noms et chemins des fichiers*/
 #define MAX_TAILLE_NOM_FICHIER 20
 #define MAX_TAILLE_CHEMIN_FICHIER 40
 #define MAX_TAILLE_CODE 10 /*on prévoit large, dans le cads où le code est incorrect.*/
@@ -71,6 +71,8 @@ static const int NB_PARAM_PAR_VERSION[NB_VERSIONS] = {NB_PARAM_VERSION_1};
 
 /*Au moins deux noeuds : un noeud d'entrée et un de sortie.*/
 #define NB_MIN_NOEUDS 2
+
+#define LARGEUR_SEGMENT 15 /*en pixels de l'image*/
 
 
 

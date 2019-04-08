@@ -4,8 +4,13 @@ bool validerChemins(Carte *carte, PPM_Image *imageCarte)
 {
 	int indice;
 	int indiceSuccesseur;
+	int k,l;
+
+	int x,y;
 
 	int compteurModif = 0;
+
+	bool valide;
 
 
 	/*À changer plus tard, question des arguments de la fonction */
@@ -16,20 +21,34 @@ bool validerChemins(Carte *carte, PPM_Image *imageCarte)
 	/*alias de variables définies par commodité. */
 	Noeud *noeud, *noeudSuccesseur;
 
+	/*vérification des entrées et sorties*/
+	valide = verifierEntreeSortie(carte);
+
 	/*vérification pour tous les chemins qui partent d' indice*/
 	for(indice=0; indice < nombreNoeuds; indice++)
 	{
 		noeud = chemins[indice];
+		valide = valide & verifierCoord(imageCarte->largeur, imageCarte->hauteur, noeud);
 		sommetType_modifierPoint(imageCarte, carte->couleurClef, noeud->coord, noeud->type, &compteurModif);
 		for(indiceSuccesseur=0; indiceSuccesseur < noeud->nombreSuccesseurs; indiceSuccesseur++)
 		{
-			/* ?????*/
-			noeudSuccesseur = (noeud->successeurs)[indiceSuccesseur];
+			noeudSuccesseur = noeud->successeurs[indiceSuccesseur];
 			bresenham_modifierSeg(imageCarte,carte->couleurClef, noeud->coord, noeudSuccesseur->coord, &compteurModif);
+			
 		}
 	}
 	printf("Nombre de modifications : %d\n", compteurModif);
-	return true;
+	return valide;
+}
+
+void modifierPoint()
+{
+
+}
+
+bool verifierPoint()
+{
+	
 }
 
 bool sommetType_verifierPoint(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], Point *point, TypeNoeud type, int *nombreInvalide)
@@ -54,22 +73,27 @@ void sommetType (PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS]
 	TypeNoeud typeCorrect = (type == intersection) ? coude : type;
 	bool correspond = comparerCouleurs(couleur,  couleurClef[correspondanceType(typeCorrect)]);
 	
-
-	/*On enregistre la valeur du point*/
-	PPM_accesCouleur(imageCarte, 
-					ligne, 
-					colonne, 
-					couleur );
-			/*Est-ce que la couleur correspond à un chemin ?*/
-	if( !correspond )
+	if( ligne < imageCarte->hauteur
+		&& ligne >= 0
+		&& colonne < imageCarte->largeur
+		&& colonne >= 0)
 	{
-			/*On modifie la couleur selon le cas*/
-			if( modifier )
-					PPM_modifierCouleur(imageCarte,
-										ligne, 
-										colonne, 
-										couleurClef[correspondanceType(typeCorrect)]);
-			(*compteur)++;
+		/*On enregistre la valeur du point*/
+		PPM_accesCouleur(imageCarte, 
+						ligne, 
+						colonne, 
+						couleur );
+				/*Est-ce que la couleur correspond à un chemin ?*/
+		if( !correspond )
+		{
+				/*On modifie la couleur selon le cas*/
+				if( modifier )
+						PPM_modifierCouleur(imageCarte,
+											ligne, 
+											colonne, 
+											couleurClef[correspondanceType(typeCorrect)]);
+				(*compteur)++;
+		}
 	}
 }
 
@@ -171,4 +195,43 @@ void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], 
 	}
 	/****/
 	libererPoint(point);
+}
+
+bool verifierEntreeSortie(Carte *carte)
+{	
+	int i,j;
+	Noeud *noeud, *voisin;
+	Graphe *chemins = carte->chemins;
+	bool aSortie, valide = true;
+	for(i=0; i < carte->nombreNoeuds; i++)
+	{
+		noeud = chemins[i];
+		if( noeud->type == entree )
+		{
+			aSortie = false;
+			for(j=0; j<noeud->nombreSuccesseurs; j++)
+			{
+				voisin = (noeud->successeurs)[j];
+				if(voisin->type == sortie)
+					aSortie = true;
+			}
+			if( !aSortie )
+			{
+				printf("Chemin - Entrée d'indice %d n'a pas de sortie.\n", i);
+				valide = false;
+			}
+		}
+	}
+	return valide;
+}
+
+bool verifierCoord(unsigned int largeur, unsigned int hauteur, Noeud *noeud)
+{
+	Point *coord = noeud->coord;
+	if( coord->x > largeur || coord->y > hauteur )
+	{
+		printf("Noeud - %s d'indice %d, coordonnées (%u, %u) invalides. (largeur : %u, hauteur : %u)\n", TYPENOEUD[noeud->type], noeud->indice, coord->x, coord->y, largeur, hauteur);
+		return false;
+	}
+	return true;
 }

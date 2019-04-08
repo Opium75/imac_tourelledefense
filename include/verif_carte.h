@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "point.h"
 #include "graphe.h"
@@ -29,5 +30,8 @@ void sommetType_modifierPoint(PPM_Image *imageCarte, unsigned char couleurClef[]
 
 void sommetType (PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p, TypeNoeud type, bool modifier, int *compteur);
 /**/
+
+bool verifierEntreeSortie(Carte *carte);
+bool verifierCoord(unsigned int largeur, unsigned int hauteur, Noeud *noeud);
 
 #endif
