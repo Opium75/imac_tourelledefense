@@ -7,6 +7,8 @@
 
 #include "point.h"
 
+#define NB_MONSTRES_PAR_VAGUES
+
 
 /*Indices de TypeNoeud et TYPENOEUD doivent se correspondre.*/
 typedef enum {	entree = 1, 
@@ -22,7 +24,6 @@ static const char *TYPENOEUD[] =
 	"coude",
 	"intersection"
 };
-
 
 #define NB_TYPE_NOEUD 4 /*ne pas modifier*/
 /**/

@@ -138,6 +138,7 @@ int** allouerMatriceCarree(int rang)
 	return matrice;
 }
 
+
 void libererMatriceCarree(int rang, int **matrice)
 {
 	int ligne;

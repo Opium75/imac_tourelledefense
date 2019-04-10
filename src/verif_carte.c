@@ -4,9 +4,6 @@ bool validerChemins(Carte *carte, PPM_Image *imageCarte)
 {
 	int indice;
 	int indiceSuccesseur;
-	int k,l;
-
-	int x,y;
 
 	int compteurModif = 0;
 
@@ -41,15 +38,6 @@ bool validerChemins(Carte *carte, PPM_Image *imageCarte)
 	return valide;
 }
 
-void modifierPoint()
-{
-
-}
-
-bool verifierPoint()
-{
-	
-}
 
 bool sommetType_verifierPoint(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], Point *point, TypeNoeud type, int *nombreInvalide)
 {
