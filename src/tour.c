@@ -1,7 +1,5 @@
 #include "../include/tour.h"
 
-
-
 Tour* creerTour(TypeTour type, unsigned int x, unsigned int y)
 {
 	Tour *tour;
@@ -25,9 +23,6 @@ void libererTour(Tour *tour)
 {
 	free(tour);
 }
-
-
-
 
 unsigned int calculerPuissance(TypeTour type)
 {

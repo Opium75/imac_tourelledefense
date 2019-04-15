@@ -1,6 +1,6 @@
 #include "../include/monstre.h"
 
-Monstre* creerMonstre(TypeMonstre type, Noeud *depart, Noeud *arrivee)
+Monstre* creerMonstre(TypeMonstre type, Noeud *depart, Noeud *arrivee) // mettre unsigned int x, unsigned int y en plus pour coordonnées? avec 	monstre->coord =  creerPoint(x, y);
 {
 	Monstre *monstre = malloc( sizeof(Monstre) );
 	if( !monstre )
