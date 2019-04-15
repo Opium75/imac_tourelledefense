@@ -1,14 +1,13 @@
 #ifndef __FONCTIONS_MONSTRE
-
 #define __FONCTIONS_MONSTRE
+
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "graphe.h"
 #include "tour.h"
 
-#define NB_TYPES_MONSTRE
+#define NB_TYPE_MONSTRE 2
 
 /*attributs unitaires*/
 #define VIE_BASE 1
@@ -20,10 +19,10 @@ static const unsigned int RESISTANCES_TYPE[NB_TYPES_MONSTRE][NB_TYPES_TOUR] = { 
 																				 {2, 4, 1, 8}
 																				};
 
-typedef enum{M1, M2} TypeMonstre;
+typedef enum{M1, M2}TypeMonstre; 
 
-typedef struct {
-	unsigned int ptVie, vitesse;
+typedef struct Monstre{
+	unsigned int ptVie, resistance;
 	unsigned int  resistances[NB_TYPES_TOUR];
 	TypeMonstre type;
 	/*un montre se trouve dans un segment -> entre deux noeuds*/
@@ -41,6 +40,5 @@ void libererMonstre( Monstre *monstre);
 unsigned int calculerVie(TypeMonstre type);
 unsigned int calculerVitesse(TypeMonstre type);
 void calculerResistances(unsigned int resistances[], TypeMonstre type);
-
 
 #endif

@@ -1,15 +1,11 @@
 #ifndef __FONCTIONS_TOUR
-
 #define __FONCTIONS_TOUR
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "point.h"
 
-typedef enum {T_rouge, T_verte, T_bleue, T_jaune} TypeTour;
-
-#define NB_TYPES_TOUR 4
+#define NB_TYPE_TOUR 4
 
 /*attibuts unitaires*/
 #define PUISSANCE_BASE 1 /*relatif aux points de vie et résistance des monstres.*/
@@ -21,17 +17,13 @@ static const unsigned int PORTEE_TYPE[NB_TYPES_TOUR] = {2, 1, 8, 2};
 static const unsigned int CADENCE_TYPE[NB_TYPES_TOUR] = {1, 8, 2, 2};
 static const unsigned int COUT_TYPE[NB_TYPES_TOUR] = {2, 2, 2, 2};
 
+typedef enum{T_rouge, T_vert, T_bleu, T_jaune}TypeTour; 
 
-typedef struct {
-	unsigned int puissance, cadence, portee, coutAchat;
+typedef struct Tour{
+	unsigned int puissance, portee, cadence, coutAchat;
 	Point *coord;
 	TypeTour type;
-	/*Ici, c'est tous les champs que t'as mis, sans les fonctions
-	c-à-d énergie, puissance, etc.
-	Mais, en plus :*/
 } Tour;
-
-
 
 Tour* creerTour(TypeTour type, unsigned int x, unsigned int y);
 void libererTour(Tour *tour);
