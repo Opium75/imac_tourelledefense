@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "couleur.h"
 #include "graphe.h"
 #include "commun.h"
 
@@ -13,8 +14,10 @@ typedef struct {
 	unsigned int energie;
 	char nomImage[MAX_TAILLE_NOM_FICHIER];
 	unsigned char couleurClef[NB_COULEURS_CLEFS][NB_COULEURS];
-	int nombreNoeuds;
+	int nombreNoeuds, nombreEntrees;
 	Graphe *chemins;
+	int *indicesEntrees;
+	int indiceSortie;
 } Carte;
 
 /*Fonctions structure Carte*/

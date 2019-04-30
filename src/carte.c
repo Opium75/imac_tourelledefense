@@ -15,13 +15,14 @@ Carte* allouerCarte()
 void libererCarte(Carte *carte)
 {
 	libererGraphe(carte->nombreNoeuds, carte->chemins);
+	libererIndicesEntrees(carte->indicesEntrees);
 	free(carte);
 }
 
 void afficherCarte(Carte *carte)
 {
-	int couleur, indice, j;
 	MotClef MC_lu;
+	printf("\n--- AFFICHAGE CARTE ---\n");
 	/*** Version ***/
 	printf("Version carte : %d\n", carte->version);
 	/*** Image ***/
@@ -31,26 +32,12 @@ void afficherCarte(Carte *carte)
 	
 	for( MC_lu=0; MC_lu < NB_COULEURS_CLEFS; MC_lu++) /*NB_PARAM_PAR_VERSION[carte->version-1] correspond au nombre de mot-clefs pour la carte->version*/
 	{
-		printf("Couleur %s : (", MOTCLEFS[MC_lu]);
-		for(couleur=0; couleur < NB_COULEURS; couleur++)
-		{
-			printf("%hhu ", carte->couleurClef[MC_lu][couleur]);
-					
-		}
-		printf(")\n");
+		printf("Couleur %s : ", MOTCLEFS[MC_lu]);
+		afficherCouleur(carte->couleurClef[MC_lu]);
 	}
 	/*** Chemins ***/
-	printf("Nombre de noeuds : %d\n", carte->nombreNoeuds);
-	for(indice=0; indice < carte->nombreNoeuds; indice++)
-	{
-		printf("Noeud d'indice %d : type : %s, coord : (%u, %u)\n", indice, TYPENOEUD[(carte->chemins)[indice]->type], ((carte->chemins)[indice]->coord)->x, ((carte->chemins)[indice]->coord)->y);
-		printf("Successeurs (nombre = %d) : ", (carte->chemins)[indice]->nombreSuccesseurs);
-		for(j=0; j < (carte->chemins)[indice]->nombreSuccesseurs; j++)
-		{
-			printf("%d, ", ((carte->chemins)[indice]->successeurs[j])->indice);
-		}
-		printf("\n");
-	}
+	afficherGraphe(carte->chemins, carte->nombreNoeuds);
+	printf("\n--- FIN AFFICHAGE ---\n");
 }
 
 MotClef correspondanceType(TypeNoeud type)

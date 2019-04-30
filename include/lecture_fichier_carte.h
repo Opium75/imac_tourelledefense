@@ -14,6 +14,9 @@
 
 #include "commun.h"
 
+/*On n'autorise maintenant qu'une seule sortie */
+
+
 
 /*Étapes de lecture*/
 bool lireVersion(FILE *fichierCarte, int *version); /*Fonctionne pour l'instant uniquement pour des cartes de version 1*/

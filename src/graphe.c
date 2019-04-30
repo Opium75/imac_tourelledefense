@@ -58,6 +58,42 @@ Graphe* matriceVersListeGraphe(int nombreNoeuds, Graphe_MatAdj *grapheMat)
 	return graphe;
 }
 
+void extraireEntreesSortie(int **indicesEntrees, int *nombreEntrees, int *indiceSortie, int nombreNoeuds, Graphe *graphe)
+{
+	int i;
+	int compteur = 0;
+
+	*indicesEntrees = malloc( nombreNoeuds * sizeof(int) );
+	if( !(*indicesEntrees) )
+	{
+		printf(" Entrées -- Échec d'allocation. (nombre de noeuds : %d)\n", nombreNoeuds);
+		exit(EXIT_FAILURE);
+	}	
+	for( i=0; i<nombreNoeuds; i++ )
+	{
+		if( (graphe[i])->type == entree )
+		{
+			(*indicesEntrees)[compteur] = i;
+			compteur++;
+		}
+		if( (graphe[i])->type == sortie )
+			*indiceSortie = i;
+	}
+	*nombreEntrees = compteur;
+	/* On se débarrasse de l'espace inutilisé */
+	*indicesEntrees = realloc(*indicesEntrees, compteur * sizeof(int) );
+	if( !(*indicesEntrees) )
+	{
+		printf(" Entrées -- Échec de réallocation. (nombre d'entrées : %d)\n", compteur);
+		exit(EXIT_FAILURE);
+	}
+}
+
+void libererIndicesEntrees(int* indicesEntrees)
+{
+	free(indicesEntrees);
+}
+
 Noeud* creerNoeud(TypeNoeud type, int indice, Point *coord, int nombreSuccesseurs)
 {
 	Noeud *noeud = malloc(sizeof(Noeud));
@@ -91,6 +127,19 @@ void libererNoeud(Noeud *noeud)
 	free(noeud);
 }
 
+void afficherNoeud(Noeud *noeud)
+{
+	int j;
+	printf("Noeud -> indice %d, type : %s, coord : (%u, %u)\n", noeud->indice, TYPENOEUD[noeud->type], noeud->coord->x, noeud->coord->y);
+	printf("Noeud -> successeurs (nombre = %d) : ", noeud->nombreSuccesseurs);
+	for(j=0; j < noeud->nombreSuccesseurs; j++)
+	{
+		printf("%d, ", (noeud->successeurs[j])->indice);
+	}
+	printf("\n");
+}
+
+
 Graphe* allouerGraphe(int nombreNoeuds)
 {
 	Graphe* graphe = malloc( nombreNoeuds * sizeof(Noeud*) );
@@ -111,6 +160,45 @@ void libererGraphe(int nombreNoeuds, Graphe *graphe)
 		libererNoeud(graphe[i]);
 	}
 	free(graphe);
+}
+
+void afficherGraphe(Graphe *graphe, int nombreNoeuds)
+{
+	int indice;
+	printf("Graphe -> nombre de noeuds : %d\n", nombreNoeuds);
+	for(indice=0; indice < nombreNoeuds; indice++)
+	{
+		afficherNoeud( graphe[indice] );
+	}
+	
+}
+
+int* creerVecteurEntier(int taille, int initial)
+{
+	int i;
+	int* vecteur;
+	if( initial == 0)
+		vecteur = calloc( taille, sizeof(int) );
+	else
+		vecteur = malloc( taille * sizeof(int) );
+	if( !vecteur )
+	{
+		printf("Vecteur -- Échec d'allocation dynamique. (taille : %d)\n", taille);
+		exit(EXIT_FAILURE);
+	}
+	if( initial != 0 )
+	{
+		for( i=0; i<taille; i++ )
+		{
+			vecteur[i] = initial;
+		}
+	}
+	return vecteur;
+}
+
+void libererVecteurEntier(int* vecteur)
+{
+	free(vecteur);
 }
 
 int** allouerMatriceCarree(int rang)

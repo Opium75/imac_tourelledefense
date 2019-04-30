@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NB_TYPE_BATIMENT 2
-#define NB_TYPE_INSTALLATION 3
+#define NB_TYPES_BATIMENT 2
+#define NB_TYPES_INSTALLATION 3
 
 typedef enum{Centrale_energie, Installation}TypeBatiment;
 typedef enum{Radar, UsineArme, StockMunition}TypeInstallation;

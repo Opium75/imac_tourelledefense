@@ -1,6 +1,6 @@
 #include "../include/verif_carte.h"
 
-bool validerChemins(Carte *carte, PPM_Image *imageCarte)
+bool validerChemins(Carte *carte, PPM_Image *imageCarte, int *nombreModif)
 {
 	int indice;
 	int indiceSuccesseur;
@@ -26,41 +26,43 @@ bool validerChemins(Carte *carte, PPM_Image *imageCarte)
 	{
 		noeud = chemins[indice];
 		valide = valide & verifierCoord(imageCarte->largeur, imageCarte->hauteur, noeud);
-		sommetType_modifierPoint(imageCarte, carte->couleurClef, noeud->coord, noeud->type, &compteurModif);
+		valide = valide & sommetType_modifierPoint(imageCarte, carte->couleurClef, noeud->coord, noeud->type, &compteurModif);
 		for(indiceSuccesseur=0; indiceSuccesseur < noeud->nombreSuccesseurs; indiceSuccesseur++)
 		{
 			noeudSuccesseur = noeud->successeurs[indiceSuccesseur];
-			bresenham_modifierSeg(imageCarte,carte->couleurClef, noeud->coord, noeudSuccesseur->coord, &compteurModif);
+			valide = valide & bresenham_modifierSeg(imageCarte,carte->couleurClef, noeud->coord, noeudSuccesseur->coord, &compteurModif);
 			
 		}
 	}
-	printf("Nombre de modifications : %d\n", compteurModif);
+	*nombreModif = compteurModif;
 	return valide;
 }
 
 
 bool sommetType_verifierPoint(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], Point *point, TypeNoeud type, int *nombreInvalide)
 {
-	sommetType(imageCarte, couleurClef, point, type, true, nombreInvalide);
-	if( nombreInvalide ) /*si il y a au moins un invalide*/
+	sommetType(imageCarte, couleurClef, point, type, false, nombreInvalide);
+	if( *nombreInvalide ) /*si il y a au moins un invalide*/
 		return false;
 	return true;
 }
 
-void sommetType_modifierPoint(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *point, TypeNoeud type, int *nombreModif)
+bool sommetType_modifierPoint(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *point, TypeNoeud type, int *nombreModif)
 {
 	sommetType(imageCarte, couleurClef, point, type, true, nombreModif);
+	if( *nombreModif )
+		return false;
+	return true;
 }
 
-void sommetType (PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *point, TypeNoeud type, bool modifier, int *compteur)
+void sommetType(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *point, TypeNoeud type, bool modifier, int *compteur)
 {
 	unsigned int ligne = point->y;
 	unsigned int colonne = point->x;
 
 	unsigned char couleur[NB_COULEURS];
 	TypeNoeud typeCorrect = (type == intersection) ? coude : type;
-	bool correspond = comparerCouleurs(couleur,  couleurClef[correspondanceType(typeCorrect)]);
-	
+	bool correspond; 
 	if( ligne < imageCarte->hauteur
 		&& ligne >= 0
 		&& colonne < imageCarte->largeur
@@ -71,10 +73,12 @@ void sommetType (PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS]
 						ligne, 
 						colonne, 
 						couleur );
-				/*Est-ce que la couleur correspond à un chemin ?*/
+		/*Est-ce que la couleur correspond à un chemin ?*/
+		correspond = comparerCouleurs(couleur, couleurClef[correspondanceType(typeCorrect)]);
 		if( !correspond )
 		{
-				/*On modifie la couleur selon le cas*/
+			//afficherCouleur(couleur); afficherCouleur(couleurClef[correspondanceType(typeCorrect)]);
+			/*On modifie la couleur selon le cas*/
 				if( modifier )
 						PPM_modifierCouleur(imageCarte,
 											ligne, 
@@ -89,21 +93,24 @@ void sommetType (PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS]
 bool bresenham_verifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, int *nombreInvalide)
 {
 	bresenham(imageCarte, couleurClef, p1, p2, false, nombreInvalide);
-	if( nombreInvalide ) /*si il y a au moins un point invalide*/
+	if( *nombreInvalide ) /*si il y a au moins un point invalide*/
 		return false;
 	return true;
 }
 
 
-void bresenham_modifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, int *nombreModif)
+bool bresenham_modifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, int *nombreModif)
 {
 	bresenham(imageCarte, couleurClef, p1, p2, true, nombreModif);
+	if( *nombreModif )
+		return false;
+	return true;
 }
 
 void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, bool modifier, int *compteur)
 {
 	/* Adaptation de l'algorithme de bresenham (par valeurs entières) au problème 
-	/* On généralise le cas du premier octant*/
+	* On généralise le cas du premier octant*/
 	
 	/**** Définitions dans le repère (O, x, y) ****/
 	int deltaX = (int)(p2->x - (int)p1->x);
@@ -145,7 +152,6 @@ void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], 
 	/*****/
 
 	int ligne, colonne;
-	unsigned char couleur[NB_COULEURS];
 	bool condition;
 	
 	TypeNoeud type = coude;
@@ -187,30 +193,66 @@ void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], 
 
 bool verifierEntreeSortie(Carte *carte)
 {	
-	int i,j;
-	Noeud *noeud, *voisin;
+	int i;
+	Noeud *noeud;
 	Graphe *chemins = carte->chemins;
 	bool aSortie, valide = true;
+	int *listeVerifies = creerVecteurEntier(carte->nombreNoeuds, 0);
+	/* liste des noeuds déjà vérifiés, initalisée à faux (0)
+	* évite de vérifier un noeud deux fois (dans la récurrence)
+	*/
 	for(i=0; i < carte->nombreNoeuds; i++)
 	{
 		noeud = chemins[i];
 		if( noeud->type == entree )
 		{
-			aSortie = false;
-			for(j=0; j<noeud->nombreSuccesseurs; j++)
-			{
-				voisin = (noeud->successeurs)[j];
-				if(voisin->type == sortie)
-					aSortie = true;
-			}
+			aSortie = REC_verifierSortie(noeud, carte->nombreNoeuds, listeVerifies);
 			if( !aSortie )
 			{
-				printf("Chemin - Entrée d'indice %d n'a pas de sortie.\n", i);
+				printf("Chemin -- Entrée d'indice %d n'a pas de sortie.\n", i);
 				valide = false;
 			}
 		}
 	}
+	libererVecteurEntier(listeVerifies);
 	return valide;
+}
+
+
+bool REC_verifierSortie(Noeud *noeud, int nombreNoeuds, int *listeVerifies)
+{
+	int j;
+	Noeud *voisin;
+	bool valide = true;
+	if( listeVerifies[noeud->indice] )
+	{
+		/* Si l'on a déjà vérifié le noeud, on peut alors récupérer
+		* la valeur déjà vérifiée (1 si valide, 2 si invalide)
+		*/
+		return (listeVerifies[noeud->indice] == 1);
+	}
+	for(j=0; j<noeud->nombreSuccesseurs; j++)
+	{
+		voisin = (noeud->successeurs)[j];
+		if(voisin->type == sortie)
+		{
+			listeVerifies[noeud->indice] = 1;
+			return true;
+		}
+		
+		if( listeVerifies[voisin->indice] )
+		{
+			listeVerifies[noeud->indice] = listeVerifies[voisin->indice];
+			return (listeVerifies[voisin->indice] == 1);
+		}
+		/* Si l'on a pas encore vérifié ce noeud */
+		valide = REC_verifierSortie(voisin, nombreNoeuds, listeVerifies);
+		if( valide )
+			return true;
+	}
+	/* On n'a pas trouvé de sortie partant de ce noeud */
+	listeVerifies[noeud->indice] = 2;
+	return false;
 }
 
 bool verifierCoord(unsigned int largeur, unsigned int hauteur, Noeud *noeud)

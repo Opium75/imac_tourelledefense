@@ -2,6 +2,7 @@
 
 int main(int argc, char *argv[])
 {
+	Vague *vague;
 	/* nom et chemin des fichiers de la carte*/
 	char nomDonnees[MAX_TAILLE_NOM_FICHIER];
 	char cheminDonnees[MAX_TAILLE_CHEMIN_FICHIER];
@@ -12,6 +13,9 @@ int main(int argc, char *argv[])
 
 	/*Données image*/
 	PPM_Image *imageCarte;
+
+	/*pour vérif*/
+	int nombreModif;
 
 	/*vérif rapide.*/
 	if(argc < 2)
@@ -65,14 +69,17 @@ int main(int argc, char *argv[])
 	/*PPM_afficherImage(imageCarte);*/
 
 	/*** Vérifications de la carte ****/
-	if( validerChemins(carte, imageCarte) )
+	printf("Vérifications de la carte... ");
+	if( !validerChemins(carte, imageCarte, &nombreModif) )
 	{
-
+		printf("Invalide ! (nombre d'erreurs : %d)\n", nombreModif);
 	}
+	else
+		printf("Valide !\n");
 	/*****/
 
 	/*** Chargement de l'image associée ***/
-	printf("Ouverture de l'image...");
+	printf("Ouverture de la modification...");
 	sprintf(cheminImage, "%s/%s_mod", REP_DONNEES_IMAGE, carte->nomImage);
 	FILE *fichierImageSortie = fopen(cheminImage, "w");
 	if( !fichierImageSortie )
@@ -85,12 +92,12 @@ int main(int argc, char *argv[])
 	printf("Écriture des données image...");
 	if( !PPM_ecrireImage(fichierImageSortie, imageCarte) )
 		return EXIT_FAILURE;
-	
 	fclose(fichierImageSortie);
 	printf(" Fait !\n");
 	/*****/
-	
 
+	/*** Création d'une vague de monstres ***/
+	printf("Lancement d'une vague...\n");
 
 	/*Fermeture des ressources ouvertes.*/
 	printf("Libération des ressources...");

@@ -2,14 +2,16 @@
 
 /*On utilise les constantes relatives aux cartes définies dans "commun.h" */
 
+
+
 bool lireCarte(FILE *fichierCarte, Carte *carte)
 {
 	bool valide; /*booléen*/
 	int version;
 	unsigned int energie;
-	unsigned char couleurClef[NB_COULEURS_CLEFS][NB_COULEURS];
-	int nombreNoeuds;
+	int nombreNoeuds, nombreEntrees;
 	Graphe *chemins;
+	int *indicesEntrees, indiceSortie;
 
 	/**** vérif code et version****/ 
 	valide = lireVersion(fichierCarte, &version);
@@ -41,13 +43,19 @@ bool lireCarte(FILE *fichierCarte, Carte *carte)
 	}
 	/***********/
 
-	/*Remplissment des champs de la carte.*/
+	/** étape supplémentaire : lister les entrées (pour vagues de monstres) et LA SEULE sortie **/
+	extraireEntreesSortie(&indicesEntrees, &nombreEntrees, &indiceSortie, nombreNoeuds, chemins);
+
+	/*Remplissage des champs de la carte.*/
 	carte->version = version;
 	carte->energie = energie;
 	carte->nombreNoeuds = nombreNoeuds;
 	carte->chemins = chemins;
+	carte->nombreEntrees = nombreEntrees;
+	carte->indicesEntrees = indicesEntrees;
+	carte->indiceSortie = indiceSortie;
 
-	/********** Bientôt dans vos foyer : vérifs ***********/
+	/********** Prochaine étape : vérifs -> verif_carte.c ***********/
 
 	return valide;
 }
@@ -207,7 +215,7 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 		/*On vérifie donc que l'on n'est pas arrivé à la fin du fichier avant de continuer.*/
 		if( feof(fichierCarte) )
 		{
-			printf("Nombre de noeuds erroné, indiqué %d noeuds : %d trouvés.\n", *nombreNoeuds, k);
+			printf("Graphe -- Nombre de noeuds erroné, indiqué %d noeuds : %d trouvés.\n", *nombreNoeuds, k);
 			return false;
 		}
 		if( 4 != fscanf(fichierCarte, "%d %d %d %d", &indice, &type, &x, &y) )
@@ -224,16 +232,24 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 			return false;
 		}
 		/*Le type doit être reconnu ( entre 1 et )*/
-		if( type < 1 || type > NB_TYPE_NOEUD )
+		if( type < 1 || type > NB_TYPES_NOEUD )
 		{
-			printf("Graphe -- Ligne n°%d, type n°%d non reconnu : doit être entre %d et %d.\n", k, type, 1, NB_TYPE_NOEUD);
+			printf("Graphe -- Ligne n°%d, type n°%d non reconnu : doit être entre %d et %d.\n", k, type, 1, NB_TYPES_NOEUD);
 			return false;
 		}
 		/*VÉRIF ENTRÉE-SORTIE*/
 		if( type == entree )
 			entreeExiste = true;
-		if( type == sortie )
+		if( type == sortie && !sortieExiste )
+		{
+			/* on n'accepte qu'une seule sortie :*/
+			if(sortieExiste)
+			{
+				printf("Graphe -- Ligne n°%d, plusieurs noeuds de sortie.\n", k);
+				return false;	
+			}
 			sortieExiste = true;
+		}
 		/**/
 		if( x < 0 || y < 0)
 		{
@@ -261,7 +277,7 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 			}
 			if( indiceSuccesseur == indice )
 			{
-				printf("Graphe -- Ligne n°%d, indice successeur %d incorrect : un noeud ne peut pas être so npropre successeur. (Nombre noeuds = %d)\n", k, indiceSuccesseur, *nombreNoeuds);
+				printf("Graphe -- Ligne n°%d, indice successeur %d incorrect : un noeud ne peut pas être son propre successeur.\n", k, indiceSuccesseur);
 				return false;
 			}
 			(grapheMat->adjacence)[indice][ indiceSuccesseur ] = 1; /*On a compté un successeur en plus.*/
