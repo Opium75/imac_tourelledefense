@@ -11,9 +11,11 @@ Monstre* creerMonstre(TypeMonstre type, Noeud *depart)
 	monstre->vieMax = calculerVie(type);
 	monstre->vie = monstre->vieMax;
 	monstre->vitesse = calculerVitesse(type);
+	monstre->attaque = calculerAttaque(type);
 	calculerResistances(monstre->resistances, type);
 
 	monstre->type = type;
+	monstre->etat = enAttente;
 
 	monstre->depart = depart;
 	monstre->arrivee = NULL;
@@ -33,7 +35,6 @@ void libererMonstre(Monstre *monstre)
 	free(monstre);
 }
 
-
 void calculerPositionMonstre(Monstre *monstre, Point *coord)
 {
 	unsigned int x,y;
@@ -46,18 +47,28 @@ void calculerPositionMonstre(Monstre *monstre, Point *coord)
 void afficherMonstre(Monstre *monstre)
 {
 	int j;
-	printf("Monstre -> type : %s, vie : %d/%u, vitesse : %u\n", TYPE_MONSTRE[monstre->type], monstre->vie, monstre->vieMax, monstre->vitesse);
+	Point positionMonstre;
+	printf("Monstre -> type : %s, état : %s, vie : %d/%u, vitesse : %u\n", TYPE_MONSTRE[monstre->type], ETAT_MONSTRE[monstre->etat], monstre->vie, monstre->vieMax, monstre->vitesse);
 	printf("		-> résistances : ");
 	for( j=0; j<NB_TYPES_TOUR; j++ )
 	{
 		printf("%d, ", monstre->resistances[j]);
 	}
 	printf("\n");
-	Point positionMonstre;
-	calculerPositionMonstre(monstre, &positionMonstre);
-	printf("		-> position (%u,%u) _ %d::%d, %lf % \n", positionMonstre.x, positionMonstre.y, monstre->depart->indice, monstre->arrivee->indice, monstre->avancement*100);
+	if( monstre->etat == enMouvement )
+	{
+		printf("		-> Segment  _ %d::%d, %lf % \n", monstre->depart->indice, monstre->arrivee->indice, monstre->avancement*100);
+		calculerPositionMonstre(monstre, &positionMonstre);
+		printf("		-> position (%u, %u)\n", positionMonstre.x, positionMonstre.y);	
+	}
 }
 
+void attaquerJoueur(Monstre *monstre, int *pointage, int *argent)
+{
+	int perteArgent = monstre->attaque;
+	*argent -= perteArgent;
+	(*pointage)--;
+}
 
 unsigned int calculerVie(TypeMonstre type)
 {
@@ -65,10 +76,16 @@ unsigned int calculerVie(TypeMonstre type)
 	return vie;
 }
 
-unsigned int calculerVitesse(TypeMonstre type)
+int calculerVitesse(TypeMonstre type)
 {
-	unsigned int vitesse = VITESSE_BASE*VITESSE_TYPE[type];
+	int vitesse = VITESSE_BASE*VITESSE_TYPE[type];
 	return vitesse;
+}
+
+int calculerAttaque(TypeMonstre type)
+{
+	int attaque = ATTAQUE_TYPE[type]*ATTAQUE_BASE;
+	return attaque;
 }
 
 void calculerResistances(unsigned int resistances[], TypeMonstre type)
@@ -80,11 +97,11 @@ void calculerResistances(unsigned int resistances[], TypeMonstre type)
 	}
 }
 
-TypeMonstre calculerTypeMonstre()
+TypeMonstre calculerTypeMonstre(void)
 {
 	/* J'aimerai donner des arguments à la fonction,
-	* histoire qu'on ait pas une probabilité uniforme/
-	/* on pourrait améliorer l'aléatoire (rand() = caca) */
+	* histoire qu'on ait pas une probabilité uniforme
+	/* on pourrait améliorer l'aléatoire (on a bien mieux que rand()) */
 	int type = rand()%NB_TYPES_MONSTRE;
 	return (TypeMonstre) type;
 }
@@ -93,10 +110,4 @@ Noeud* calculerEntreeMonstre(Noeud **entrees, int nombreEntreesVague)
 {
 	Noeud *entree = entrees[rand()%nombreEntreesVague];
 	return entree;
-}
-
-unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement)
-{
-	unsigned int c = (unsigned int)((b - a)*avancement) + a;
-	return c;
 }

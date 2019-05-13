@@ -66,6 +66,7 @@ void libererIndicesEntrees(int* indicesEntrees);
 * On utilise des valeurs 0,1,2 pour la vérification,
 * et 0, 1 pour l'agorithme*/
 int* creerVecteurEntier(int taille, int initial);
+void afficherVecteurEntier(int *vecteur, int taille);
 void libererVecteurEntier(int* vecteur);
 
 Graphe_MatAdj* allouerGrapheMatrice(int nombreNoeuds);

@@ -1,7 +1,7 @@
 #include "../include/carte.h"
 
 
-Carte* allouerCarte()
+Carte* allouerCarte(void)
 {
 	Carte *carte = malloc(sizeof(Carte));
 	if( !carte )

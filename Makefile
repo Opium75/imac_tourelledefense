@@ -24,6 +24,7 @@ OBJ_PPM_ENTETE = ./PPM_image/PPM_entete.o
 ##
 OBJ_TOUR = tour.o
 OBJ_MONSTRE = monstre.o
+OBJ_CITE = cite.o
 OBJ_VAGUE = vague.o
 OBJ_PARCOURS = parcours.o
 ##

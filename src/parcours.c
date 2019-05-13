@@ -1,12 +1,12 @@
 #include "../include/parcours.h"
 
-int* plusCourtChemin(Monstre *monstre, Carte *carte, Tour **tours, int nombreTours, int *nombreEtapes)
+int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtapes)
 {
 	int indice, compteurEtapes, j;
 	int *indicesPrecedents, *parcours;
 	Noeud *noeud0 = monstre->depart;
 	/* On récupère les indices des précédents par l'algorithme de dijkstra */
-	indicesPrecedents = dijkstra(noeud0, carte->chemins, carte->nombreNoeuds, tours, nombreTours);
+	indicesPrecedents = dijkstra(noeud0, carte->chemins, carte->nombreNoeuds, cite->listeTour);
 	/* On reconstruit le parcours à effectuer
 	* à noter que (i <= nombreNoeuds) ne doit pas se produire
 	* cela signifirait que le noeud n'admet pas de chemins vers la sortie
@@ -36,14 +36,92 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Tour **tours, int nombreTou
 		/* Le parcours est inversé par rapport aux précédents */
 		parcours[compteurEtapes-1 - j] = indice;
 		indice = indicesPrecedents[indice];
-		
 	}
 	libererVecteurEntier(indicesPrecedents);
 	*nombreEtapes = compteurEtapes;
 	return parcours;
 }
 
-int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour **tours, int nombreTours)
+
+bool avancerMonstre(Monstre *monstre, clock_t deltaT, Carte *carte, Cite *cite)
+{
+	/* Un monstre avance de n unité de distances par secondes,
+	* donc on calcule par rapport à la longueur du segment
+	* sur lequel il se trouve, et sa progression sur celui-ci
+	*/
+	/* Renvoie vrai s'il a atteint le noeud de sortie. */
+	bool estSorti = false;
+	int d;
+	/* on utilise des floattants ici pour éviter le repliement*/
+	double parcourue, aParcourir, reste;
+	d = calculerDistance(monstre->depart->coord, monstre->arrivee->coord);
+	parcourue = (double)d*monstre->avancement;
+	/* sur quel modèle le monstre va avancer ? */
+	aParcourir = (deltaT*(monstre->vitesse))/(double)CLOCKS_PER_SEC;
+	//printf("Et voilà : parcourue %lf distance %d vitesse %ld à parcourir %lf\n", parcourue, d, monstre->vitesse, aParcourir);
+	if( parcourue + aParcourir >= d )
+	{
+		/* Si l'on dépasse le segment */
+		reste = d - ( parcourue + aParcourir );
+		estSorti = changerSegmentMonstre(monstre, reste, carte, cite);
+		monstre->modif_INDIC_mem = cite->modif_INDIC;
+	}
+	else
+	{
+		/* le monstre avance */
+		monstre->avancement = (parcourue + aParcourir)/(double)d;
+		
+	}
+	return estSorti;
+}
+
+bool changerSegmentMonstre(Monstre *monstre, double reste, Carte *carte, Cite *cite)
+{
+	int nouveauNombreEtapes;
+	if( monstre->modif_INDIC_mem == cite->modif_INDIC )
+	{
+		/* si l'indicateur d'état est le même
+		* que celui enregistré la dernière fois,
+		* pas besoin de recalculer :
+		* on avance sur le parcours déjà enregistré.
+		*/
+		monstre->indiceEtape++;
+
+	}
+	else
+	{
+		/* on est contraint de recalculer le parcours */
+		libererVecteurEntier(monstre->parcours);
+		monstre->parcours = plusCourtChemin(monstre, carte, cite, &nouveauNombreEtapes);
+		
+		monstre->indiceEtape = 0;
+		monstre->nombreEtapes = nouveauNombreEtapes;
+		
+	}
+	if( monstre->indiceEtape == monstre->nombreEtapes )
+	{
+		/* le monstre est arrivé à la sortie, prudence !! */
+		/* que faire dans ce cas-là ?
+		* bon pour l'instant, on se contente de renvouyr un booléen.
+		*/
+		monstre->etat = estSorti;
+		return true;
+	}
+	/* on passe à l'étape suivante */
+	monstre->depart = monstre->arrivee;
+	monstre->arrivee = (carte->chemins)[  monstre->parcours[monstre->indiceEtape] ];
+	
+	/* on calcule le reste ? */
+	/* on va pas trop s'embêter pour l'instance,
+	* on considère qu'il est négligeable.
+	*/
+	monstre->avancement = 0;
+	/* le monstre n'est pas encore sorti */
+	return false;
+}
+
+
+int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour)
 {
 	int j, indiceMin, d;
 	Noeud *noeud, *voisin;
@@ -57,13 +135,14 @@ int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour **tours, in
 	/** Traitement **/
 	distances[noeud0->indice] = 0;
 	noeud = noeud0;
+
 	while( noeud )
 	{
 		listeVerifies[noeud->indice] = true;
 		for( j=0; j<noeud->nombreSuccesseurs; j++ )
 		{
 			voisin = noeud->successeurs[j];
-			d = distances[noeud->indice] == -1 ? -1 : distances[noeud->indice] + calculerDistancePonderee(noeud, voisin, tours, nombreTours);
+			d = distances[noeud->indice] == -1 ? -1 : distances[noeud->indice] + calculerDistancePonderee(noeud, voisin, listeTour);
 			if(  d != -1 && ( d < distances[voisin->indice] || distances[voisin->indice] == -1) )
 			{
 				distances[voisin->indice] = d;
@@ -94,19 +173,21 @@ void afficherVecteur(int *vecteur, int taille)
 	printf(")\n");
 }
 
-int calculerDistancePonderee(Noeud *noeud, Noeud *voisin, Tour **tours, int nombreTours)
+int calculerDistancePonderee(Noeud *noeud, Noeud *voisin, Tour *listeTour )
 {
-	int k;
 	int compteurToursPortee=0;
 	int distanceTour;
 	int distanceNoeud;
 	int distancePonderee;
 	/* calcul du nombre de tours dont le segment est à la portée */
-	for( k=0; k<nombreTours; k++ )
+	Tour *tour = listeTour;
+	while( tour )
 	{
-		distanceTour = calculerDistanceSegment( (tours[k])->coord, noeud->coord, voisin->coord );
-		if( distanceTour <= (int)(tours[k])->portee )
+		printf("Ddé !!!!\n");
+		distanceTour = calculerDistanceSegment( tour->coord, noeud->coord, voisin->coord );
+		if( distanceTour <= (int)tour->portee )
 			compteurToursPortee++;
+		tour = tour->suivante;
 	}
 	distanceNoeud = calculerDistance(noeud->coord, voisin->coord);
 	/* calcul de la longueur du segment 
@@ -137,27 +218,4 @@ int indiceMinDistance(int *listeVerifies, int *distances, int nombreNoeuds)
 	if( !trouve )
 		indiceMin = -1;
 	return indiceMin;
-}
-
-int* creerDistances(int nombreNoeuds)
-{
-	int i;
-	int* distances = malloc( nombreNoeuds * sizeof(int) );
-	if( !distances )
-	{
-		printf("Distances -- Échec d'allocation dynamique.\n");
-		exit(EXIT_FAILURE);
-	}
-	for( i=0; i<nombreNoeuds; i++ )
-	{
-		distances[i] = -1;
-	}
-	return distances;
-}
-
-
-
-void libererDistances(int *distances)
-{
-	free(distances);
 }
