@@ -101,12 +101,33 @@ int main(int argc, char *argv[])
 	printf(" Fait !\n");
 	/*****/
 
-	/*** Création d'une vague de monstres ***/
-	printf("Lancement d'une vague...\n");
+	/***Lancement du jeu ***/
+	printf("Lancement du jeu...");
+	lancerJeu(jeu);
+	afficherVague(jeu->chaine);
+	printf(" Fait !\n");
+	printf("\n--- TRAITEMENT ---\n");
+	deltaT = 0;
+	tempsEcoule = 0;
+	printf("Il était une fois\n");
+	printf("Une petite erreur de segmentation \n");
+	printf("L'étudiant voulait se débarrasser de cette erreur de segmentation.\n");
+	printf("Il y parvint finalement au prix de lourds efforts.\n");
+	while(1)
+	{
+		deltaT = clock() - tempsEcoule;
+		tempsEcoule = clock() - tempsDebut;
+		traitementJeu(jeu, deltaT);
+		//afficherVague(jeu->chaine);
+	}
+	
+
+
+
 
 	/*Fermeture des ressources ouvertes.*/
 	printf("Libération des ressources...");
-	libererCarte(carte);
+	libererJeu(jeu);
 	PPM_libererImage(imageCarte);
 	printf(" Fait !\n");
 
