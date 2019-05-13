@@ -30,7 +30,7 @@ bool validerChemins(Carte *carte, PPM_Image *imageCarte, int *nombreModif)
 		for(indiceSuccesseur=0; indiceSuccesseur < noeud->nombreSuccesseurs; indiceSuccesseur++)
 		{
 			noeudSuccesseur = noeud->successeurs[indiceSuccesseur];
-			valide = valide & bresenham_modifierSeg(imageCarte,carte->couleurClef, noeud->coord, noeudSuccesseur->coord, &compteurModif);
+			valide = valide & bresenham_modifierSeg(imageCarte,carte->couleurClef, noeud, noeudSuccesseur, &compteurModif);
 			
 		}
 	}
@@ -89,29 +89,75 @@ void sommetType(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],
 	}
 }
 
-
-bool bresenham_verifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, int *nombreInvalide)
+void liste_sommetType(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], Point *point, TypeNoeud listeTypes[], bool modifier, int *compteur)
 {
-	bresenham(imageCarte, couleurClef, p1, p2, false, nombreInvalide);
+	int i;
+	unsigned int ligne = point->y;
+	unsigned int colonne = point->x;
+
+	unsigned char couleur[NB_COULEURS];
+	TypeNoeud typeCorrect = (listeTypes[1] == intersection) ? coude : listeTypes[1];
+	bool correspond; 
+	if( ligne < imageCarte->hauteur
+		&& ligne >= 0
+		&& colonne < imageCarte->largeur
+		&& colonne >= 0)
+	{
+		/*On enregistre la valeur du point*/
+		PPM_accesCouleur( imageCarte, 
+						ligne, 
+						colonne, 
+						couleur );
+		/*Est-ce que la couleur correspond à un chemin ?*/
+		/* ATTENTION : on peut en fait avoir la couleur de chemin
+		* ou les couleurs des noeuds du segments
+		* trois possibilités au total
+		*/
+		correspond = false;
+		for( i=0; i<NB_COULEURS_SEGMENT; i++)
+		{
+			correspond  |= comparerCouleurs( couleur, couleurClef[correspondanceType(listeTypes[i])] );
+		}
+		if( !correspond )
+		{
+			//afficherCouleur(couleur); afficherCouleur(couleurClef[correspondanceType(typeCorrect)]);
+			/*On modifie la couleur selon le cas*/
+				if( modifier )
+						PPM_modifierCouleur(imageCarte,
+											ligne, 
+											colonne, 
+											couleurClef[correspondanceType(typeCorrect)]);
+				(*compteur)++;
+		}
+	}
+}
+
+
+bool bresenham_verifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Noeud *n1, Noeud *n2, int *nombreInvalide)
+{
+	bresenham(imageCarte, couleurClef, n1, n2, false, nombreInvalide);
 	if( *nombreInvalide ) /*si il y a au moins un point invalide*/
 		return false;
 	return true;
 }
 
 
-bool bresenham_modifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, int *nombreModif)
+bool bresenham_modifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Noeud *n1, Noeud *n2, int *nombreModif)
 {
-	bresenham(imageCarte, couleurClef, p1, p2, true, nombreModif);
+	bresenham(imageCarte, couleurClef, n1, n2, true, nombreModif);
 	if( *nombreModif )
 		return false;
 	return true;
 }
 
-void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, bool modifier, int *compteur)
+void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Noeud *n1, Noeud *n2, bool modifier, int *compteur)
 {
 	/* Adaptation de l'algorithme de bresenham (par valeurs entières) au problème 
 	* On généralise le cas du premier octant*/
 	
+	Point *p1 = n1->coord;
+	Point *p2 = n2->coord;
+
 	/**** Définitions dans le repère (O, x, y) ****/
 	int deltaX = (int)(p2->x - (int)p1->x);
 	int deltaY = (int)(p2->y - (int)p1->y);
@@ -154,7 +200,9 @@ void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], 
 	int ligne, colonne;
 	bool condition;
 	
-	TypeNoeud type = coude;
+	/* obsolète :*/
+	/*TypeNoeud type = coude;*/
+	TypeNoeud segmentType[NB_COULEURS_SEGMENT] = { n1->type, coude, n2->type};
 
 	Point *point = creerPoint(0,0);
 
@@ -173,9 +221,11 @@ void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], 
 		/*On ne modifie pas la couleur des noeuds, qui doivent correspondre à leur type*/
 		/*On vérifie ou modifie la couleur du point suivant le cas*/
 		if( g != g1 && g != g2 )
-			sommetType(imageCarte, couleurClef, point, type, modifier, compteur );
+		{
+			liste_sommetType(imageCarte, couleurClef, point, segmentType, modifier, compteur );
+		}
 		
-		/*Voir algorithme de Bresenham pour polus de détails*/
+		/*Voir algorithme de Bresenham pour plus de détails*/
 		epsilon += deltaP;
 		condition = 2*epsilon >= deltaG;
 		

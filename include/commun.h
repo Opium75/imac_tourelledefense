@@ -6,6 +6,7 @@
 #define max(a,b) a>b ? a : b
 #define min(a,b) a>b ? b : a
 #define abs(a) max(a,-a)
+#define plancher(a) a>0 ? a : 0
 
 
 /****** COULEURS ****/
@@ -27,7 +28,6 @@ static const char REP_DONNEES_CARTE[] = "./data"; /*répertoire des fichiers .it
 static const char REP_DONNEES_IMAGE[] = "./images";
 
 static const char CODE_PROJET[] = "@ITD";
-
 
 
 /**** ATTENTION : les éléments de MOTCLEFS et l'énum doivent rester dans le même ordre !! *******/
