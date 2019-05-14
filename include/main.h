@@ -10,3 +10,4 @@
 #include "jeu.h"
 #include "commun.h"
 #include "afficheCarte.h"
+#include "afficheElements.h"
