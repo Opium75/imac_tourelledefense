@@ -9,3 +9,4 @@
 #include "vague.h"
 #include "jeu.h"
 #include "commun.h"
+#include "afficheCarte.h"

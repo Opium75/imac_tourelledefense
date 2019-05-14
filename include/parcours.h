@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "monstre.h"
+#include "tour.h"
 #include "graphe.h"
 #include "carte.h"
 

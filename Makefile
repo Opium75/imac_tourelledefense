@@ -30,7 +30,6 @@ OBJ_PARCOURS = parcours.o
 OBJ_JEU = jeu.o
 ## Affiche carte
 OBJ_CARTE= afficheCarte.o
-EXEC_CARTE= afficheCarte ## à enlever après
 
 ### TOTAL
 SRC = $(wildcard $(SRCREP)*.c)
@@ -49,9 +48,6 @@ EXEC_ITD = itd
 # Regles compilation TD 05
 
 all :
-## à enlever après
-	afficheCarte : $(OBJDIR)$(OBJ_CARTE)
-	$(CC) $(CFLAGS) $(OBJDIR)$(OBJ_CARTE) -o $(BINDIR)$(EXEC_CARTE) $(LDFLAGS)
 
 itd : $(OBJREP)$(OBJ_MAIN) $(LISTE_OBJ)
 	$(CC) $(CFLAGS) $^ -o $(BINREP)$(EXEC_ITD) $(LDFLAGS)
