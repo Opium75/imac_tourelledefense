@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
 	
 
 	afficheCarte();
+	afficheElements();
 
 
 	/*** Chargement de l'image associée ***/
