@@ -1,6 +1,6 @@
 
-#include "afficheElements.h"
-#include "afficheCarte.h"
+#include "../include/afficheElements.h"
+#include "../include/afficheCarte.h"
 
 void matrixAffich(GLuint idElements, int posX, int posY){
 
