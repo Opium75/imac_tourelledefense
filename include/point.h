@@ -12,7 +12,7 @@
 
 typedef struct {
 	unsigned int x, y;
-} Point, *ListePoint;
+} Point, *ListePoint, Dimensions;
 
 /*points*/
 Point* creerPoint(unsigned int x, unsigned int y);

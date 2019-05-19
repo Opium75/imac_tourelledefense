@@ -68,7 +68,7 @@ typedef struct Monstre {
 
 Monstre* creerMonstre(TypeMonstre type, Noeud *depart);
 void libererMonstre( Monstre *monstre);
-void afficherMonstre(Monstre *monstre);
+void terminalMonstre(Monstre *monstre);
 
 unsigned int calculerVie(TypeMonstre type);
 int calculerVitesse(TypeMonstre type);

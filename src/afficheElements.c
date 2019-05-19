@@ -1,215 +1,345 @@
 
 #include "../include/afficheElements.h"
-#include "../include/afficheCarte.h"
 
-void matrixAffich(GLuint idElements, int posX, int posY){
+void drawOrigin()
+{
+    glBegin(GL_LINES);
+        /* Abscisses*/
+        glColor3f(255,0,0);
+        glVertex2f(0,0);
+        glVertex2f(10,0);
+        /* Ordonnées*/
+        glColor3f(0,255,0);
+        glVertex2f(0,0);
+        glVertex2f(0,10);
+    glEnd();
+}
 
-        int coordHG_X = posX-(image->w/2);
-        int coordHG_Y = posY+(image->h/2);
-        int coordBG_X = posX+(image->w/2);
-        int coordBG_Y = posY-(image->w/2);
-        int coordHD_X = posX+(image->w/2);
-        int coordHD_Y = posY+(image->w/2);
-        int coordBD_X = posX+(image->w/2);
-        int coordBD_Y = posY-(image->w/2);
+void afficherVague(Vague *vague, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+{
+    int k;
+    Monstre *monstre;
+    for( k=0; k<vague->nombreMonstres; k++ )
+    {
+        monstre = vague->monstres[k];
+        if( monstre->etat == enMouvement )
+            afficherMonstre(monstre, banqueAffichage, banqueTextures, dimImage);
+    }
+}
 
-        glPushMatrix();
+void afficherChaine(Chaine chaine, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+{
+    /** on se contentera d'affciher la première vague lancée */
+    while( chaine && chaine->etat != lancee )
+        chaine = chaine->suivante;
+    if( chaine )
+        afficherVague(chaine, banqueAffichage, banqueTextures, dimImage);
+}
+void afficherListeTour(ListeTour liste, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+{
+    while( liste )
+    {
+        afficherTour(liste, banqueAffichage, banqueTextures, dimImage);
+        liste = liste->suivante;
+    }
+}
 
-        glScalef(100.,100.,0.);
+void chargerRessourcesAffichage(SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[])
+{
+    /* création des listes des types de lutins, et dimensions */
+    TypeLutin listeType[NB_LUTINS];
+    Dimensions listeDim[NB_LUTINS];
+    remplirListeType(listeType);
+    remplirListeDimensions(listeDim, listeType);
+    /* */
 
-        glEnable(GL_TEXTURE_2D); // FAIRE POUR RECTANGLE ET A PARTIR DU CENTRE AVOIR COORD DES 4 PTS
-        glBindTexture(GL_TEXTURE_2D, idElements);
-        glBegin(GL_QUADS);  //GL_TRIANGLE_FAN
-            glTexCoord2f(0, 1);
-            glVertex2f(coordBG_X, coordBG_Y);
-            
-            glTexCoord2f(1, 1);
-            glVertex2f(coordBD_X, coordBD_Y);
-            
-            glTexCoord2f(1, 0);
-            glVertex2f(coordHD_X, coordHD_Y);
-            
-            glTexCoord2f(0, 0);
-            glVertex2f(coordHG_X, coordHG_Y);
-        glEnd(); 
-        glPopMatrix();
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_TEXTURE_2D);
+    /* chargement des textures */
+    chargerToutesTexturesLutins(lutins, banqueTextures);
+    remplirBanqueAffichage(banqueAffichage, banqueTextures, listeType, listeDim);
+}
 
+void libererRessourcesAffichage(SDL_Surface *lutins[],  GLuint banqueAffichage[], GLuint banqueTextures[])
+{
+    int k;
+    /* ON LIBÈRE LES TEXTURES PUIS LES IMAGES */
+    glDeleteTextures(NB_LUTINS, banqueTextures);
+    glDeleteLists(banqueAffichage, NB_LUTINS);
+    for( k=0; k<NB_LUTINS; k++ )
+    {
+        SDL_FreeSurface(lutins[k]);
+    }
+    
+}
+
+void remplirListeType(TypeLutin listeType[])
+{
+    int k;
+    for( k=0; k<NB_LUTINS; k++ )
+    {
+        listeType[k] = correspondanceTypeLutin(k);
+
+    }
+}
+
+void remplirListeDimensions(Dimensions listeDim[], TypeLutin listeType[])
+{
+    int k, indice;
+    for( k=0; k<NB_LUTINS; k++ )
+    {
+        switch( (listeType[k]).nature )
+        {
+            case LUT_tour :
+                listeDim[k].x = BASE_TAILLE_TOUR;
+                listeDim[k].y =  BASE_TAILLE_TOUR;
+                break;
+            case LUT_monstre :
+                listeDim[k].x = BASE_TAILLE_MONSTRE;
+                listeDim[k].y = BASE_TAILLE_MONSTRE;
+                break;
+            default :
+                printf("Échec de reconnaissance d'énumération (TypeLutin:nature).\n");
+                exit(EXIT_FAILURE);
+        }
+    }
 }
 
 
-int afficheElements(void) {
 
+void afficherCite(Cite *cite, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+{
+    /** on affichera pour l'instant que la liste des tours */
+    afficherListeTour(cite->listeTour, banqueAffichage, banqueTextures, dimImage);
+}
 
-    if (-1 == SDL_Init(SDL_INIT_VIDEO)) {
-        fprintf(stderr, "[Error] SDL not init\n");
-        return EXIT_FAILURE;
-    }
+void afficherMonstre(Monstre *monstre, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+{
+    /* on crée le type de lutin de toute pièce */
+    TypeLutin type;
+    type.nature = LUT_monstre;
+    type.typeMonstre = monstre->type;
 
+    /* on récupère les coordonnées du monstre */
+    Point coordMonstre;
+    calculerPositionMonstre(monstre, &coordMonstre);
+    /* on  affiche le monstre  */
 
-    /* Create OpenGl context */
-    SDL_Surface* surface;
-    surface = SDL_SetVideoMode(WINDOW_WIDTH , WINDOW_HEIGHT, 8, 
-        SDL_OPENGL | SDL_RESIZABLE | SDL_GL_DOUBLEBUFFER);
-    if (NULL == surface) {
-        fprintf(stderr, "[Error] SDL window is null\n");
-        return EXIT_FAILURE;
-    }
-    if (!gladLoadGL()) {
-        printf("[Error] Glad not init\n");
-		return EXIT_FAILURE;
-	}
+    afficherElement(type, &coordMonstre, banqueAffichage, banqueTextures, dimImage);
+}
 
-    printf("OpenGL version %s\n", glGetString(GL_VERSION));
-    printf("Glu version %s\n", gluGetString(GLU_VERSION));
-    SDL_WM_SetCaption(WINDOW_TITLE, NULL);
+void afficherTour(Tour *tour, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+{
+     int indice;
+    /* on crée le type de lutin de toute pièce */
+    TypeLutin type;
+    type.nature = LUT_tour;
+    type.typeTour = tour->type;
+    /* on  affiche le monstre  */
+    afficherElement(type, tour->coord, banqueAffichage, banqueTextures, dimImage);
+}
+
+void afficherElement(TypeLutin type, Point *coord, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+{
+    /* l'indice du dessin dans la banque d'affichage */
   
-    // ELEMENTS
-    GLuint idElements = glGenLists(6);
+    int indice = correspondanceIndiceLutin(type);
+    /* la correspondance entre coordonnées (x,y) et position sur l'écran */
+    double posX, posY;
 
-    //TOURB
-    glNewList(idElements, GL_COMPILE);
-    SDL_Surface* image = IMG_Load("imageTD/tourB.png");
-    if(image == NULL) {
-        printf("[Error] Logo not init\n");
-    }
-    glEndList();
-
-    //TOURJ
-    glNewList(idElements+1, GL_COMPILE);
-    SDL_Surface* image = IMG_Load("imageTD/tourJ.png");
-    if(image == NULL) {
-        printf("[Error] Logo not init\n");
-    }
-    glEndList();
-
-    //TOURV
-    glNewList(idElements+2, GL_COMPILE);
-    SDL_Surface* image = IMG_Load("imageTD/tourV.png");
-    if(image == NULL) {
-        printf("[Error] Logo not init\n");
-    }
-    glEndList();
-
-    //TOURR
-    glNewList(idElements+3, GL_COMPILE);
-    SDL_Surface* image = IMG_Load("imageTD/tourR.png");
-    if(image == NULL) {
-        printf("[Error] Logo not init\n");
-    }
-    glEndList();
-
-    //VIRUS1
-    glNewList(idElements+4, GL_COMPILE);
-    SDL_Surface* image = IMG_Load("imageTD/virus.png");
-    if(image == NULL) {
-        printf("[Error] Logo not init\n");
-    }
-    glEndList();    
-
-    //VIRUS2
-    glNewList(idElements+5, GL_COMPILE);
-    SDL_Surface* image = IMG_Load("imageTD/virus2.png");
-    if(image == NULL) {
-        printf("[Error] Logo not init\n");
-    }
-    glEndList();
-
-
-    glViewport(0, 0, (surface)->w, (surface)->h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(
-        -GL_VIEW_WIDTH / 2, GL_VIEW_WIDTH / 2, 
-        -GL_VIEW_HEIGHT / 2, GL_VIEW_HEIGHT / 2);
-
-
-    glGenTextures(6, &idElements);
-    glBindTexture(GL_TEXTURE_2D, idElements); // FAIRE POUR CHAQUE TEXTURE
-    glBindTexture(GL_TEXTURE_2D, idElements+1);
-    glBindTexture(GL_TEXTURE_2D, idElements+2);
-    glBindTexture(GL_TEXTURE_2D, idElements+3);
-    glBindTexture(GL_TEXTURE_2D, idElements+4);
-    glBindTexture(GL_TEXTURE_2D, idElements+5);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    glTexImage2D(
-    GL_TEXTURE_2D , 0, GL_RGBA,
-    image->w, image->h, 0,
-    GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
-
+    calculerCoordonneesVirtuelles(coord, &posX, &posY, dimImage);
+    /* affichage prenant en compte les coordonn)ées de l'élémenent */
     
-    /* Main loop */
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
-    
-
-
-
-    const Uint32 TARGET_FRAMERATE_MS = 1000 / 60;
-    int loop = 1;
-    while (loop) {   
-        Uint32 startTime = SDL_GetTicks();
-
-        glClear(GL_COLOR_BUFFER_BIT);
-
-    
-       /* glPushMatrix();
-
-        glScalef(100.,100.,0.);
-
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, idLogo);
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f( 0.5 , -0.5);
-            glTexCoord2f(0,0);
-            glVertex2f( 0.5 , 0.5);
-            glTexCoord2f(0,1);
-            glVertex2f( -0.5 , 0.5);
-            glTexCoord2f(1,1);
-            glVertex2f( -0.5 , -0.5);
-            glTexCoord2f(1,0);
-            glVertex2f( 0.5 , -0.5);
-          glEnd(); 
+    glPushMatrix();
+        /* On part du point en haut à gauche
+        * de la fenêtre virtuelle,
+        * d'où les deux soustractions
+        */
+        glTranslatef(posX - GL_VIEW_WIDTH/2, -(posY - GL_VIEW_HEIGHT/2), 0.);
+        /* on appelle la liste d'affichage qui contient le lutin */
+        glPushMatrix();
+             glCallList(banqueAffichage[indice]);
         glPopMatrix();
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_TEXTURE_2D);*/
+    glPopMatrix();
+}
 
+void calculerCoordonneesVirtuelles(Point *coord, double *posX, double *posY, Dimensions *dimImage)
+{
+    *posX = (coord->x/(double)dimImage->x)*GL_VIEW_WIDTH;
+    *posY = (coord->y/(double)dimImage->y)*GL_VIEW_HEIGHT;
+}
 
-        /* Update window */
-        SDL_GL_SwapBuffers();
-        
-        /* Handle events */
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if(e.type == SDL_QUIT) {
-                loop = 0;
-                break;
-            }
-            
-            switch (e.type) {
-                case SDL_MOUSEBUTTONUP:
-                    printf("clic en (%d, %d)\n", e.button.x, e.button.y);
-                    // FONCTION POUR LES PUSH MATRIX          
-                    matrixAffich(idElements, e.button.x, e.button.y);
-                    break;
-
-                default:
-                    break;
-            }
-
-        }
-
-        Uint32 elapsedTime = SDL_GetTicks() - startTime;
-        /* Pause the program if the framerate is too low */
-        if (elapsedTime < TARGET_FRAMERATE_MS) 
-        {
-            SDL_Delay(TARGET_FRAMERATE_MS - elapsedTime);
-        }
+void remplirBanqueAffichage(GLuint banqueAffichage[], GLuint banqueTextures[], TypeLutin listeType[], Dimensions listeDim[])
+{
+    int k, indice;
+    GLuint id;
+    /***    POURQUOI ÀÇA MARCHE PAS ARHJAGR ***/
+    for( k=0; k<NB_LUTINS; k++)
+    {
+        /* on crée la liste d'affichage pour le lutin */
+        banqueAffichage[k] = glGenLists(1);
+        /* dessiner les lutins */
+        glNewList(banqueAffichage[k], GL_COMPILE);
+            dessinerLutinEchelle(banqueTextures[k], listeType[k], listeDim[k]);
+        glEndList();
     }
+}
+
+
+void  dessinerLutinEchelle(GLuint idTexture, TypeLutin type, Dimensions dim)
+{
+    /* on prend ici en compte la taille de l'image, de l'écran etc..*/
+    double propX, propY;
+    int centrerX, centrerY;
+    centrerX = -(int)dim.x/2;
+    centrerY = -(int)dim.y/2;
+    printf("(%d, %d)\n", centrerX, centrerY);
+    propX = dim.x/(double)WINDOW_WIDTH;
+    propY = dim.y/(double)WINDOW_WIDTH;
+    /** DESSIN **/
     
-    SDL_FreeSurface(image);
-    glDeleteTextures(1, &idElements);
-    SDL_Quit();
-    return EXIT_SUCCESS;
+    glPushMatrix();
+        glScalef(propX, propY, 1.);
+        glPushMatrix();
+            glTranslatef(centrerX, centrerY, 0.);
+            /* on le dessine en prenant en compte les transformations d'échelle */
+            dessinerLutin(idTexture, type);
+        glPopMatrix();
+    glPopMatrix();
+}
+
+
+void dessinerLutin(GLuint idTexture, TypeLutin type)
+{
+    /* On va le dessiner en carré, aux dimensions de la fenêtre virtuelle.  */
+    double debut = 0., taille = 1.;
+    double largeur = GL_VIEW_WIDTH, hauteur = GL_VIEW_HEIGHT;
+    glEnable(GL_TEXTURE_2D);
+    glEnable (GL_BLEND); 
+        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+        glBindTexture(GL_TEXTURE_2D, idTexture);
+            glBegin(GL_QUADS);
+                glTexCoord2f(debut, debut);
+                    glVertex2f(-largeur/2, hauteur/2);
+               glTexCoord2f(debut + taille, debut);
+                    glVertex2f(largeur/2, hauteur/2);
+               glTexCoord2f(debut + taille, debut + taille);
+                    glVertex2f(largeur/2, -hauteur/2);
+               glTexCoord2f(debut, debut + taille);
+                    glVertex2f(-largeur/2, -hauteur/2);
+            glEnd();    
+        glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+}
+
+void chargerToutesTexturesLutins(SDL_Surface *lutins[], GLuint banqueTextures[])
+{
+    int k;
+    TypeLutin type;
+    for( k=0; k<NB_LUTINS; k++ )
+    {
+        type = correspondanceTypeLutin(k);
+        lutins[k]  = chargerTextureLutin( &(banqueTextures[k]), type );
+    }
+}
+
+SDL_Surface* chargerTextureLutin(GLuint *idTexture, TypeLutin type)
+{
+    SDL_Surface* lutin; 
+    /** CHEMIN **/
+    char cheminLutin[MAX_TAILLE_CHEMIN_FICHIER];
+    /* on construit le chemin du lutin */
+    correspondanceCheminLutin(cheminLutin, type);
+    /** VÉRIF **/
+    printf("%s\n", cheminLutin);
+    /** CHARGEMENT MÉMOIRE VIVE **/
+    lutin = IMG_Load(cheminLutin);
+    if( !lutin )
+    {
+        printf("Lutin -- Échec d'ouverture au chemin : %s.\n", cheminLutin);
+        exit(EXIT_FAILURE);
+    }
+    /** CHARGEMENT MÉMOIRE GRAPHIQUE (?) **/
+    glGenTextures( (GLsizei) 1, idTexture);
+    glBindTexture(GL_TEXTURE_2D, *idTexture);
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D( GL_TEXTURE_2D,
+                    0,
+                    GL_RGBA,
+                    lutin->w,
+                    lutin->h,
+                    0,
+                    GL_RGBA,
+                    GL_UNSIGNED_BYTE,
+                    lutin->pixels
+                    );
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return lutin;
+}
+
+void libererToutesTexturesLutins(GLuint banqueTextures[])
+{
+    glDeleteTextures(NB_LUTINS, banqueTextures);
+}
+
+void libererToutesImagesLutins(SDL_Surface *lutins[])
+{
+    int k;
+    for( k=0; k<NB_LUTINS; k++ )
+    {
+        SDL_FreeSurface(lutins[k]);
+    }
+}
+
+TypeLutin correspondanceTypeLutin(int indice)
+{
+    TypeLutin type;
+    int k;
+    if( indice < NB_LUTINS_MONSTRE )
+        type.nature = LUT_monstre;
+    else if( indice < NB_LUTINS_MONSTRE + NB_LUTINS_TOUR )
+    {
+        type.nature = LUT_tour;
+        type.typeTour = indice - NB_LUTINS_MONSTRE;
+    }
+    return type;
+}
+
+int correspondanceIndiceLutin(TypeLutin type)
+{
+    int indice;
+    if( type.nature == LUT_monstre )
+    {
+        indice = 0;
+    }
+    else if( type.nature == LUT_tour )
+    {
+        indice = type.typeTour;
+    }
+    return indice;
+}
+
+
+void correspondanceCheminLutin(char *cheminLutin, TypeLutin type)
+{
+    int indice;
+    indice = correspondanceIndiceLutin(type);
+    /* on construit le chemin du lutin */
+    strcpy(cheminLutin, REP_LUTIN);
+   
+    /* non suivant le type du lutin */
+    switch(type.nature)
+    {
+        case LUT_tour :
+            strncat(cheminLutin, CHEMIN_IMAGE_TOUR, MAX_TAILLE_CHEMIN_FICHIER);
+            strncat(cheminLutin, NOM_IMAGE_TOUR[type.typeTour], MAX_TAILLE_NOM_FICHIER);
+            break;
+        case LUT_monstre :
+            strncat(cheminLutin, CHEMIN_IMAGE_MONSTRE, MAX_TAILLE_CHEMIN_FICHIER);
+            strncat(cheminLutin, NOM_IMAGE_MONSTRE[0], MAX_TAILLE_NOM_FICHIER);
+            break;
+        default :
+            printf("NOoooon\n");
+            exit(EXIT_FAILURE);
+    }
+    strncat(cheminLutin, EXTENTION, MAX_TAILLE_NOM_FICHIER);
 }

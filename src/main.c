@@ -1,6 +1,5 @@
 #include "../include/main.h"
 
-#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
@@ -9,10 +8,6 @@ int main(int argc, char *argv[])
 	char nomDonnees[MAX_TAILLE_NOM_FICHIER];
 	char cheminDonnees[MAX_TAILLE_CHEMIN_FICHIER];
 	char cheminImage[MAX_TAILLE_CHEMIN_FICHIER];
-
-
-	
-
 	
 	/*** JEU ***/
 	Jeu *jeu;
@@ -28,10 +23,6 @@ int main(int argc, char *argv[])
 	int nombreModif;
 
 	/** TEMPS **/
-	clock_t tempsDebut = clock();
-	clock_t tempsEcoule;
-	clock_t deltaT;
-
 	/* on initialise la graine pour le tirage pseudo-aléatoire */
 	srand(time(NULL));
 
@@ -76,13 +67,15 @@ int main(int argc, char *argv[])
 	printf(" Fait !\n");
 	/*Lecture de l'image associée*/
 	printf("Lecture des données image...");
-	if( !PPM_lireImage(fichierImage, &imageCarte) )
+	if( !PPM_lireImage(fichierImage, &(jeu->image) ) )
 		return EXIT_FAILURE;
-	
 
-	afficheCarte();
-	afficheElements();
-
+	/** VÉRIFICATIONS **/
+	if( !validerChemins(jeu->carte, jeu->image, &nombreModif) )
+	{
+		printf("IMAGE INCORRECTE (modifications : %d)\n", nombreModif);
+		return EXIT_FAILURE;
+	}
 
 	/*** Chargement de l'image associée ***/
 	printf("Ouverture de la modification...");
@@ -96,7 +89,7 @@ int main(int argc, char *argv[])
 	printf(" Fait !\n");
 	/*Lecture de l'image associée*/
 	printf("Écriture des données image...");
-	if( !PPM_ecrireImage(fichierImageSortie, imageCarte) )
+	if( !PPM_ecrireImage(fichierImageSortie, jeu->image ) )
 		return EXIT_FAILURE;
 	fclose(fichierImageSortie);
 	printf(" Fait !\n");
@@ -105,23 +98,14 @@ int main(int argc, char *argv[])
 	/***Lancement du jeu ***/
 	printf("Lancement du jeu...");
 	lancerJeu(jeu);
-	afficherVague(jeu->chaine);
+	//terminalVague(jeu->chaine);
 	printf(" Fait !\n");
 	printf("\n--- TRAITEMENT ---\n");
-	deltaT = 0;
-	tempsEcoule = 0;
-	printf("Il était une fois\n");
+	/*printf("Il était une fois\n");
 	printf("Une petite erreur de segmentation \n");
 	printf("L'étudiant voulait se débarrasser de cette erreur de segmentation.\n");
-	printf("Il y parvint finalement au prix de lourds efforts.\n");
-	while(1)
-	{
-		deltaT = clock() - tempsEcoule;
-		tempsEcoule = clock() - tempsDebut;
-		traitementJeu(jeu, deltaT);
-		//afficherVague(jeu->chaine);
-	}
-	
+	printf("Il y parvint finalement au prix de lourds efforts.\n");*/
+	boucleJeu(jeu);
 
 
 
@@ -129,9 +113,7 @@ int main(int argc, char *argv[])
 	/*Fermeture des ressources ouvertes.*/
 	printf("Libération des ressources...");
 	libererJeu(jeu);
-	PPM_libererImage(imageCarte);
 	printf(" Fait !\n");
-
 
 	return EXIT_SUCCESS;
 }

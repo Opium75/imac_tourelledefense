@@ -131,7 +131,7 @@ bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, 
 					/* si tous les monstres n'ont pas été déployés */
 					monstre = vague->monstres[j];
 					deployerMonstre(monstre, carte, cite);
-					//afficherVague(vague);
+					//terminalVague(vague);
 					
 				}
 				vague->tempsPause_acc = 0;
@@ -167,7 +167,7 @@ bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, 
 		//printf("Ceci n'est pas un message : %lf ?\n", calculerTempsSecondes(deltaT +vague->tempsEntracte_acc));
 		if( conditionEntracte )
 		{
-				//afficherVague(vague);
+				//terminalVague(vague);
 				lancerVague(vague, carte, cite);
 		}
 		vague->tempsEntracte_acc = conditionEntracte ? 0 : vague->tempsEntracte_acc + deltaT;
@@ -260,7 +260,7 @@ void libererChaine(Chaine chaine)
 	}
 }
 
-void afficherVague(Vague *vague)
+void terminalVague(Vague *vague)
 {
 	int indice;
 	printf("--- AFFICHAGE VAGUE ---\n");
@@ -281,7 +281,7 @@ void afficherVague(Vague *vague)
 	printf("Monstres : (nombre = %d)\n", vague->nombreMonstres);
 	for( indice=0; indice<vague->nombreMonstres; indice++ )
 	{
-		afficherMonstre(vague->monstres[indice]);
+		terminalMonstre(vague->monstres[indice]);
 	}
 	/*** Suivante ***/
 	/*printf("Suivante : \n");*/

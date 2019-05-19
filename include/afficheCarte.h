@@ -25,8 +25,11 @@ static const unsigned int BIT_PER_PIXEL = 32;
 /* Nombre minimal de millisecondes separant le rendu de deux images */
 static const Uint32 FRAMERATE_MILLISECONDS = 1000 / 60;
 
+SDL_Surface* lancerAffichage(void);
+void fermerAffichage(SDL_Surface *scene);
+
 void reshape(SDL_Surface** surface, unsigned int width, unsigned int height);
 
-int afficheCarte(void);
+int afficherCarte(void);
 
 #endif

@@ -98,7 +98,7 @@ void enleverVague(int indiceVague, Chaine chaine);
 void libererChaine(Chaine chaine);
 /** **/
 
-void afficherVague(Vague *vague);
+void terminalVague(Vague *vague);
 
 /* passage de temps processeur par unité de longueur à unité de longueur par secondes */
 double calculerTempsSecondes(clock_t temps);

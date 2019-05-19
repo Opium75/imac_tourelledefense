@@ -19,7 +19,7 @@ void libererCarte(Carte *carte)
 	free(carte);
 }
 
-void afficherCarte(Carte *carte)
+void terminalCarte(Carte *carte)
 {
 	MotClef MC_lu;
 	printf("\n--- AFFICHAGE CARTE ---\n");

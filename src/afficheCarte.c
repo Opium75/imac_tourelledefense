@@ -33,7 +33,34 @@ void reshape(SDL_Surface** surface, unsigned int width, unsigned int height)
     }
 }
 
-int afficheCarte(void) 
+SDL_Surface* lancerAffichage(void)
+{
+    /* Initialisation SDL*/
+    if( -1 == SDL_Init(SDL_INIT_VIDEO))
+    {
+        printf("Eh non en fait casse-toi");
+        exit(EXIT_FAILURE);
+    }
+
+    /*ouverture fenêtre et création contexte OpenGL*/
+    SDL_Surface *scene;
+
+    reshape(&scene, WINDOW_WIDTH, WINDOW_HEIGHT); /* valeurs par défaut*/
+    SDL_WM_SetCaption(WINDOW_TITLE, NULL); /* titre fenêtre*/
+
+    glMatrixMode(GL_MODELVIEW);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    return scene;
+}
+
+void fermerAffichage(SDL_Surface *scene)
+{
+    SDL_FreeSurface(scene);
+    SDL_Quit();
+}
+
+int afficherCarte(void) 
 {
     /* Initialisation de la SDL */
     if(-1 == SDL_Init(SDL_INIT_VIDEO)) 
@@ -49,7 +76,7 @@ int afficheCarte(void)
     reshape(&surface, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     // Image 
-    SDL_Surface* image = IMG_Load("../images/carteTD.png");
+    SDL_Surface* image = IMG_Load("./images/carteTD.png");
 
     if (image == NULL){
         printf("Oh no :( \n");
@@ -62,7 +89,7 @@ int afficheCarte(void)
     GLuint texture1;
     glGenTextures(1, &texture1);
 
-     glBindTexture(GL_TEXTURE_2D, texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 

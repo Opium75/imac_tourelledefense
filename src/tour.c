@@ -64,10 +64,9 @@ void attaquerMonstres(ListeTour liste, clock_t deltaT, Monstre **monstres, int n
 void traitementListe(ListeTour *liste, clock_t deltaT, Monstre **monstres, int nombreMonstres)
 {
  	Tour *tour;
- 	/**
-
+ 	/** **/
  	/** On cible et attaque les monstres **/
- 	attaquerMonstres(&liste, deltaT, monstres, nombreMonstres);
+ 	attaquerMonstres(*liste, deltaT, monstres, nombreMonstres);
 }
 
 

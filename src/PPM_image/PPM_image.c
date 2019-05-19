@@ -19,18 +19,17 @@ PPM_Image* PPM_creerImage(unsigned int largeur,unsigned int hauteur)
 			exit(EXIT_FAILURE);
 		}
 	}
-	img->largeur = largeur;
-	img->hauteur = hauteur;
+	img->dim = creerPoint(largeur, hauteur);
 	return img;
 }
 
 void PPM_afficherImage(PPM_Image *img) 
 {
 	int i,j;
-	printf("Format : %u x %u.\n",img->largeur,img->hauteur);
+	printf("Format : %u x %u.\n",img->dim->x,img->dim->y);
 	for(i=0;i<NB_COULEURS;i++) 
 	{
-		for(j=0;j<img->largeur*img->hauteur;j++) 
+		for(j=0;j<img->dim->x*img->dim->y;j++) 
 		{
 			printf("%hhu ",*((img->canaux[i])+j));
 		}
@@ -50,7 +49,7 @@ void PPM_libererImage(PPM_Image *img)
 void PPM_lireCanaux(FILE *src, PPM_Image *img) 
 {
 	int j, canal;
-	for(j=0;j<img->largeur*img->hauteur;j++) 
+	for(j=0;j<img->dim->x*img->dim->y;j++) 
 	{
 		for(canal=0; canal<NB_COULEURS; canal++)
 		{
@@ -78,7 +77,7 @@ bool PPM_lireImage(FILE *src, PPM_Image **img)
 void PPM_ecrireCanaux(FILE *dest, PPM_Image *img) 
 {
 	int j, canal;
-	for(j=0;j<img->largeur*img->hauteur;j++) 
+	for(j=0;j<img->dim->x*img->dim->y;j++) 
 	{
 		for(canal=0; canal<NB_COULEURS; canal++)
 		{
@@ -88,7 +87,7 @@ void PPM_ecrireCanaux(FILE *dest, PPM_Image *img)
 }
 
 bool PPM_ecrireImage(FILE *dest, PPM_Image*img) {
-	PPM_ecrireEntete(dest,img->largeur,img->hauteur);
+	PPM_ecrireEntete(dest,img->dim->x,img->dim->y);
 	PPM_ecrireCanaux(dest,img);
 	/*PPM_libererImage(img);*/
 	return true;
@@ -100,7 +99,7 @@ void PPM_accesCouleur(PPM_Image *img, unsigned int ligne, unsigned int colonne, 
 	int c;
 	for(c=0; c<NB_COULEURS; c++)
 	{
-		couleur[c] = img->canaux[c][img->largeur*ligne + colonne];
+		couleur[c] = img->canaux[c][img->dim->x*ligne + colonne];
 	}
 }
 
@@ -109,6 +108,6 @@ void PPM_modifierCouleur(PPM_Image *img, unsigned int ligne, unsigned int colonn
 	int c;
 	for(c=0; c<NB_COULEURS; c++)
 	{
-		img->canaux[c][img->largeur*ligne + colonne] = couleur[c];
+		img->canaux[c][img->dim->x*ligne + colonne] = couleur[c];
 	}
 }

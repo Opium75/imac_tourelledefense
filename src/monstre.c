@@ -44,7 +44,7 @@ void calculerPositionMonstre(Monstre *monstre, Point *coord)
 	coord->y = y;
 }
 
-void afficherMonstre(Monstre *monstre)
+void terminalMonstre(Monstre *monstre)
 {
 	int j;
 	Point positionMonstre;
