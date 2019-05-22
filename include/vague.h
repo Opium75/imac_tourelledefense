@@ -9,6 +9,7 @@
 #include "graphe.h"
 #include "monstre.h"
 #include "tour.h"
+#include "cite.h"
 #include "parcours.h"
 
 /* J'ai modifié quelques trucs :
@@ -21,8 +22,6 @@
 /* J'ai aussi changé les types pour les faire correspondre
 * à ce dont on va se servir (Noeud, Monstre, etc)
 */
-/* J'ai pas compris à quoi correspondait les coord ?
-*/
 /*Rajouté un niveau, qui permettra de modifier les tempsLimite, les monstres,
 * et un temps entre l'arrivé de deux monstres
 */
@@ -31,13 +30,31 @@
 */
 
 #define TAILLE_VAGUE_BASE 10
-#define TEMPS_LIMITE_BASE 20 /*en secondes*/
-#define TEMPS_PAUSE_BASE 20 /*en secondes*/
+#define TEMPS_PAUSE_BASE 4 /*en secondes*/
 #define NB_MAX_MONSTRES 50
+
+/* une constante de temps entre cle moment où la dernière vague s'achêve
+* et la prochaine vague se lance */
+#define TEMPS_ENTRACTE 5 /* secondes */
+
+/* c'est pourri comme énum, mais bon. */
+typedef enum {nonLancee, lancee} EtatVague;
+
+#define NB_ETATS_VAGUE 2
+
+static const char *ETAT_VAGUE[] = {"Non lancée ","Lancée"};
 
 typedef struct _VAGUE {
 	unsigned char niveau;
-	unsigned int tempsLimite, tempsPause;
+	/* temps de pause entre le déploiement d echaque monstre */
+	clock_t tempsPause;
+	clock_t tempsPause_acc;
+	/* quand la vague n'est pas encore lancée,
+	* on augmente l'acc jusqu''à c equ'il atteingne TEMPS_ENTRACTE
+	*/
+	clock_t tempsEntracte_acc;
+	/* pour savoir si la vague a été déployée */
+	EtatVague etat;
 	/* Les monstres peuvent venir de plusieurs entrées*/
 	Noeud **entrees;
 	/* le noeud de sortie de la carte.  */
@@ -46,6 +63,7 @@ typedef struct _VAGUE {
 	/* Voir ici un tableau dynamique de pointeurs sur Monstre*/
 	Monstre **monstres;
 	int nombreMonstres;
+	//int indiceMonstreDeployer; non, on calculera à chaque fois.
 	struct _VAGUE *suivante;
 } Vague, *Chaine;
 
@@ -53,25 +71,39 @@ typedef struct _VAGUE {
 Vague* creerVague(unsigned char niveau, Carte *carte);
 void libererVague(Vague *vague);
 /*initialise le parcours des monstres de la vague */
-void lancerVague(Vague *vague, unsigned char niveau, Carte *carte, Tour **tours, int nombreTours);
+void lancerVague(Vague *vague, Carte *carte, Cite *cite);
+bool estTerminee(Vague *vague);
 
+void deployerMonstre(Monstre *monstre, Carte *carte, Cite *cite);
+int accesIndiceDeploiement(Vague *vague);
 
 /** VAGUE comme CHAÎNE **/
+
+bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, unsigned char *niveau, int *pointage, int *argent);
+
 int longueurChaine(Vague *vague);
 
+/* ajoute en dernière place à la chaîne  */
+void ajouterVague(Vague *vague, Chaine chaine);
 /* libère la première vague d'une chaîne
 * et fait pointer la chaine vers la seconde
 * (comme un << pop >>)
 */
-void enleverPremiereVague(Chaine *chaine);
-/* idem mais pour une indice NON NUL */
+void supprimerPremiereVague(Chaine *chaine);
+void supprimerVagueSuivante(Chaine chaine);
+
+
+/* obsolète */
 void enleverVague(int indiceVague, Chaine chaine);
+void libererChaine(Chaine chaine);
 /** **/
 
-void afficherVague(Vague *vague);
+void terminalVague(Vague *vague);
 
-unsigned int calculerTempsLimite(unsigned char niveau);
-unsigned int calculerTempsPause(unsigned char niveau);
+/* passage de temps processeur par unité de longueur à unité de longueur par secondes */
+double calculerTempsSecondes(clock_t temps);
+
+clock_t calculerTempsPause(unsigned char niveau);
 int calculerNombreEntrees(int nombreEntreesTotal);
 int calculerNombreMonstres(unsigned char niveau);
 
@@ -81,4 +113,4 @@ Monstre** creerMonstresVague(unsigned char niveau, int *nombreMonstres, Noeud **
 void libererMonstresVague(int nombreMonstres, Monstre **monstres);
 void libereEntreesVague(int nombreEntreesVague, Noeud **entrees);
 
-#endif		
+#endif

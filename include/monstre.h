@@ -7,15 +7,22 @@
 /* pour la génération pseudo-aléatoire */
 #include <time.h>
 
+#include "couleur.h"
 #include "point.h"
 #include "graphe.h"
 
-typedef enum {M1, M2} TypeMonstre; 
+typedef enum {M1, M2} TypeMonstre;
+
+typedef enum {estVaincu, estSorti, enAttente, enMouvement} EtatMonstre;
 
 #define NB_TYPES_MONSTRE 2
+#define NB_ETATS_MONSTRE 4
+
 #define NB_TYPES_TOUR 4
 
 static const char *TYPE_MONSTRE[] = {"M1", "M2"};
+
+static const char *ETAT_MONSTRE[] = {"Vaincu", "Sorti", "En attente", "En mouvement"};
 
 
 
@@ -23,16 +30,25 @@ static const char *TYPE_MONSTRE[] = {"M1", "M2"};
 #define VIE_BASE 1
 #define VITESSE_BASE 1
 #define RESISTANCE_BASE 1
+#define ATTAQUE_BASE 1
 static const unsigned int VIE_TYPE[NB_TYPES_MONSTRE] = {1, 2};
 static const unsigned int VITESSE_TYPE[NB_TYPES_MONSTRE] = {2, 1};
 static const unsigned int RESISTANCES_TYPE[NB_TYPES_MONSTRE][NB_TYPES_TOUR] = { {4, 4, 4, 4},
 																				 {2, 4, 1, 8} };
-																				
+static const unsigned int ATTAQUE_TYPE[NB_TYPES_TOUR] = {1, 2};
+
+
 typedef struct Monstre {
-	unsigned int vieMax, vitesse;
-	int vie;
+	unsigned int vieMax;
+	/*
+	* plutôt unité de longueur  PAR un temps (en tours de processeur)
+	*/
+	int vitesse;
+	int vie, attaque;
 	unsigned int  resistances[NB_TYPES_TOUR];
 	TypeMonstre type;
+	/* rajouté pour connaître son état à un instant donné */
+	EtatMonstre etat;
 	/*un montre se trouve dans un segment -> entre deux noeuds*/
 	Noeud *depart, *arrivee;
 	/* à un pourcentage d'avancement sur ce segment
@@ -46,22 +62,29 @@ typedef struct Monstre {
 	int *parcours;
 	int nombreEtapes;
 	int indiceEtape;
+	/* cella là c'est pour savoir
+	* si l'on doit recalculer le chemin à une intersection.
+	*/
+	unsigned char modif_INDIC_mem;
 } Monstre;
 
 Monstre* creerMonstre(TypeMonstre type, Noeud *depart);
 void libererMonstre( Monstre *monstre);
-void afficherMonstre(Monstre *monstre);
+void terminalMonstre(Monstre *monstre);
 
 unsigned int calculerVie(TypeMonstre type);
-unsigned int calculerVitesse(TypeMonstre type);
+int calculerVitesse(TypeMonstre type);
+int calculerAttaque(TypeMonstre type);
 void calculerResistances(unsigned int resistances[], TypeMonstre type);
+
+void attaquerJoueur(Monstre *monstre, int *pointage, int *argent);
+
 
 /*correspondance avec les coordonnées du monstre */
 void calculerPositionMonstre(Monstre *monstre, Point *coord);
-unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement);
 
 /* utilisées dans les Vagues */
-TypeMonstre calculerTypeMonstre();
+TypeMonstre calculerTypeMonstre(void);
 Noeud* calculerEntreeMonstre(Noeud **entrees, int nombreEntreesVague);
 
 #endif

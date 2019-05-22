@@ -1,7 +1,7 @@
 #include "../include/carte.h"
 
 
-Carte* allouerCarte()
+Carte* allouerCarte(void)
 {
 	Carte *carte = malloc(sizeof(Carte));
 	if( !carte )
@@ -19,7 +19,7 @@ void libererCarte(Carte *carte)
 	free(carte);
 }
 
-void afficherCarte(Carte *carte)
+void terminalCarte(Carte *carte)
 {
 	MotClef MC_lu;
 	printf("\n--- AFFICHAGE CARTE ---\n");

@@ -21,10 +21,10 @@ typedef struct {
 } Carte;
 
 /*Fonctions structure Carte*/
-Carte* allouerCarte();
+Carte* allouerCarte(void);
 void libererCarte(Carte *carte);
 
-void afficherCarte(Carte *carte); /*affichage sur console*/
+void terminalCarte(Carte *carte); /*affichage sur console*/
 
 MotClef correspondanceType(TypeNoeud type);
 

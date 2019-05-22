@@ -6,12 +6,9 @@
 #define max(a,b) a>b ? a : b
 #define min(a,b) a>b ? b : a
 #define abs(a) max(a,-a)
+#define plancher(a) a>0 ? a : 0
 
 
-/****** COULEURS ****/
-
-#define NB_COULEURS 3 /*égal à 3 et ne pas modifier*/
-typedef enum {rouge, vert, bleu} Couleur;
 
 /***** CARTES *******/
 
@@ -21,13 +18,11 @@ typedef enum {rouge, vert, bleu} Couleur;
 
 #define CODE_COM '#'
 #define CODE_SAUT_LIGNE '\n' /*ne pas modifier*/
-#define MAX_VAL_COULEUR 255 /* garder <= 255 */
 
 static const char REP_DONNEES_CARTE[] = "./data"; /*répertoire des fichiers .itd*/
 static const char REP_DONNEES_IMAGE[] = "./images";
 
 static const char CODE_PROJET[] = "@ITD";
-
 
 
 /**** ATTENTION : les éléments de MOTCLEFS et l'énum doivent rester dans le même ordre !! *******/

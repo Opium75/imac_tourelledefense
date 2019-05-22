@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+#include "../point.h"
 #include "PPM_entete.h"
 #include "../commun.h"
 
@@ -14,6 +16,7 @@
 
 typedef struct {
 	unsigned int largeur, hauteur;
+	Dimensions *dim;
 	unsigned char *canaux[NB_COULEURS];
 } PPM_Image;
 

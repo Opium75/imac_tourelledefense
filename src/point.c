@@ -25,6 +25,13 @@ int calculerDistance(Point *p1, Point *p2)
 	return distance;
 }
 
+int calculerDistanceCarree(Point *p1, Point *p2)
+{
+	int distanceCarree;
+	distanceCarree = (int)(pow( (int)p2->x - p1->x, 2 ) + pow( (int)p2->y - p1->y, 2 ) );
+	return distanceCarree;
+}
+
 Point* creerProjeteOrtho(Point *point, Point *segP1, Point *segP2)
 {
 	int deltaX = (int)segP2->x - (int)segP1->x;
@@ -50,9 +57,20 @@ int calculerDistanceSegment(Point *point, Point *segP1, Point *segP2)
 	return distanceSegment;
 }
 
+unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement)
+{
+	unsigned int c = (unsigned int)(((int)b - (int)a)*avancement) + a;
+	return c;
+}
+
 void libererPoint(Point *point)
 {
 	free(point);
+}
+
+void afficherPoint(Point *point)
+{
+	printf(" (%u, %u)\n", point->x, point->y);
 }
 
 ListePoint* allouerListePoint(int nombrePoints)

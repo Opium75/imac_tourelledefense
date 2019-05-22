@@ -14,13 +14,15 @@
 
 #include "commun.h"
 
+#define NB_COULEURS_SEGMENT 3
+
 bool validerChemins(Carte *carte, PPM_Image *imageCarte, int *nombreModif);
 
 /*Validation des chemins par algorithme de Bressenham*/
-bool bresenham_verifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, int *nombreInvalide);
-bool bresenham_modifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, int *nombreModif);
+bool bresenham_verifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Noeud *n1, Noeud *n2, int *nombreInvalide);
+bool bresenham_modifierSeg(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Noeud *n1, Noeud *n2, int *nombreModif);
 
-void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p1, Point *p2, bool modifier, int *nombrerModif);
+void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Noeud *n1, Noeud *n2, bool modifier, int *nombrerModif);
 /**/
 
 
@@ -29,6 +31,9 @@ bool sommetType_verifierPoint(PPM_Image *imageCarte, unsigned char couleurClef[]
 bool sommetType_modifierPoint(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], Point *p, TypeNoeud type, int *nombreModif);
 
 void sommetType (PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS],  Point *p, TypeNoeud type, bool modifier, int *compteur);
+
+void liste_sommetType(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], Point *point, TypeNoeud listeTypes[], bool modifer, int *compteur);
+
 /**/
 
 bool verifierEntreeSortie(Carte *carte);

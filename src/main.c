@@ -1,15 +1,20 @@
 #include "../include/main.h"
 
+
 int main(int argc, char *argv[])
 {
-	Vague *vague;
+	
 	/* nom et chemin des fichiers de la carte*/
 	char nomDonnees[MAX_TAILLE_NOM_FICHIER];
 	char cheminDonnees[MAX_TAILLE_CHEMIN_FICHIER];
 	char cheminImage[MAX_TAILLE_CHEMIN_FICHIER];
-
+	
+	/*** JEU ***/
+	Jeu *jeu;
+	Carte *carte;
 	/*Données carte*/
-	Carte *carte = allouerCarte();
+	jeu = allouerJeu();
+	carte = jeu->carte;
 
 	/*Données image*/
 	PPM_Image *imageCarte;
@@ -17,10 +22,14 @@ int main(int argc, char *argv[])
 	/*pour vérif*/
 	int nombreModif;
 
+	/** TEMPS **/
+	/* on initialise la graine pour le tirage pseudo-aléatoire */
+	srand(time(NULL));
+
 	/*vérif rapide.*/
 	if(argc < 2)
 	{
-		printf("Bonjour ! Je prends un argument, merci. Connard.\n");
+		printf("Si je pouvaiiis avoir un argument.\n");
 		return EXIT_FAILURE;
 	}
 
@@ -58,25 +67,15 @@ int main(int argc, char *argv[])
 	printf(" Fait !\n");
 	/*Lecture de l'image associée*/
 	printf("Lecture des données image...");
-	if( !PPM_lireImage(fichierImage, &imageCarte) )
+	if( !PPM_lireImage(fichierImage, &(jeu->image) ) )
 		return EXIT_FAILURE;
-	
-	fclose(fichierImage);
-	printf(" Fait !\n");
-	/*****/
 
-	/*Affichage de l'image (console, crade)*/
-	/*PPM_afficherImage(imageCarte);*/
-
-	/*** Vérifications de la carte ****/
-	printf("Vérifications de la carte... ");
-	if( !validerChemins(carte, imageCarte, &nombreModif) )
+	/** VÉRIFICATIONS **/
+	if( !validerChemins(jeu->carte, jeu->image, &nombreModif) )
 	{
-		printf("Invalide ! (nombre d'erreurs : %d)\n", nombreModif);
+		printf("IMAGE INCORRECTE (modifications : %d)\n", nombreModif);
+		return EXIT_FAILURE;
 	}
-	else
-		printf("Valide !\n");
-	/*****/
 
 	/*** Chargement de l'image associée ***/
 	printf("Ouverture de la modification...");
@@ -90,21 +89,33 @@ int main(int argc, char *argv[])
 	printf(" Fait !\n");
 	/*Lecture de l'image associée*/
 	printf("Écriture des données image...");
-	if( !PPM_ecrireImage(fichierImageSortie, imageCarte) )
+	if( !PPM_ecrireImage(fichierImageSortie, jeu->image ) )
 		return EXIT_FAILURE;
 	fclose(fichierImageSortie);
 	printf(" Fait !\n");
 	/*****/
 
-	/*** Création d'une vague de monstres ***/
-	printf("Lancement d'une vague...\n");
+	/***Lancement du jeu ***/
+	printf("Lancement du jeu...");
+	lancerJeu(jeu);
+	//terminalVague(jeu->chaine);
+	printf(" Fait !\n");
+	printf("\n--- TRAITEMENT ---\n");
+	/*printf("Il était une fois\n");
+	printf("Une petite erreur de segmentation \n");
+	printf("L'étudiant voulait se débarrasser de cette erreur de segmentation.\n");
+	printf("Il y parvint finalement au prix de lourds efforts.\n");*/
+	boucleJeu(jeu);
+	printf("\n--- FIN TRAITEMENT ---\n");
+
+
+
+
 
 	/*Fermeture des ressources ouvertes.*/
 	printf("Libération des ressources...");
-	libererCarte(carte);
-	PPM_libererImage(imageCarte);
+	quitterJeu(jeu);
 	printf(" Fait !\n");
-
 
 	return EXIT_SUCCESS;
 }

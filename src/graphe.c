@@ -196,6 +196,17 @@ int* creerVecteurEntier(int taille, int initial)
 	return vecteur;
 }
 
+void afficherVecteurEntier(int *vecteur, int taille)
+{
+	int i;
+	printf("Vecteur d'entiers -> (");
+	for( i=0; i<taille; i++ )
+	{
+		printf("%d, ", vecteur[i]);
+	}
+	printf(")\n");
+}
+
 void libererVecteurEntier(int* vecteur)
 {
 	free(vecteur);

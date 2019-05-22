@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "graphe.h"
 #include "carte.h"
@@ -9,3 +10,5 @@
 #include "vague.h"
 #include "jeu.h"
 #include "commun.h"
+#include "afficheCarte.h"
+#include "afficheElements.h"
