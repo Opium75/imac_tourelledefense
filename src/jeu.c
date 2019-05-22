@@ -66,14 +66,15 @@ void lancerJeu(Jeu *jeu)
 	*** AVANT DE CHARGER LES RESSOURCES !!!
 	***/
 	jeu->scene = lancerAffichage();
-	chargerRessourcesAffichage(jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures);
+	chargerRessourcesAffichage(jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures, jeu->image->dim);
 	
 }
 
 void quitterJeu(Jeu *jeu)
 {
-	fermerAffichage(jeu->scene);
+	
 	libererJeu(jeu);
+
 }
 
 void traitementJeu(Jeu* jeu, time_t deltaT)
@@ -84,7 +85,9 @@ void traitementJeu(Jeu* jeu, time_t deltaT)
 	int k;
 	
 	/* les vagues de monstres */
+
 	traitementChaine(&(jeu->chaine), deltaT, jeu->carte, jeu->cite, &(jeu->niveau), &(jeu->pointage), &(jeu->argent) );
+
 }
 
 void boucleJeu(Jeu *jeu)
@@ -113,10 +116,13 @@ void boucleJeu(Jeu *jeu)
 		glClear(GL_COLOR_BUFFER_BIT);
 		/** AFFICHAGE ***/
 		glLoadIdentity();
+
 		afficherJeu(jeu);
+		
 		//afficherCarte();
 
 		boucle = interfaceJeu(jeu);
+
 		
 
 		/*Échange du tampon arrière et avant -> mise à jour fenêtre*/
@@ -167,6 +173,7 @@ bool interfaceJeu(Jeu *jeu)
 
             /* Clic souris */
             case SDL_MOUSEBUTTONUP:
+            	gestionClic(jeu, &e);
                 printf("clic en (%d, %d)\n", e.button.x, e.button.y);
                 break;
             
@@ -182,12 +189,26 @@ bool interfaceJeu(Jeu *jeu)
 	return boucle;
 }
 
+void gestionTouche()
+{
+
+}
+
+void gestionClic(Jeu *jeu, SDL_Event *e)
+{
+	Point coordClique;
+	calculerCoordonneesEchelle(&coordClique, e->button.x, e->button.y, jeu->image->dim);
+	Tour *tour = creerTour(T_rouge, coordClique.x, coordClique.y);
+	 printf("Héa (%u, %u) \n", tour->coord->x, tour->coord->y);
+	ajouterTourCite(tour, jeu->cite);
+}
+
 void afficherJeu(Jeu *jeu)
 {
     /* on afficher la cité, la chaîne de monstres */
-  	
+  	 
     afficherCite(jeu->cite, jeu->banqueAffichage, jeu->banqueTextures, jeu->image->dim);
-    
+   
     afficherChaine(jeu->chaine, jeu->banqueAffichage, jeu->banqueTextures, jeu->image->dim);
 }
 
@@ -196,9 +217,11 @@ void libererJeu(Jeu *jeu)
 	/* on libère tout */
 	libererCarte(jeu->carte);
 	libererCite(jeu->cite);
+
 	libererChaine(jeu->chaine);
 	PPM_libererImage(jeu->image);
 	/** l'affichage aussi **/
 	libererRessourcesAffichage(jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures);
+	fermerAffichage(jeu->scene);
 	free(jeu);
 }

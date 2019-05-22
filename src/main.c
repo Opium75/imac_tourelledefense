@@ -106,13 +106,15 @@ int main(int argc, char *argv[])
 	printf("L'étudiant voulait se débarrasser de cette erreur de segmentation.\n");
 	printf("Il y parvint finalement au prix de lourds efforts.\n");*/
 	boucleJeu(jeu);
+	printf("\n--- FIN TRAITEMENT ---\n");
+
 
 
 
 
 	/*Fermeture des ressources ouvertes.*/
 	printf("Libération des ressources...");
-	libererJeu(jeu);
+	quitterJeu(jeu);
 	printf(" Fait !\n");
 
 	return EXIT_SUCCESS;

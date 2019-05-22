@@ -8,6 +8,17 @@
 
 #include "commun.h"
 
+
+/****** COULEURS ****/
+
+#define NB_COULEURS 3 /*égal à 3 et ne pas modifier*/
+
+#define MAX_VAL_COULEUR 255 /* garder <= 255 */
+
+typedef enum {rouge, vert, bleu} Couleur;
+
+
+
 bool comparerCouleurs(unsigned char couleur1[], unsigned char couleur2[]);
 void afficherCouleur(unsigned char couleur[]);
 

@@ -183,7 +183,7 @@ int calculerDistancePonderee(Noeud *noeud, Noeud *voisin, Tour *listeTour )
 	Tour *tour = listeTour;
 	while( tour )
 	{
-		printf("Ddé !!!!\n");
+		//printf("ON RECALCULE LE CHEMIN LE PLUS COURT !!!!\n");
 		distanceTour = calculerDistanceSegment( tour->coord, noeud->coord, voisin->coord );
 		if( distanceTour <= (int)tour->portee )
 			compteurToursPortee++;

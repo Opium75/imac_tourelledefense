@@ -9,7 +9,7 @@
 
 #include <math.h>
 
-
+#include "couleur.h"
 #include "point.h"
 #include "monstre.h"
 #include "vague.h"
@@ -19,12 +19,17 @@
 
 #include "commun.h"
 
+#define NB_LUTINS_MONSTRE 2
 #define NB_LUTINS_TOUR 4
-#define NB_LUTINS_MONSTRE 1
-#define NB_LUTINS NB_LUTINS_TOUR + NB_LUTINS_MONSTRE
+#define NB_LUTINS NB_LUTINS_MONSTRE + NB_LUTINS_TOUR
 
-#define BASE_TAILLE_TOUR 30 /* EN PIXELS */
+#define BASE_TAILLE_TOUR 50 /* EN PIXELS */
 #define BASE_TAILLE_MONSTRE 40 /* IDEM */
+
+static const unsigned char COULEUR_PARDEFAUT[NB_COULEURS] = {MAX_VAL_COULEUR, MAX_VAL_COULEUR, MAX_VAL_COULEUR};
+
+static const unsigned char COULEUR_MONSTRE[NB_TYPES_MONSTRE][NB_COULEURS] = { {COULEUR_PARDEFAUT[0],COULEUR_PARDEFAUT[1],COULEUR_PARDEFAUT[2]}, {0, 169, 122} };
+
 
 typedef struct {
 	enum { LUT_tour, LUT_monstre } nature;
@@ -65,24 +70,25 @@ void afficherCite(Cite *cite, GLuint banqueAffichage[], GLuint banqueTextures[],
 
 void afficherMonstre(Monstre *monstre, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
 void afficherTour(Tour *tour, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
-void afficherElement(TypeLutin type, Point *coord, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
+void afficherElement(TypeLutin *type, Point *coord, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
 
 void calculerCoordonneesVirtuelles(Point *coord, double *posX, double *posY, Dimensions *dimImage);
+void calculerCoordonneesEchelle(Point *cood, int x, int y, Dimensions *dimImage);
+
 
 /*** RESSOURCES D'AFFICHAGE ***/
 /* remplir la liste d'affichage à partir des textures des lutins*/
 
-void chargerRessourcesAffichage(SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[]);
+void chargerRessourcesAffichage(SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
 void libererRessourcesAffichage(SDL_Surface *lutins[],  GLuint banqueAffichage[], GLuint banqueTextures[]);
 
 void remplirListeType(TypeLutin listeType[]);
 void remplirListeDimensions(Dimensions listeDim[], TypeLutin listeType[]);
-
-void remplirBanqueAffichage(GLuint banqueAffichage[], GLuint banqueTextures[], TypeLutin listeType[], Dimensions listeDim[]);
+void remplirBanqueAffichage(GLuint banqueAffichage[], GLuint banqueTextures[], TypeLutin listeType[], Dimensions listeDim[],  Dimensions *dimImage);
 
 /* on chargera  toutes les textures deau début du programme */
 void chargerToutesTexturesLutins(SDL_Surface *lutins[], GLuint banqueTextures[]);
-SDL_Surface* chargerTextureLutin(GLuint *idTexture, TypeLutin type);
+SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type);
 
 
 void libererToutesTexturesLutins(GLuint banqueTextures[]);
@@ -90,17 +96,17 @@ void libererToutesImagesLutins(SDL_Surface *lutins[]);
 /*** ***/
 
 /* le dessin même à partir des textures */
-void  dessinerLutinEchelle(GLuint idTexture, TypeLutin type, Dimensions dim);
-void dessinerLutin(GLuint idTexture, TypeLutin type);
+void  dessinerLutinEchelle(GLuint idTexture, TypeLutin *type, Dimensions *dimLutin);
+void dessinerLutin(GLuint idTexture, TypeLutin *type);
 
 
 /* deux fonctions, liées par une relation de bijection réciproque */
 TypeLutin correspondanceTypeLutin(int indice);
-int correspondanceIndiceLutin(TypeLutin type);
+int correspondanceIndiceLutin(TypeLutin *type);
 
 
 
-void correspondanceCheminLutin(char *cheminLutin, TypeLutin type);
+void correspondanceCheminLutin(char *cheminLutin, TypeLutin *type);
 
 void matrixAffich(GLuint idElements, int posX, int posY);
 int afficheElements(void);

@@ -92,6 +92,6 @@ unsigned int calculerPuissance(TypeTour type);
 unsigned int calculerPortee(TypeTour type);
 unsigned int calculerCout(TypeTour type);
 
-time_t calculerTempsTir(TypeTour type);
+clock_t calculerTempsTir(TypeTour type);
 
 #endif

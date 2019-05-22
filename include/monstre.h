@@ -7,6 +7,7 @@
 /* pour la génération pseudo-aléatoire */
 #include <time.h>
 
+#include "couleur.h"
 #include "point.h"
 #include "graphe.h"
 
@@ -22,6 +23,7 @@ typedef enum {estVaincu, estSorti, enAttente, enMouvement} EtatMonstre;
 static const char *TYPE_MONSTRE[] = {"M1", "M2"};
 
 static const char *ETAT_MONSTRE[] = {"Vaincu", "Sorti", "En attente", "En mouvement"};
+
 
 
 /*attributs unitaires*/

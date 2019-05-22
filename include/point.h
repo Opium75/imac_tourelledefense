@@ -33,6 +33,8 @@ unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement);
 /*Copie les coordonnées d'un point vers un nouveau point, et renvoie un pointeur vers la copie*/
 Point* copiePoint(Point *point);
 
+void afficherPoint(Point *point);
+
 
 /*liste de points*/
 /* allocation d'une liste de points initialisés à (0, 0).*/

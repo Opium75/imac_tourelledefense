@@ -51,6 +51,7 @@ void quitterJeu(Jeu *jeu);
 /** SDL **/
 void boucleJeu(Jeu *jeu);
 bool interfaceJeu(Jeu *jeu);
+void gestionClic(Jeu *jeu, SDL_Event *e);
 /** **/
 void traitementJeu(Jeu* jeu, time_t deltaT);
 

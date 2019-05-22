@@ -68,6 +68,11 @@ void libererPoint(Point *point)
 	free(point);
 }
 
+void afficherPoint(Point *point)
+{
+	printf(" (%u, %u)\n", point->x, point->y);
+}
+
 ListePoint* allouerListePoint(int nombrePoints)
 {
 	int i;

@@ -24,15 +24,18 @@ void libererCite(Cite *cite)
 void traitementCite(Cite *cite, clock_t deltaT, Carte *carte, Monstre **monstres, int nombreMonstres)
 {
 	/* on va s'occuper d'abord des tours */
-	ListeTour liste = cite->listeTour;
-	traitementListe(&liste, deltaT, monstres, nombreMonstres);
+	ListeTour *liste = cite->listeTour;
+	traitementListe(liste, deltaT, monstres, nombreMonstres);
 }
 
 void modifierCite(Cite *cite); // ?? que faire ??aaaaaaaa
 
 void ajouterTourCite(Tour *tour, Cite *cite)
 {
-	ajouterTour(tour, cite->listeTour);
+	if( cite->listeTour )
+		ajouterTour(tour, cite->listeTour);
+	else
+		cite->listeTour = tour;
 	cite->modif_INDIC++;
 }
 

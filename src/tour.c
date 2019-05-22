@@ -21,6 +21,7 @@ Tour* creerTour(TypeTour type, unsigned int x, unsigned int y)
 	tour->coord = creerPoint(x,y);
 
 	tour->cible = NULL;
+	tour->suivante = NULL;
 	return tour;
 }
 
@@ -267,7 +268,7 @@ int longueurListe(ListeTour liste )
 
 void ajouterTour(Tour *tour, ListeTour liste)
 {
-	while( liste )
+	while( liste->suivante )
 		liste = liste->suivante;
 	liste->suivante = tour;
 }
@@ -297,18 +298,22 @@ void enleverTour(int indiceTour, ListeTour liste)
 
 void libererListeTour(ListeTour liste)
 {
+	Tour *suivante;
 	while( liste )
+	{
+		suivante = liste->suivante;
 		libererTour(liste);
+		liste = suivante;
+	}
 }
 
 void libererTour(Tour *tour)
 {
 	free(tour);
 }
-
-time_t calculerTempsTir(TypeTour type)
+clock_t calculerTempsTir(TypeTour type)
 {
-	time_t tempsTir = CLOCKS_PER_SEC*TEMPS_TIR_BASE*TEMPS_TIR_TYPE[type];
+	clock_t tempsTir = CLOCKS_PER_SEC*TEMPS_TIR_BASE*TEMPS_TIR_TYPE[type];
 	return tempsTir;
 }
 
