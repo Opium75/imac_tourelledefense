@@ -12,9 +12,10 @@
 #include "./PPM_image/PPM_image.h"
 #include "carte.h"
 #include "tour.h"
+#include "cite.h"
 #include "vague.h"
-#include "afficheCarte.h"
-#include "afficheElements.h"
+#include "gestion_affichage.h"
+#include "affichage_element.h"
 
 
 

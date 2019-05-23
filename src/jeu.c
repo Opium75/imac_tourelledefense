@@ -191,15 +191,16 @@ bool interfaceJeu(Jeu *jeu)
 
 void gestionTouche()
 {
-
+ 
 }
 
 void gestionClic(Jeu *jeu, SDL_Event *e)
 {
 	Point coordClique;
 	calculerCoordonneesEchelle(&coordClique, e->button.x, e->button.y, jeu->image->dim);
+	afficherPoint(jeu->image->dim);
 	Tour *tour = creerTour(T_rouge, coordClique.x, coordClique.y);
-	 printf("Héa (%u, %u) \n", tour->coord->x, tour->coord->y);
+	 printf("%u, %u | %u, %u  :: (%d, %d)|(%u, %u) \n", jeu->image->dim->x, jeu->image->dim->y, LARGEUR_FENETRE, HAUTEUR_FENETRE, e->button.x, e->button.y, tour->coord->x, tour->coord->y);
 	ajouterTourCite(tour, jeu->cite);
 }
 

@@ -27,6 +27,9 @@ typedef struct {
 
 void traitementCite(Cite *cite, clock_t deltaT, Carte *carte, Monstre **monstres, int nombreMonstres);
 
+void ajouterTourCite(Tour *tour, Cite *cite);
+void enleverTourCite(int indiceTour, Cite *cite);
+
 
 /*** CITÉ ***/
 /* Typiquement des fonctions qu'on ne va appeler qu'une fois*/
@@ -34,6 +37,7 @@ Cite *allouerCite(void);
 /* libère la cité avec tous ces constituants (tours, etc) */
 void libererCite(Cite *cite);
 
+void modifierCite(Cite *cite); // ?? que faire ??aaaaaaaa
 
 
 #endif

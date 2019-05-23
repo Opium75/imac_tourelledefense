@@ -1,23 +1,37 @@
-#ifndef __AFFICHE_ELEMENTS
-#define __AFFICHE_ELEMENTS
+#ifndef __FONCTIONS_GESTION_AFFICHAGE
+#define __FONCTIONS_GESTION_AFFICHAGE
 
-#include <GL/glu.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <math.h>
+
 
 #include "couleur.h"
 #include "point.h"
 #include "monstre.h"
-#include "vague.h"
 #include "tour.h"
-#include "cite.h"
-#include "afficheCarte.h"
 
-#include "commun.h"
+/* Dimensions initiales et titre de la fenetre */
+static const unsigned int LARGEUR_FENETRE = 800;
+static const unsigned int HAUTEUR_FENETRE = 600;
+static const char TITRE_FENETRE[] = "TOURELLE DÉFENSE !!";
+
+
+/* Espace fenêtre virtuelle */
+static const float GL_VUE_LARGEUR = 1.;
+static const float GL_VUE_HAUTEUR = 1.;
+
+
+/* Nombre de bits par pixel de la fenetre */
+static const unsigned int BIT_PER_PIXEL = 32;
+
+/* Nombre minimal de millisecondes separant le rendu de deux images */
+static const Uint32 FRAMERATE_MILLISECONDS = 1000 / 60;
+
 
 #define NB_LUTINS_MONSTRE 2
 #define NB_LUTINS_TOUR 4
@@ -53,28 +67,11 @@ static const char EXTENTION[] = ".png";
 
 
 
-/* Espace fenêtre virtuelle */
-static const float GL_VIEW_WIDTH = 200.;
-static const float GL_VIEW_HEIGHT = 200.;
-
-
-
-
-
-
-void afficherVague(Vague *vague, GLuint banqueAffichage[], GLuint banqueTextures[],  Dimensions *dimImage);
-void afficherChaine(Chaine chaine, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
-
-void afficherListeTour(ListeTour liste, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
-void afficherCite(Cite *cite, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
-
-void afficherMonstre(Monstre *monstre, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
-void afficherTour(Tour *tour, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
-void afficherElement(TypeLutin *type, Point *coord, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage);
+SDL_Surface* lancerAffichage(void);
+void fermerAffichage(SDL_Surface *scene);
 
 void calculerCoordonneesVirtuelles(Point *coord, double *posX, double *posY, Dimensions *dimImage);
 void calculerCoordonneesEchelle(Point *cood, int x, int y, Dimensions *dimImage);
-
 
 /*** RESSOURCES D'AFFICHAGE ***/
 /* remplir la liste d'affichage à partir des textures des lutins*/
@@ -90,7 +87,6 @@ void remplirBanqueAffichage(GLuint banqueAffichage[], GLuint banqueTextures[], T
 void chargerToutesTexturesLutins(SDL_Surface *lutins[], GLuint banqueTextures[]);
 SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type);
 
-
 void libererToutesTexturesLutins(GLuint banqueTextures[]);
 void libererToutesImagesLutins(SDL_Surface *lutins[]);
 /*** ***/
@@ -98,17 +94,15 @@ void libererToutesImagesLutins(SDL_Surface *lutins[]);
 /* le dessin même à partir des textures */
 void  dessinerLutinEchelle(GLuint idTexture, TypeLutin *type, Dimensions *dimLutin);
 void dessinerLutin(GLuint idTexture, TypeLutin *type);
+/* */
 
-
+/** correspondances **/
 /* deux fonctions, liées par une relation de bijection réciproque */
 TypeLutin correspondanceTypeLutin(int indice);
 int correspondanceIndiceLutin(TypeLutin *type);
-
-
-
 void correspondanceCheminLutin(char *cheminLutin, TypeLutin *type);
 
-void matrixAffich(GLuint idElements, int posX, int posY);
-int afficheElements(void);
+void redimensionner(SDL_Surface** surface, unsigned int largeur, unsigned int hauteur);
+
 
 #endif
