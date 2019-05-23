@@ -9,6 +9,8 @@
 #include "verif_carte.h"
 #include "vague.h"
 #include "jeu.h"
+
+#include "gestion_affichage.h"
+#include "affichage_element.h"
+
 #include "commun.h"
-#include "afficheCarte.h"
-#include "afficheElements.h"
