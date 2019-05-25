@@ -87,8 +87,41 @@ void afficherElement(TypeLutin *type, Point *coord, GLuint banqueAffichage[], GL
     glPopMatrix();
 }
 
+/////TEXTES/////////////
+
+void vBitmapOutput(int x, int y, char *string, void *font)
+{
+    int len,i; // len donne la longueur de la chaîne de caractères
+
+    glRasterPos2f(x,y); // Positionne le premier caractère de la chaîne
+    len = (int) strlen(string); // Calcule la longueur de la chaîne
+    for (i = 0; i < len; i++) glutBitmapCharacter(font,string[i]); // Affiche chaque caractère de la chaîne
+}
+
+void vStrokeOutput(GLfloat x, GLfloat y, char *string, void *font)
+{
+    char *p;
+
+    glPushMatrix(); // glPushMatrix et glPopMatrix sont utilisées pour sauvegarder 
+            // et restaurer les systèmes de coordonnées non translatés
+    glTranslatef(x, y, 0); // Positionne le premier caractère de la chaîne
+    for (p = string; *p; p++) glutStrokeCharacter(font, *p); // Affiche chaque caractère de la chaîne
+    glPopMatrix();
+}
+
+void afficheTouche(char txtP[25], char touchecode){
+    sprintf(txtP, "Touche pressee : %c", touchecode);
+    vBitmapOutput( 20, 65, txtP, GLUT_BITMAP_HELVETICA_18);
+}
+
+///////////////////////
+
 int afficherCarte(void) 
 {
+
+    char txtP[25];
+    char touchecode = '\0';
+
     /* Initialisation de la SDL */
     if(-1 == SDL_Init(SDL_INIT_VIDEO)) 
     {
@@ -97,6 +130,11 @@ int afficherCarte(void)
             "Impossible d'initialiser la SDL. Fin du programme.\n");
         exit(EXIT_FAILURE);
     }
+
+    int taille = 1;
+    char* vecteur[] = {"Cest le tableau pour mettre la taille des textes a afficher sur l ecran"};
+  
+    glutInit(&taille, vecteur);
   
     /* Ouverture d'une fenetre et creation d'un contexte OpenGL */
     SDL_Surface* surface;
@@ -110,6 +148,7 @@ int afficherCarte(void)
     } else {
         printf("Ca marche loul\n");
     }
+
 
     //Texture
 
@@ -170,6 +209,15 @@ int afficherCarte(void)
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_TEXTURE_2D);
 
+        // Texte
+        vBitmapOutput( -95, 65, "Argent du joueur : ", GLUT_BITMAP_HELVETICA_18);
+        vBitmapOutput( -95, 40, "Temps restant : ", GLUT_BITMAP_HELVETICA_18);
+        //vStrokeOutput(-50, 0, "lalal", GLUT_STROKE_ROMAN);
+
+        //TOUCHE AFFICHE
+        afficheTouche(txtP, touchecode);
+        ///
+
         
         /* Echange du front et du back buffer : mise a jour de la fenetre */
         SDL_GL_SwapBuffers();
@@ -215,6 +263,9 @@ int afficherCarte(void)
                 /* Touche clavier */
                 case SDL_KEYDOWN:
                     printf("touche pressee (code = %d)\n", e.key.keysym.sym);
+                    printf("touche pressee (code = %c)\n", e.key.keysym.sym);
+
+                    touchecode = e.key.keysym.sym;
                     break;
                     
                 default:
