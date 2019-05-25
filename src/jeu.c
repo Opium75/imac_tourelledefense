@@ -207,7 +207,8 @@ void gestionClic(Jeu *jeu, SDL_Event *e)
 void afficherJeu(Jeu *jeu)
 {
     /* on afficher la cité, la chaîne de monstres */
-    afficherCarte(); //à redimensionner
+
+    afficherCarte();
     //peut-être mettre en arguments le score et l'argent et changer le type d'argu que la fonction attend : afficher Carte(jeu->pointage, jeu->argent);
   	 
     afficherCite(jeu->cite, jeu->banqueAffichage, jeu->banqueTextures, jeu->image->dim);

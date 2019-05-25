@@ -193,18 +193,34 @@ int afficherCarte(void)
         glPushMatrix();
             glBegin(GL_QUADS);
                 glTexCoord2f(0, 1);
-                glVertex2f(-40, -40);
+                glVertex2f(-0.5, -0.5);
             
                 glTexCoord2f(1, 1);
-                glVertex2f(40, -40);
+                glVertex2f(0.5, -0.5);
             
                 glTexCoord2f(1, 0);
-                glVertex2f(40, 40);
+                glVertex2f(0.5, 0.5);
             
                 glTexCoord2f(0, 0);
-                glVertex2f(-40, 40);
+                glVertex2f(-0.5, 0.5);
             glEnd();
         glPopMatrix();
+
+        /*glPushMatrix();
+            glBegin(GL_QUADS);
+                glTexCoord2f(0, 1);
+                glVertex2f(-10, -10);
+            
+                glTexCoord2f(1, 1);
+                glVertex2f(10, -10);
+            
+                glTexCoord2f(1, 0);
+                glVertex2f(10, 10);
+            
+                glTexCoord2f(0, 0);
+                glVertex2f(-10, 10);
+            glEnd();
+        glPopMatrix();*/
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_TEXTURE_2D);
@@ -212,7 +228,6 @@ int afficherCarte(void)
         // Texte
         vBitmapOutput( -95, 65, "Argent du joueur : ", GLUT_BITMAP_HELVETICA_18);
         vBitmapOutput( -95, 40, "Temps restant : ", GLUT_BITMAP_HELVETICA_18);
-        //vStrokeOutput(-50, 0, "lalal", GLUT_STROKE_ROMAN);
 
         //TOUCHE AFFICHE
         afficheTouche(txtP, touchecode);
