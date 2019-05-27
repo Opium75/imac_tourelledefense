@@ -1,5 +1,5 @@
-#ifndef VAGUE_H
-#define VAGUE_H
+#ifndef FONCTIONS_VAGUE
+#define FONCTIONS_VAGUE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,9 +29,8 @@
 * permettra de les manipuler plus facilement.
 */
 
-#define TAILLE_VAGUE_BASE 10
+#define TAILLE_VAGUE_BASE 2
 #define TEMPS_PAUSE_BASE 4 /*en secondes*/
-#define NB_MAX_MONSTRES 50
 
 /* une constante de temps entre cle moment où la dernière vague s'achêve
 * et la prochaine vague se lance */
@@ -69,7 +68,7 @@ typedef struct _VAGUE {
 
 /*Oublie pas les types dans les arguments des fonctions*/
 Vague* creerVague(unsigned char niveau, Carte *carte);
-void libererVague(Vague *vague);
+void libererVague(Vague *vague,  ListeTour liste);
 /*initialise le parcours des monstres de la vague */
 void lancerVague(Vague *vague, Carte *carte, Cite *cite);
 bool estTerminee(Vague *vague);
@@ -89,13 +88,13 @@ void ajouterVague(Vague *vague, Chaine chaine);
 * et fait pointer la chaine vers la seconde
 * (comme un << pop >>)
 */
-void supprimerPremiereVague(Chaine *chaine);
-void supprimerVagueSuivante(Chaine chaine);
+void supprimerPremiereVague(Chaine *chaine, ListeTour liste);
+void supprimerVagueSuivante(Chaine chaine,  ListeTour liste);
 
 
 /* obsolète */
-void enleverVague(int indiceVague, Chaine chaine);
-void libererChaine(Chaine chaine);
+void enleverVague(int indiceVague, Chaine chaine,  ListeTour liste);
+void libererChaine(Chaine chaine,  ListeTour liste);
 /** **/
 
 void terminalVague(Vague *vague);

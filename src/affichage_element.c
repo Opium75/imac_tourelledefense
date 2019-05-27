@@ -56,13 +56,40 @@ void afficherMonstre(Monstre *monstre, GLuint banqueAffichage[], GLuint banqueTe
 
 void afficherTour(Tour *tour, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
 {
+    double angle;
+    double xPos, yPos, xPosM, yPosM;
+    Point coordCible;
+    unsigned char couleurTir[NB_COULEURS];
     /* on crée le type de lutin de toute pièce */
     TypeLutin type;
     type.nature = LUT_tour;
     type.typeTour = tour->type;
-    /* on  affiche le monstre  */
-    afficherElement(&type, tour->coord, banqueAffichage, banqueTextures, dimImage);
-    
+    /* on calcule l'angle par rapport à la cible */
+    if( tour->cible )
+    {
+        calculerPositionMonstre(tour->cible, &coordCible);
+        angle = calculerAngle(tour->coord, &coordCible);
+        calculerCoordonneesVirtuelles(tour->coord, &xPos, &yPos, dimImage);
+        calculerCoordonneesVirtuelles(&coordCible, &xPosM, &yPosM, dimImage);
+
+        /** Dessin **/
+        /* ligne de mire*/
+        calculerCouleurTir(couleurTir, tour);
+        dessinerSegment(xPos, yPos, xPosM, yPosM, couleurTir);
+        /* */
+        glPushMatrix();
+            /* on dirige la tour vers sa cible */
+            glTranslatef(xPos, yPos, 0.);
+            glRotatef(angle, 0., 0., 1.);
+            glTranslatef(-xPos, -yPos, 0.);
+             /* on  affiche le monstre  */
+            afficherElement(&type, tour->coord, banqueAffichage, banqueTextures, dimImage);
+        glPopMatrix();
+    }
+    else
+    {
+        afficherElement(&type, tour->coord, banqueAffichage, banqueTextures, dimImage);
+    }
 }
 
 void afficherElement(TypeLutin *type, Point *coord, GLuint banqueAffichage[], GLuint banqueTextures[],  Dimensions *dimImage)

@@ -6,7 +6,7 @@ Tour* creerTour(TypeTour type, unsigned int x, unsigned int y)
 	tour = malloc( sizeof(Tour) );
 	if( !tour )
 	{
-		printf("Tour - Échec d'allocation dynamique.\n");
+		printf("Tour -- Échec d'allocation dynamique.\n");
 		exit(EXIT_FAILURE);
 	}
 	tour->type = type;
@@ -21,66 +21,117 @@ Tour* creerTour(TypeTour type, unsigned int x, unsigned int y)
 	tour->coord = creerPoint(x,y);
 
 	tour->cible = NULL;
+
 	tour->suivante = NULL;
 	return tour;
 }
 
-void attaquerCible(Tour *tour)
+void terminalTour(Tour *tour)
 {
-	Monstre *monstre = tour->cible;
-	int degats = tour->puissance/monstre->resistances[tour->type] ;
-	monstre->vie -= plancher(degats);
+	int j;
+	printf("Tour -> type : %d\n", tour->type);
+	printf("		-> position :");
+	afficherPoint(tour->coord);
+	if( tour->cible )
+	{
+		printf("		-> cible :\n");
+		terminalMonstre(tour->cible);
+	}
+}
+
+void terminalListe(ListeTour liste)
+{
+	while( liste )
+	{
+		terminalTour(liste);
+		liste = liste->suivante;
+	}
+}
+
+bool recevoirDegats(Monstre *monstre, Tour *tour)
+{
+	/* renvoie vrai si le monstre est vaincu, faux sinon */
+	int degats = 1 + tour->puissance/(1+monstre->resistances[tour->type]) ;
+	monstre->vie -= degats;
+	if( monstre->vie <= 0 )
+	{
+		/* le monstre est occis */
+		monstre->etat = estVaincu;
+		return true;
+	}
+	//printf("D'acc mais %d/%u, %d \n", monstre->vie, monstre->vieMax, degats);
+	return false;
 }
 
 void attaquerMonstres(ListeTour liste, clock_t deltaT, Monstre **monstres, int nombreMonstres)
 {
-	Tour *tour;
- 	bool possedeCible;
-	while( liste )
+	bool possedeCible, cibleVaincue;
+	Tour *tour = liste;
+	while( tour )
 	{
-		tour = liste;
-		/*On change de cible si nécessaire */
-		possedeCible = tour->cible ? true : false;
+		/** Possède-t-elle une cible ? Doit-elle en changer ? **/
+		possedeCible = ( tour->cible && tour->cible->etat == enMouvement );
 		if( doitChangerCible(tour) )
 		{
 			possedeCible = ciblerMonstre(tour, monstres, nombreMonstres);
-		}
-		if( deltaT + tour->tempsTir_acc > tour->tempsTir )
-		{
-			if( possedeCible )
-			{
-				/* on attaque la cible */
-				attaquerCible(tour);
-
-			}
 			tour->tempsTir_acc = 0;
 		}
-		else
+		/** **/
+		/** Est-il temps de tirer ? **/
+		if( possedeCible )
 		{
-			tour->tempsTir_acc += deltaT;
+			if( deltaT + tour->tempsTir_acc > tour->tempsTir )
+			{
+				/* On attaque la cible */
+				cibleVaincue = recevoirDegats(tour->cible, tour);
+				/* Si la cible est vaincue, on ne la cible plus */
+				if( cibleVaincue )
+					tour->cible = NULL;
+				/* On oublie pas de réinitialiser l'accumulateur */
+				tour->tempsTir_acc = 0;
+			}
+			else
+				tour->tempsTir_acc += deltaT;
 		}
+		tour = tour->suivante;
 	}
 }
 
 void traitementListe(ListeTour *liste, clock_t deltaT, Monstre **monstres, int nombreMonstres)
 {
- 	Tour *tour;
  	/** **/
  	/** On cible et attaque les monstres **/
  	attaquerMonstres(*liste, deltaT, monstres, nombreMonstres);
+}
+
+void reinitialiserCibles(ListeTour liste)
+{
+	/* on abandonne toutes les cibles 
+	* quand on change de vague 
+	* car les cibles sont des duplicata
+	* de pointeurs libérés (monstres)
+	*/
+	while( liste )
+	{
+		liste->cible = NULL;
+		liste = liste->suivante;
+	}
 }
 
 
 bool estAPortee(Tour *tour, Monstre *monstre)
 {
 	/* ne fonctionne que si tour cible un monstre */
+	/* Ah oui ? */
 	bool aPortee;
 	Point coordMonstre;
-	calculerPositionMonstre(monstre, &coordMonstre);
-	aPortee = ( calculerDistance(tour->coord, &coordMonstre) <= (int)tour->portee );
-	return aPortee;
-		
-
+	if( monstre->etat == enMouvement )
+	{
+		calculerPositionMonstre(monstre, &coordMonstre);
+		aPortee = ( calculerDistance(tour->coord, &coordMonstre) <= (int)tour->portee );
+		return aPortee;
+	}
+	return false;
 }
 
 
@@ -88,7 +139,14 @@ bool estAPortee(Tour *tour, Monstre *monstre)
 bool doitChangerCible(Tour *tour)
 {
 	/* on doit changer de cible si l'on en a pas */
-	return( !tour->cible || !estAPortee(tour, tour->cible) );
+	/* on doit vérifié que le monstre n'a pas été libéré
+	* -> qu'il appartient bien à la vague actuelle.
+	* En fait on règle le problème à chaque fin de vague.
+	*/
+	bool possedeCible = ( tour->cible && tour->cible->etat == enMouvement );
+	if( possedeCible )
+		return !estAPortee(tour, tour->cible);
+	return true;
 }
 
 
@@ -114,21 +172,26 @@ bool ciblerMonstre(Tour *tour, Monstre **monstres, int nombreMonstres)
 		tour->cible = NULL;
 		return false;
 	}
+
 	/* on en connaît maintenant le nombre, on recommence en enregistrant */
-	indicesMonstres = creerVecteurEntier(nombreMonstres, 0);
-	distancesMonstres = creerVecteurEntier(nombreMonstres, 0);
+	indicesMonstres = creerVecteurEntier(nombreMonstresCibles, -1);
+	distancesMonstres = creerVecteurEntier(nombreMonstresCibles, -1);
 	j=0;
 	for( k=0; k<nombreMonstres; k++ )
 	{
 		/* ici on récupère aussi la distance,
 		* donc pas possible d'utiliser estAPortee
 		*/
-		calculerPositionMonstre(monstres[k], &coordMonstre);
-		if( ( d = calculerDistance(tour->coord, &coordMonstre) ) <= (int)tour->portee )
+		if( monstres[k]->etat == enMouvement )
 		{
-			indicesMonstres[j] = k;
-			distancesMonstres[j] = d;
-			j++;
+			calculerPositionMonstre(monstres[k], &coordMonstre);
+			d = calculerDistance(tour->coord, &coordMonstre);
+			if( d <= (int)tour->portee )
+			{
+				indicesMonstres[j] = k;
+				distancesMonstres[j] = d;
+				j++;
+			}
 		}
 	}
 	if( j!= nombreMonstresCibles )
@@ -151,7 +214,11 @@ int calculerIndiceCible(int *indicesMonstres, int *distancesMonstres, int nombre
 {
 	int j;
 	/* On choisira de cibler le monstre le plus proche. */
-	int indiceMin = 0, minDistance = distancesMonstres[0];
+	/**** QU'EST-CE QUE JE SUIS BÊTE LE PROBLÈME ÉTAIT LÀ AAAAAAA
+	* l'indiceMin que l'on choisi par défaut est indicesMonstres[0] PAS 0
+	**** AERGA */
+	int indiceMin = indicesMonstres[0];
+	int minDistance = distancesMonstres[0];
 	for( j=0; j<nombreMonstresCibles; j++ )
 	{
 		if( distancesMonstres[j] < minDistance )
@@ -163,16 +230,6 @@ int calculerIndiceCible(int *indicesMonstres, int *distancesMonstres, int nombre
 	return indiceMin;
 }
 
-Tour* accesTourIndice(int indiceTour, ListeTour liste)
-{
-	/* ne vérifie pas que l'indice est correct */
-	int j = 0;
-	Tour *tour;
-	while( j < indiceTour && liste )
-		liste = liste->suivante;
-	tour = liste;
-	return tour;
-}
 
 int trouverIndiceTour(ListeTour liste, unsigned int x, unsigned int y)
 {

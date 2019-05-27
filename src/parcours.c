@@ -102,7 +102,7 @@ bool changerSegmentMonstre(Monstre *monstre, double reste, Carte *carte, Cite *c
 	{
 		/* le monstre est arrivé à la sortie, prudence !! */
 		/* que faire dans ce cas-là ?
-		* bon pour l'instant, on se contente de renvouyr un booléen.
+		* bon pour l'instant, on se contente de renvoyer un booléen.
 		*/
 		monstre->etat = estSorti;
 		return true;

@@ -27,7 +27,7 @@ static const char *ETAT_MONSTRE[] = {"Vaincu", "Sorti", "En attente", "En mouvem
 
 
 /*attributs unitaires*/
-#define VIE_BASE 1
+#define VIE_BASE 3
 #define VITESSE_BASE 1
 #define RESISTANCE_BASE 1
 #define ATTAQUE_BASE 1
@@ -78,7 +78,6 @@ int calculerAttaque(TypeMonstre type);
 void calculerResistances(unsigned int resistances[], TypeMonstre type);
 
 void attaquerJoueur(Monstre *monstre, int *pointage, int *argent);
-
 
 /*correspondance avec les coordonnées du monstre */
 void calculerPositionMonstre(Monstre *monstre, Point *coord);

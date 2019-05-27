@@ -64,14 +64,6 @@ void lancerVague(Vague *vague, Carte *carte, Cite *cite)
 	/* on déploie le premier, on calcule pour le reste */
 	monstre = (vague->monstres)[0];
 	deployerMonstre(monstre, carte, cite);
-	// for( k=0; k<vague->nombreMonstres; k++ )
-	// {
-	// 	monstre = (vague->monstres)[k];
-	// 	/*on déploie le monstre*/
-	// 	deployerMonstre(monstre, carte, cite);
-	// 	/* afficherVecteur(parcours, nombreEtapes); */
-		
-	// }
 	vague->etat = lancee;
 }
 
@@ -107,54 +99,49 @@ bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, 
 	vague = *chaine;
 	if( vague->etat == lancee )
 	{
-		/* la vague est déjà lancée */
+		if( deltaT + vague->tempsPause_acc > vague->tempsPause )
+		{
+			j = accesIndiceDeploiement(vague);
+			if( j != -1 )
+			{
+				/* si tous les monstres n'ont pas été déployés */
+				monstre = vague->monstres[j];
+				deployerMonstre(monstre, carte, cite);
+				
+			}
+			vague->tempsPause_acc = 0;
+		}
+		else
+		{
+			vague->tempsPause_acc += deltaT;
+		}
+		for( k=0; k<vague->nombreMonstres; k++ )
+		{
+			
+			monstre = vague->monstres[k];
+			if( monstre->etat == enMouvement )
+			{
+				estSorti = avancerMonstre(monstre, deltaT, carte, cite);
+
+				if( estSorti )
+				{
+					/* le monstre attaque le joueur */
+					attaquerJoueur(monstre, pointage, argent);
+				}
+			}
+		}
+		/* est-ce que la vague est terminée ?  */
 		if( estTerminee(vague) )
 		{
 			//printf("Ouaou !\n");
 			(*chaine) = (*chaine)->suivante;
-			libererVague(vague);
+			libererVague(vague, cite->listeTour);
 			/*on monte de niveau */
 			(*niveau)++;
 			/* est-ce qu'on aura déjà créé la vague ? */
 			if( !(*chaine) )
 				*chaine = creerVague(*niveau, carte);
 			/*return false;*/
-		}
-		else
-		{
-			
-			if( deltaT + vague->tempsPause_acc > vague->tempsPause )
-			{
-				j = accesIndiceDeploiement(vague);
-				if( j != -1 )
-				{
-					/* si tous les monstres n'ont pas été déployés */
-					monstre = vague->monstres[j];
-					deployerMonstre(monstre, carte, cite);
-					//terminalVague(vague);
-					
-				}
-				vague->tempsPause_acc = 0;
-			}
-			else
-			{
-				vague->tempsPause_acc += deltaT;
-			}
-
-			for( k=0; k<vague->nombreMonstres; k++ )
-			{
-				monstre = vague->monstres[k];
-				if( monstre->etat == enMouvement )
-				{
-					estSorti = avancerMonstre(monstre, deltaT, carte, cite);
-
-					if( estSorti )
-					{
-						/* le monstre attaque le joueur */
-						attaquerJoueur(monstre, pointage, argent);
-					}
-				}
-			}
 		}
 	}
 	else
@@ -163,14 +150,15 @@ bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, 
 		/* la vague était en attente jusqu'à maintenant
 		* on vérifie que c'est toujours le cas
 		*/
-		conditionEntracte = calculerTempsSecondes(deltaT + vague->tempsEntracte_acc) > TEMPS_ENTRACTE;
+		conditionEntracte = ( calculerTempsSecondes(deltaT + vague->tempsEntracte_acc) > TEMPS_ENTRACTE );
 		//printf("Ceci n'est pas un message : %lf ?\n", calculerTempsSecondes(deltaT +vague->tempsEntracte_acc));
 		if( conditionEntracte )
 		{
-				//terminalVague(vague);
 				lancerVague(vague, carte, cite);
+				vague->tempsEntracte_acc = 0;
 		}
-		vague->tempsEntracte_acc = conditionEntracte ? 0 : vague->tempsEntracte_acc + deltaT;
+		else
+			vague->tempsEntracte_acc += deltaT;
 	}
 	/* ON OUBLIE PAS D'AUGMENTER LES ACCUMULATEURS AVANT*/
 	
@@ -214,21 +202,21 @@ int longueurChaine(Chaine chaine)
 	return longueur;
 }
 
-void supprimerVagueSuivante(Chaine chaine)
+void supprimerVagueSuivante(Chaine chaine, ListeTour liste)
 {
 	Vague *celleDapres = (chaine->suivante)->suivante;
-	libererVague(chaine->suivante);
+	libererVague(chaine->suivante, liste);
 	chaine->suivante = celleDapres;
 }
 
-void supprimerPremiereVague(Chaine *chaine)
+void supprimerPremiereVague(Chaine *chaine, ListeTour liste)
 {
 	Vague *suivante = (*chaine)->suivante;
-	libererVague(*chaine);
+	libererVague(*chaine, liste);
 	*chaine = suivante;
 }
 
-void enleverVague(int indiceVague, Chaine chaine)
+void enleverVague(int indiceVague, Chaine chaine, ListeTour liste)
 {
 	/* Pour tout indice >= 1 */
 	/** ATTENTION s'assurer que l'indice n'est pas
@@ -245,18 +233,18 @@ void enleverVague(int indiceVague, Chaine chaine)
 		celleDapres = (chaine->suivante)->suivante;
 	else
 		celleDapres = NULL;
-	libererVague(chaine->suivante);
+	libererVague(chaine->suivante, liste);
 	chaine->suivante = celleDapres;
 }
 
-void libererChaine(Chaine chaine)
+void libererChaine(Chaine chaine, ListeTour liste)
 {
 	Vague *vague;
 	while( chaine )
 	{
 		vague = chaine;
 		chaine = chaine->suivante;
-		libererVague(vague);
+		libererVague(vague, liste);
 	}
 }
 
@@ -372,8 +360,11 @@ void libereEntreesVague(int nombreEntreesVague, Noeud **entrees)
 	free(entrees);
 }
 
-void libererVague(Vague *vague)
+void libererVague(Vague *vague, ListeTour liste)
 {
+	/* les tours abandonnent leur cible */
+	reinitialiserCibles(liste);
+	/* on libère les monstres */
 	libererMonstresVague(vague->nombreMonstres, vague->monstres);
 	/* libérer entrées ?*/
 	libereEntreesVague(vague->nombreEntrees, vague->entrees);

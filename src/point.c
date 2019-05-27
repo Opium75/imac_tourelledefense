@@ -63,6 +63,15 @@ unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement)
 	return c;
 }
 
+double calculerAngle(Point *origine, Point *point)
+{
+	/* renvoie l'angle décrit par la droit, par rapport à (0,x)+ */ 
+	double x = (double)( (int)point->x - (int)origine->x );
+	double y = (double)( (int)point->y - (int)origine->y );
+	double angle = atan2(x,y)*RADIAN_VERS_DEGRES;
+	return angle;
+}
+
 void libererPoint(Point *point)
 {
 	free(point);

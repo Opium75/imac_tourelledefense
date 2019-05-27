@@ -42,8 +42,9 @@ static const Uint32 FRAMERATE_MILLISECONDS = 1000 / 60;
 
 static const unsigned char COULEUR_PARDEFAUT[NB_COULEURS] = {MAX_VAL_COULEUR, MAX_VAL_COULEUR, MAX_VAL_COULEUR};
 
-static const unsigned char COULEUR_MONSTRE[NB_TYPES_MONSTRE][NB_COULEURS] = { {COULEUR_PARDEFAUT[0],COULEUR_PARDEFAUT[1],COULEUR_PARDEFAUT[2]}, {0, 169, 122} };
+static const unsigned char COULEUR_MONSTRE[NB_TYPES_MONSTRE][NB_COULEURS] = { {MAX_VAL_COULEUR, MAX_VAL_COULEUR, MAX_VAL_COULEUR}, {0, 239, 182} };
 
+static const unsigned char COULEUR_TRAIT[NB_COULEURS] = {255, 0, 0};
 
 typedef struct {
 	enum { LUT_tour, LUT_monstre } nature;
@@ -72,6 +73,10 @@ void fermerAffichage(SDL_Surface *scene);
 
 void calculerCoordonneesVirtuelles(Point *coord, double *posX, double *posY, Dimensions *dimImage);
 void calculerCoordonneesEchelle(Point *cood, int x, int y, Dimensions *dimImage);
+
+
+void dessinerSegment(double x1, double y1, double x2, double y2, unsigned char couleur[NB_COULEURS]);
+void calculerCouleurTir(unsigned char couleurTir[], Tour *tour);
 
 /*** RESSOURCES D'AFFICHAGE ***/
 /* remplir la liste d'affichage à partir des textures des lutins*/
