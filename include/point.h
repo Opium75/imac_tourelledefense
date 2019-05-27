@@ -10,6 +10,8 @@
 
 #define NB_DIMENSIONS 2
 
+#define RADIAN_VERS_DEGRES 180.0 / M_PI
+
 typedef struct {
 	unsigned int x, y;
 } Point, *ListePoint, Dimensions;
@@ -29,6 +31,8 @@ Point* creerProjeteOrtho(Point *point, Point *segP1, Point *segP2);
 int calculerDistanceSegment(Point *point, Point *segP1, Point *segP2);
 
 unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement);
+
+double calculerAngle(Point *origine, Point *point);
 
 /*Copie les coordonnées d'un point vers un nouveau point, et renvoie un pointeur vers la copie*/
 Point* copiePoint(Point *point);

@@ -196,6 +196,18 @@ void calculerCoordonneesEchelle(Point *coord, int x, int y, Dimensions *dimImage
 }
 
 
+void dessinerSegment(double x1, double y1, double x2, double y2, unsigned char couleur[NB_COULEURS])
+{
+    glColor3f(couleur[0]/(double)MAX_VAL_COULEUR, couleur[1]/(double)MAX_VAL_COULEUR, couleur[2]/(double)MAX_VAL_COULEUR);
+    glBegin(GL_LINES);
+        glVertex2f(x1, y1);
+        glVertex2f(x2, y2);
+    glEnd();
+    glColor3f(COULEUR_PARDEFAUT[0]/(double)MAX_VAL_COULEUR, COULEUR_PARDEFAUT[1]/(double)MAX_VAL_COULEUR, COULEUR_PARDEFAUT[2]/(double)MAX_VAL_COULEUR);
+}
+
+
+
 void  dessinerLutinEchelle(GLuint idTexture, TypeLutin *type, Dimensions *dimLutin)
 {
     /* on prend ici en compte la taille de l'image, de l'écran etc..*/
@@ -222,7 +234,7 @@ void dessinerLutin(GLuint idTexture, TypeLutin *type)
         /* on a le même lutin pour tous les monstres, 
         * mais on change les couleurs selon le type.
         */
-         glColor3f(COULEUR_MONSTRE[type->typeMonstre][0], COULEUR_MONSTRE[type->typeMonstre][1], COULEUR_MONSTRE[type->typeMonstre][2]);
+         glColor3f(COULEUR_MONSTRE[type->typeMonstre][0]/(double)MAX_VAL_COULEUR, COULEUR_MONSTRE[type->typeMonstre][1]/(double)MAX_VAL_COULEUR, COULEUR_MONSTRE[type->typeMonstre][2]/(double)MAX_VAL_COULEUR);
     }
     glEnable(GL_TEXTURE_2D);
     glEnable (GL_BLEND);
@@ -244,8 +256,16 @@ void dessinerLutin(GLuint idTexture, TypeLutin *type)
     if( type->nature == LUT_monstre )
     {
         /* on réinitialise la couleur */
-        glColor3f(COULEUR_PARDEFAUT[0], COULEUR_PARDEFAUT[1], COULEUR_PARDEFAUT[2]);
+        glColor3f(COULEUR_PARDEFAUT[0]/(double)MAX_VAL_COULEUR, COULEUR_PARDEFAUT[1]/(double)MAX_VAL_COULEUR, COULEUR_PARDEFAUT[2]/(double)MAX_VAL_COULEUR);
     }
+}
+
+void calculerCouleurTir(unsigned char couleurTir[], Tour *tour)
+{
+    double charge = tour->tempsTir_acc / (double) tour->tempsTir;
+    /* on copie la couleur par défaut du trait */
+    copierCouleur(couleurTir, COULEUR_TRAIT);
+    homothetieCouleur(couleurTir, charge);
 }
 
 

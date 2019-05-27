@@ -31,9 +31,4 @@ int indiceMinDistance(int *listeVerifies, int *distances, int nombreNoeuds);
 bool avancerMonstre(Monstre *monstre, clock_t deltaT, Carte *carte, Cite *cite);
 bool changerSegmentMonstre(Monstre *monstre, double reste, Carte *carte, Cite *cite);
 
-
-int* creerVecteurEntier(int taille, int initial);
-
-void afficherVecteur(int *vecteur, int taille);
-
 #endif

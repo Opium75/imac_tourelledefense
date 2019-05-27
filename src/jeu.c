@@ -85,9 +85,12 @@ void traitementJeu(Jeu* jeu, time_t deltaT)
 	int k;
 	
 	/* les vagues de monstres */
-
+	
 	traitementChaine(&(jeu->chaine), deltaT, jeu->carte, jeu->cite, &(jeu->niveau), &(jeu->pointage), &(jeu->argent) );
-
+	/* la vague, les monstres ont été mis à jour.
+	* On traite maintenant la cité.
+	*/
+	traitementCite(jeu->cite, deltaT, jeu->carte, jeu->chaine->monstres, jeu->chaine->nombreMonstres);
 }
 
 void boucleJeu(Jeu *jeu)
@@ -115,14 +118,14 @@ void boucleJeu(Jeu *jeu)
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		/** AFFICHAGE ***/
-		glLoadIdentity();
+		
 
 		afficherJeu(jeu);
 		
 		//afficherCarte();
 
 		boucle = interfaceJeu(jeu);
-
+		
 		
 
 		/*Échange du tampon arrière et avant -> mise à jour fenêtre*/
@@ -174,12 +177,13 @@ bool interfaceJeu(Jeu *jeu)
             /* Clic souris */
             case SDL_MOUSEBUTTONUP:
             	gestionClic(jeu, &e);
-                printf("clic en (%d, %d)\n", e.button.x, e.button.y);
+                //printf("clic en (%d, %d)\n", e.button.x, e.button.y);
                 break;
             
             /* Touche clavier */
             case SDL_KEYDOWN:
-                printf("touche pressée (code = %d)\n", e.key.keysym.sym);
+                //printf("touche pressée (code = %d)\n", e.key);
+            	 terminalVague(jeu->chaine);
                 break;
                 
             default:
@@ -198,9 +202,8 @@ void gestionClic(Jeu *jeu, SDL_Event *e)
 {
 	Point coordClique;
 	calculerCoordonneesEchelle(&coordClique, e->button.x, e->button.y, jeu->image->dim);
-	afficherPoint(jeu->image->dim);
+	//afficherPoint(jeu->image->dim);
 	Tour *tour = creerTour(T_rouge, coordClique.x, coordClique.y);
-	 printf("%u, %u | %u, %u  :: (%d, %d)|(%u, %u) \n", jeu->image->dim->x, jeu->image->dim->y, LARGEUR_FENETRE, HAUTEUR_FENETRE, e->button.x, e->button.y, tour->coord->x, tour->coord->y);
 	ajouterTourCite(tour, jeu->cite);
 }
 
@@ -222,7 +225,7 @@ void libererJeu(Jeu *jeu)
 	libererCarte(jeu->carte);
 	libererCite(jeu->cite);
 
-	libererChaine(jeu->chaine);
+	libererChaine(jeu->chaine, jeu->cite->listeTour);
 	PPM_libererImage(jeu->image);
 	/** l'affichage aussi **/
 	libererRessourcesAffichage(jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures);

@@ -17,9 +17,10 @@
 
 /*attibuts unitaires*/
 #define PUISSANCE_BASE 1 /*relatif aux points de vie et résistance des monstres.*/
-#define TEMPS_TIR_BASE 1 /*en secondes*/
-#define PORTEE_BASE 1 /*en pixels*/
+#define TEMPS_TIR_BASE 2 /*en secondes*/
+#define PORTEE_BASE 5 /*en pixels*/
 #define COUT_BASE 1 /*PIÈCES*/
+
 static const unsigned int PUISSANCE_TYPE[NB_TYPES_TOUR] = {4, 1, 2, 2};
 static const unsigned int PORTEE_TYPE[NB_TYPES_TOUR] = {2, 1, 8, 2};
 static const unsigned int TEMPS_TIR_TYPE[NB_TYPES_TOUR] = {1, 8, 2, 2};
@@ -49,6 +50,10 @@ typedef struct _TOUR {
 Tour* creerTour(TypeTour type, unsigned int x, unsigned int y);
 void libererTour(Tour *tour);
 
+void terminalTour(Tour *tour);
+void terminalListe(ListeTour liste);
+
+void reinitialiserCibles(ListeTour liste);
 bool estAPortee(Tour *tour, Monstre *monstre);
 bool doitChangerCible(Tour *tour);
 
@@ -67,8 +72,6 @@ void libererListeTour( ListeTour liste );
 * Renvoie -1 s'il n'y a aucune tour (x, y).
 * L'indice change à chaque suppression, il faut donc le recalculer souvent
 */
-Tour* accesTourIndice(int indiceTour, ListeTour liste);
-
 int trouverIndiceTour(ListeTour liste, unsigned int x, unsigned int y);
 int trouverIndiceTourRayon(ListeTour liste, unsigned int x, unsigned int y, int rayon);
 int calculerIndiceClique(int *indicesTours, int *distancesTours, int nombreToursTrouvees);
@@ -77,7 +80,11 @@ int calculerIndiceClique(int *indicesTours, int *distancesTours, int nombreTours
 void traitementListe(ListeTour *liste, clock_t deltaT,  Monstre **monstres, int nombreMonstres);
 
 
-void attaquerCible(Tour *tour);
+/* Une fonction de MONSTRE
+* on préfère que Monstre contrôle les dégats qu'il reçoie
+* pour qu'il sache qu'il doit disparaître
+*/
+bool recevoirDegats(Monstre *monstre, Tour *tour);
 void attaquerMonstres(ListeTour liste, clock_t deltaT,  Monstre **monstres, int nombreMonstres);
 
 /* Fait cibler la tour sur un monstre à portée
