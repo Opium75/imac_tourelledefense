@@ -1,6 +1,6 @@
 #include "../include/jeu.h"
 
-Jeu* creerJeu(unsigned char niveau, int pointage, int argent, Carte *carte, Cite *cite, Vague *chaine)
+Jeu* creerJeu(unsigned char niveau, Joueur *joueur, Carte *carte, Cite *cite, Vague *chaine)
 {
 	Jeu *jeu = malloc( sizeof(Jeu) );
 	if( !jeu )
@@ -9,8 +9,7 @@ Jeu* creerJeu(unsigned char niveau, int pointage, int argent, Carte *carte, Cite
 		exit(EXIT_FAILURE);
 	}
 	jeu->niveau = niveau;
-	jeu->pointage = pointage;
-	jeu->argent = argent;
+	jeu->joueur = joueur;
 	jeu->carte = carte;
 	jeu->cite = cite;
 	jeu->chaine = chaine;
@@ -26,8 +25,7 @@ Jeu* allouerJeu(void)
 		exit(EXIT_FAILURE);
 	}
 	jeu->niveau = 0;
-	jeu->pointage = 0;
-	jeu->argent = 0;
+	jeu->joueur = allouerJoueur();
 	jeu->carte = allouerCarte();
 	jeu->cite = allouerCite();
 	jeu->chaine = NULL;
@@ -36,6 +34,24 @@ Jeu* allouerJeu(void)
 	/** on initialise les ressources de l'affichage ailleurs **/
 	jeu->scene = NULL;
 	return jeu;
+}
+
+Joueur* allouerJoueur(void)
+{
+	Joueur *joueur = malloc(sizeof(Joueur));
+	if( !joueur )
+	{
+		printf("Joueur -- Échec d'allocation dynamique !\n");
+		exit(EXIT_FAILURE);
+	}
+	joueur->pointage = 0;
+	joueur->argent = 0;
+	return joueur;
+}
+
+void libererJoueur(Joueur *joueur)
+{
+	free(joueur);
 }
 
 void GEN_jeu(Jeu *jeu)
@@ -86,7 +102,7 @@ void traitementJeu(Jeu* jeu, time_t deltaT)
 	
 	/* les vagues de monstres */
 	
-	traitementChaine(&(jeu->chaine), deltaT, jeu->carte, jeu->cite, &(jeu->niveau), &(jeu->pointage), &(jeu->argent) );
+	traitementChaine(&(jeu->chaine), deltaT, jeu->carte, jeu->cite, &(jeu->niveau), &(jeu->joueur->pointage), &(jeu->joueur->argent) );
 	/* la vague, les monstres ont été mis à jour.
 	* On traite maintenant la cité.
 	*/
@@ -202,7 +218,8 @@ void gestionClic(Jeu *jeu, SDL_Event *e)
 {
 	Point coordClique;
 	calculerCoordonneesEchelle(&coordClique, e->button.x, e->button.y, jeu->image->dim);
-	//afficherPoint(jeu->image->dim);
+	
+	/*  */
 	Tour *tour = creerTour(T_rouge, coordClique.x, coordClique.y);
 	ajouterTourCite(tour, jeu->cite);
 }
@@ -219,6 +236,7 @@ void afficherJeu(Jeu *jeu)
 void libererJeu(Jeu *jeu)
 {
 	/* on libère tout */
+	libererJoueur(jeu->joueur);
 	libererCarte(jeu->carte);
 	libererCite(jeu->cite);
 

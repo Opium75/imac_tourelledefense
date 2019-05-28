@@ -18,11 +18,14 @@
 #include "affichage_element.h"
 
 
+typedef struct {
+	int pointage, argent;
+} Joueur;
 
 /* Mega-structure qui comprend toutes les autres */
 typedef struct {
 	unsigned char niveau;
-	int pointage, argent;
+	Joueur *joueur;
 	Carte *carte;
 	Cite *cite;
 	Vague *chaine;
@@ -41,10 +44,15 @@ void afficherJeu(Jeu *jeu);
 
 void boucleJeu(Jeu *jeu);
 
-Jeu* creerJeu(unsigned char niveau, int pointage, int argent, Carte *carte, Cite *cite, Vague *chaine);
-
+Jeu* creerJeu(unsigned char niveau, Joueur *joueur, Carte *carte, Cite *cite, Vague *chaine);
 Jeu* allouerJeu(void);
+
 void relancerJeu(Jeu *jeu);
+
+/** JOUEUR **/
+Joueur* allouerJoueur(void);
+void libererJoueur(Joueur *joueur);
+/**
 
 void lancerJeu(Jeu *jeu);
 void quitterJeu(Jeu *jeu);
