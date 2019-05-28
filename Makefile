@@ -1,6 +1,6 @@
 CC		= gcc
 CFLAGS	= -Wall #-O2 -g
-LDFLAGS	= -lSDL -lSDL_image -lGLU -lGL -lm
+LDFLAGS	= -lSDL -lSDL_image -lGLU -lGL -lm -lglut
 
 BINREP	= bin/
 SRCREP	= src/
