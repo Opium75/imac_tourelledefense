@@ -31,16 +31,15 @@ void fermerAffichage(SDL_Surface *scene)
 
 
 
-void chargerRessourcesAffichage(SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+void chargerRessourcesAffichage(SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions listeDim[], Dimensions *dimImage)
 {
     /* création des listes des types de lutins, et dimensions */
     TypeLutin listeType[NB_LUTINS];
-    Dimensions listeDim[NB_LUTINS];
     remplirListeType(listeType);
     remplirListeDimensions(listeDim, listeType);
     /* */
     /* chargement des textures */
-    chargerToutesTexturesLutins(lutins, banqueTextures);
+    chargerToutesTextures(lutins, banqueTextures);
     remplirBanqueAffichage(banqueAffichage, banqueTextures, listeType, listeDim, dimImage);
 }
 
@@ -61,7 +60,7 @@ void remplirBanqueAffichage(GLuint banqueAffichage[], GLuint banqueTextures[], T
     }
 }
 
-void chargerToutesTexturesLutins(SDL_Surface *lutins[], GLuint banqueTextures[])
+void chargerToutesTextures(SDL_Surface *lutins[], GLuint banqueTextures[])
 {
     /** SUITE À UNE ERREUR NON RÉSOLUE, QUI CORROMPT banqueTextures (chargée en tas, si c'est utile à savoir),
     * on utilise une banqueInter (chargée donc en pile) pour charger les textures,
@@ -89,9 +88,15 @@ void chargerToutesTexturesLutins(SDL_Surface *lutins[], GLuint banqueTextures[])
     /* un grand mystère. */
 }
 
+SDL_Surface* chargerTextureArrierePlan(GLuint idTexture)
+{
+    SDL_Surface *arrierePlan;
+    /* CHEMIN */
+}
+
 SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type)
 {
-    SDL_Surface* lutin;
+    SDL_Surface *lutin;
     /** CHEMIN **/
     char cheminLutin[MAX_TAILLE_CHEMIN_FICHIER];
     /* on construit le chemin du lutin */
@@ -181,6 +186,12 @@ void remplirListeDimensions(Dimensions listeDim[], TypeLutin listeType[])
     }
 }
 
+void GL_changerCouleurTrait(const unsigned char couleur[])
+{
+  glColor3f(couleur[0]/(double)MAX_VAL_COULEUR,
+              couleur[1]/(double)MAX_VAL_COULEUR,
+                couleur[2]/(double)MAX_VAL_COULEUR);
+}
 
 void calculerCoordonneesVirtuelles(Point *coord, double *posX, double *posY, Dimensions *dimImage)
 {
@@ -198,15 +209,19 @@ void calculerCoordonneesEchelle(Point *coord, int x, int y, Dimensions *dimImage
 
 void dessinerSegment(double x1, double y1, double x2, double y2, unsigned char couleur[NB_COULEURS])
 {
-    glColor3f(couleur[0]/(double)MAX_VAL_COULEUR, couleur[1]/(double)MAX_VAL_COULEUR, couleur[2]/(double)MAX_VAL_COULEUR);
-    glBegin(GL_LINES);
-        glVertex2f(x1, y1);
-        glVertex2f(x2, y2);
-    glEnd();
-    glColor3f(COULEUR_PARDEFAUT[0]/(double)MAX_VAL_COULEUR, COULEUR_PARDEFAUT[1]/(double)MAX_VAL_COULEUR, COULEUR_PARDEFAUT[2]/(double)MAX_VAL_COULEUR);
+    GL_changerCouleurTrait(couleur);
+        glBegin(GL_LINES);
+            glVertex2f(x1, y1);
+            glVertex2f(x2, y2);
+        glEnd();
+    GL_changerCouleurTrait(COULEUR_PARDEFAUT);    
 }
 
-
+void calculerDimensionsEchelle(Dimensions *dimEchelle, Dimensions *dimLutin)
+{
+    dimEchelle->x = dimLutin->x/(double)LARGEUR_FENETRE;
+    dimEchelle->y = dimLutin->y/(double)HAUTEUR_FENETRE;
+}
 
 void  dessinerLutinEchelle(GLuint idTexture, TypeLutin *type, Dimensions *dimLutin)
 {
@@ -219,23 +234,20 @@ void  dessinerLutinEchelle(GLuint idTexture, TypeLutin *type, Dimensions *dimLut
     glPushMatrix();
        glScalef(propX, propY, 1.);
             /* on le dessine en prenant en compte les transformations d'échelle */
-            dessinerLutin(idTexture, type);
+            dessinerTexture(idTexture);
     glPopMatrix();
 }
 
-
-void dessinerLutin(GLuint idTexture, TypeLutin *type)
+void dessinerArrierePlan()
 {
-    /* On va le dessiner en carré, aux dimensions de la fenêtre virtuelle.  */
+
+}
+
+void dessinerTexture(GLuint idTexture)
+{
+    /* On va la dessiner en carré, aux dimensions de la fenêtre virtuelle.  */
     double debut = 0., taille = 1.;
     double largeur = GL_VUE_LARGEUR, hauteur = GL_VUE_HAUTEUR;
-    if( type->nature == LUT_monstre )
-    {
-        /* on a le même lutin pour tous les monstres, 
-        * mais on change les couleurs selon le type.
-        */
-         glColor3f(COULEUR_MONSTRE[type->typeMonstre][0]/(double)MAX_VAL_COULEUR, COULEUR_MONSTRE[type->typeMonstre][1]/(double)MAX_VAL_COULEUR, COULEUR_MONSTRE[type->typeMonstre][2]/(double)MAX_VAL_COULEUR);
-    }
     glEnable(GL_TEXTURE_2D);
     glEnable (GL_BLEND);
         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
@@ -253,18 +265,13 @@ void dessinerLutin(GLuint idTexture, TypeLutin *type)
         glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
-    if( type->nature == LUT_monstre )
-    {
-        /* on réinitialise la couleur */
-        glColor3f(COULEUR_PARDEFAUT[0]/(double)MAX_VAL_COULEUR, COULEUR_PARDEFAUT[1]/(double)MAX_VAL_COULEUR, COULEUR_PARDEFAUT[2]/(double)MAX_VAL_COULEUR);
-    }
 }
 
 void calculerCouleurTir(unsigned char couleurTir[], Tour *tour)
 {
     double charge = tour->tempsTir_acc / (double) tour->tempsTir;
     /* on copie la couleur par défaut du trait */
-    copierCouleur(couleurTir, COULEUR_TRAIT);
+    copierCouleur(couleurTir, COULEUR_TRAIT[tour->type]);
     homothetieCouleur(couleurTir, charge);
 }
 

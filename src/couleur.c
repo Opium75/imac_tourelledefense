@@ -13,7 +13,7 @@ bool comparerCouleurs(unsigned char couleur1[], unsigned char couleur2[])
 	return true;
 }
 
-void copierCouleur(unsigned char copie[], unsigned char couleur[])
+void copierCouleur(unsigned char copie[], const unsigned char couleur[])
 {
 	int c;
 	for( c=0; c<NB_COULEURS; c++ )

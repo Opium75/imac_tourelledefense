@@ -24,8 +24,7 @@ bool lireCarte(FILE *fichierCarte, Carte *carte)
 	/***********/
 
 	/***** Lecture des paramètres d'en-tête ******/
-	valide = lireParametres(fichierCarte, version, &energie, carte->nomImage, carte->couleurClef);
-
+	valide = lireParametres(fichierCarte, carte);
 	if( !valide )
 	{
 		printf("Paramètres carte erronés, échec de lecture.\n");
@@ -43,17 +42,15 @@ bool lireCarte(FILE *fichierCarte, Carte *carte)
 	}
 	/***********/
 
-	/** étape supplémentaire : lister les entrées (pour vagues de monstres) et LA SEULE sortie **/
-	extraireEntreesSortie(&indicesEntrees, &nombreEntrees, &indiceSortie, nombreNoeuds, chemins);
-
 	/*Remplissage des champs de la carte.*/
 	carte->version = version;
 	carte->energie = energie;
 	carte->nombreNoeuds = nombreNoeuds;
 	carte->chemins = chemins;
-	carte->nombreEntrees = nombreEntrees;
-	carte->indicesEntrees = indicesEntrees;
-	carte->indiceSortie = indiceSortie;
+
+	/** étape supplémentaire : lister les entrées (pour vagues de monstres) et LA SEULE sortie **/
+	//extraireEntreeSortie(&indicesEntrees, &nombreEntrees, &indiceSortie, nombreNoeuds, chemins);
+	valide = extraireEntreesSorties(&(carte->indicesEntrees), &(carte->nombreEntrees), &(carte->indicesSorties), &(carte->nombreSorties), carte->nombreNoeuds, carte->chemins);
 
 	/********** Prochaine étape : vérifs -> verif_carte.c ***********/
 
@@ -83,16 +80,18 @@ bool lireVersion(FILE *fichierCarte, int *version)
 	return true;
 }
 
-bool lireParametres(FILE *fichierCarte, int version, unsigned int *energie, char nomImage[],  unsigned char couleurClef[][NB_COULEURS])
+bool lireParametres(FILE *fichierCarte, Carte *carte)
 {
 	int i, couleur;
 	int c, e;
+	bool valide, alireOption=false;
 
-	bool valide;
+	/* alias */
+	int version = carte->version;
 
 	char chaineMotClef[MAX_TAILLE_MOTCLEF];
 	MotClef MC_lu;
-
+	OPT_MotClef OPT_lue;
 	int aEteLu[ NB_PARAM_PAR_VERSION[version-1] ]; /*tableau de booléen qui permettra de savoir si on a lu les mot-clefs*/
 
 	for(i=0; i < NB_PARAM_PAR_VERSION[version-1]; i++) /*amorcé à 0*/
@@ -103,7 +102,6 @@ bool lireParametres(FILE *fichierCarte, int version, unsigned int *energie, char
 		if( fgetc(fichierCarte) == CODE_COM )
 		{
 			/*gestion des commetaire ?*/
-
 			/*On ignore le commentaire, on passe à la ligne suivante*/
 			sautLigne(fichierCarte);
 			i--; /*on  décrémente le compteur pour qu'il revienne à sa valeur initiale au début de la prochaine itération*/
@@ -117,15 +115,17 @@ bool lireParametres(FILE *fichierCarte, int version, unsigned int *energie, char
 			if ( !lireChaine(fichierCarte, "Paramètre", i, chaineMotClef) )
 				return false;
 			MC_lu = correspondanceMotClef(chaineMotClef, version);
-			if( MC_lu != -1 && aEteLu[MC_lu] ) /* si on avait déjà eu lu ce mot-clef, on  renvoie une erreur.*/
+			if( MC_lu != -1 && aEteLu[MC_lu] )
 			{
+				/* si on avait déjà eu lu ce mot-clef, on  renvoie une erreur.*/
 				printf("Paramètre -- Ligne n°%d, redéfinition du mot-clef %s.\n", i, MOTCLEFS[MC_lu]);
 				return false;
+				
 			}
 			switch( MC_lu )
 			{
 				case MC_carte :
-					if ( !lireChaine(fichierCarte, "Paramètre", i, nomImage) )
+					if ( !lireChaine(fichierCarte, "Paramètre", i, carte->nomImage) )
 						return false;
 					break;
 				case MC_energie :
@@ -137,7 +137,7 @@ bool lireParametres(FILE *fichierCarte, int version, unsigned int *energie, char
 					 	printf("Paramètre -- Ligne n°%d, valeur d'énergie incorrecte %d : doit être positive.\n", i, e);
 						return false;
 					 }
-					 *energie = e;
+					 carte->energie = e;
 					break;
 				case MC_chemin : case MC_noeud : case MC_construct : case MC_in : case MC_out :
 					/*Dans ce cas-là, MC_lu est compris entre 0 et le nombre de params de couleurs - 1, et les indices correspondent à couleurClef et MOTCLEFS.*/
@@ -150,17 +150,42 @@ bool lireParametres(FILE *fichierCarte, int version, unsigned int *energie, char
 							printf("Paramètre -- Ligne n°%d, valeur couleur incorrecte %d : maximum à %d.\n", i, c, MAX_VAL_COULEUR);
 							return false;
 						}
-						couleurClef[MC_lu][couleur] = c;
+						carte->couleurClef[MC_lu][couleur] = c;
 					}
 					break;
-				case -1 : /*Valeur de renvoi pour mot-clef non reconnu*/
-					printf("Paramètre -- Ligne n°%d, mot-clef non reconnu : %s (version %d).\n", i, chaineMotClef, version);
-					return false;
 				default :
-					printf("Vous ne devriez pas être ici !\n");
-					exit(EXIT_FAILURE);
+					/* on doit vérifier s'il s'agit d'une option */
+					alireOption = true;
+					break;
 			}
-			aEteLu[MC_lu]  = 1; /*On lu le mot-clef sans erreurs*/
+			if( alireOption )
+			{
+				OPT_lue = correspondanceOption(chaineMotClef);
+				switch( OPT_lue )
+				{
+					case OPT_arrierePlan :
+						if( !lireChaine(fichierCarte, "Paramètre", i, carte->nomArrierePlan) )
+							return false;
+						/* la carte possède un arrière-plan */
+						carte->possedeArrierePlan = true;
+						break;
+					case -1 : /*Valeur de renvoi pour mot-clef non reconnu*/
+						printf("Paramètre -- Ligne n°%d, mot-clef non reconnu : %s (version %d).\n", i, chaineMotClef, version);
+						return false;
+					default :
+						printf("Vous ne devriez pas être ici !\n");
+						exit(EXIT_FAILURE);
+
+				}
+				/* ON OUBLIE PAS DE RÉINITIALISER */
+				alireOption = false;
+				/* ET ON N'A PAS LU DE MOT-CLEF OBLIGATOIRE
+				* DONC ON N'INCRÉMENTE PAS
+				*/
+				i--;
+			}
+			else
+				aEteLu[MC_lu] = 1; /*On lu le mot-clef sans erreurs*/
 			/*On passe à la ligne suivante*/
 			sautLigne(fichierCarte);
 		}
@@ -177,6 +202,7 @@ bool lireParametres(FILE *fichierCarte, int version, unsigned int *energie, char
 			valide = false;
 		}
 	}
+	printf("Coucou <oifjzoqreij\n");
 	if( !valide )
 		printf("\n");
 	return valide;
@@ -226,6 +252,8 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 
 		/**** Vérifs paramètres ***.
 		/*indice du noeud est compris entre 0 et nombreNoeuds-1*/
+		/* PAS NÉCESSAIREMENT, IL FAUDRA FAIRE UNE VÉRIF EN PLUS
+		*/
 		if( indice != k ) /* ( indice < 0 || indice >= *nombreNoeuds ) marchera aussi, mais on nous impose un ordre.*/
 		{
 			printf("Graphe -- Ligne n°%d, indice %d invalide : doit être égal à la ligne.\n", k, indice);
@@ -240,14 +268,9 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 		/*VÉRIF ENTRÉE-SORTIE*/
 		if( type == entree )
 			entreeExiste = true;
-		if( type == sortie && !sortieExiste )
+		if( type == sortie )
 		{
-			/* on n'accepte qu'une seule sortie :*/
-			if(sortieExiste)
-			{
-				printf("Graphe -- Ligne n°%d, plusieurs noeuds de sortie.\n", k);
-				return false;	
-			}
+			/* nous acceptions maintenant plusieurs sorties */
 			sortieExiste = true;
 		}
 		/**/
@@ -312,6 +335,19 @@ MotClef correspondanceMotClef(char motClef[], int version)
 		}
 	}
 	return -1; /*valeur -1 taitée comme un échec*/
+}
+
+OPT_MotClef correspondanceOption(char option[])
+{
+	int i;
+	for( i=0; i<NB_PARAM_OPTION; i++ )
+	{
+		if( !strcmp(option, OPT_MOTCLEFS[i]) )
+		{
+			return (OPT_MotClef) i;
+		}
+	}
+	return -1; /* idem */
 }
 
 void sautLigne(FILE *fichierCarte)

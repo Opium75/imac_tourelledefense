@@ -1,6 +1,6 @@
 #include "../include/monstre.h"
 
-Monstre* creerMonstre(TypeMonstre type, Noeud *depart) 
+Monstre* creerMonstre(TypeMonstre type, unsigned char niveau, Noeud *depart) 
 {
 	Monstre *monstre = malloc( sizeof(Monstre) );
 	if( !monstre )
@@ -8,10 +8,10 @@ Monstre* creerMonstre(TypeMonstre type, Noeud *depart)
 		printf("Monstre - Échec d'allocation dynamique.\n");
 		exit(EXIT_FAILURE);
 	}
-	monstre->vieMax = calculerVie(type);
+	monstre->vieMax = calculerVie(type, niveau);
 	monstre->vie = monstre->vieMax;
-	monstre->vitesse = calculerVitesse(type);
-	monstre->attaque = calculerAttaque(type);
+	monstre->vitesse = calculerVitesse(type, niveau);
+	monstre->attaque = calculerAttaque(type, niveau);
 	calculerResistances(monstre->resistances, type);
 
 	monstre->type = type;
@@ -70,21 +70,21 @@ void attaquerJoueur(Monstre *monstre, int *pointage, int *argent)
 	(*pointage)--;
 }
 
-unsigned int calculerVie(TypeMonstre type)
+unsigned int calculerVie(TypeMonstre type, unsigned char niveau)
 {
-	unsigned int vie = VIE_BASE*VIE_TYPE[type];
+	unsigned int vie = VIE_BASE*VIE_TYPE[type]*niveau+1;
 	return vie;
 }
 
-int calculerVitesse(TypeMonstre type)
+int calculerVitesse(TypeMonstre type, unsigned char niveau)
 {
-	int vitesse = VITESSE_BASE*VITESSE_TYPE[type];
+	int vitesse = VITESSE_BASE*VITESSE_TYPE[type]*niveau+1;
 	return vitesse;
 }
 
-int calculerAttaque(TypeMonstre type)
+int calculerAttaque(TypeMonstre type, unsigned char niveau)
 {
-	int attaque = ATTAQUE_TYPE[type]*ATTAQUE_BASE;
+	int attaque = ATTAQUE_TYPE[type]*ATTAQUE_BASE*niveau+1;
 	return attaque;
 }
 

@@ -21,7 +21,7 @@ typedef enum {rouge, vert, bleu} Couleur;
 
 bool comparerCouleurs(unsigned char couleur1[], unsigned char couleur2[]);
 
-void copierCouleur(unsigned char copie[], unsigned char couleur[]);
+void copierCouleur(unsigned char copie[], const unsigned char couleur[]);
 
 void homothetieCouleur(unsigned char couleur[], double scalaire);
 

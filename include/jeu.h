@@ -11,6 +11,8 @@
 
 #include "./PPM_image/PPM_image.h"
 #include "carte.h"
+#include "lecture_fichier_carte.h"
+#include "verif_carte.h"
 #include "tour.h"
 #include "cite.h"
 #include "vague.h"
@@ -20,6 +22,7 @@
 
 typedef struct {
 	int pointage, argent;
+	char memTouche;
 } Joueur;
 
 /* Mega-structure qui comprend toutes les autres */
@@ -32,8 +35,10 @@ typedef struct {
 	PPM_Image *image;
 	/** pour l'affichage **/
 	SDL_Surface *lutins[NB_LUTINS];
-	GLuint banqueTextures[NB_LUTINS];
-	GLuint banqueAffichage[NB_LUTINS];
+	Dimensions listeDim[NB_LUTINS];
+	SDL_Surface *arrierePlan;
+	GLuint banqueTextures[NB_RESSOURCES];
+	GLuint banqueAffichage[NB_RESSOURCES];
 	SDL_Surface *scene;
 } Jeu;
 
@@ -46,6 +51,9 @@ void boucleJeu(Jeu *jeu);
 
 Jeu* creerJeu(unsigned char niveau, Joueur *joueur, Carte *carte, Cite *cite, Vague *chaine);
 Jeu* allouerJeu(void);
+
+/* LECTURE DES FICHIERS ETC AVANT JEU */
+bool preparerJeu(Jeu *jeu, char *nomDonnees);
 
 void relancerJeu(Jeu *jeu);
 
@@ -60,7 +68,9 @@ void quitterJeu(Jeu *jeu);
 /** SDL **/
 void boucleJeu(Jeu *jeu);
 bool interfaceJeu(Jeu *jeu);
+/**/
 void gestionClic(Jeu *jeu, SDL_Event *e);
+void gestionTouche(Jeu *jeu, SDL_Event *e);
 /** **/
 void traitementJeu(Jeu* jeu, time_t deltaT);
 

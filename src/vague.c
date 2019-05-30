@@ -338,7 +338,7 @@ Monstre** creerMonstresVague(unsigned char niveau, int *nombreMonstres, Noeud **
 	{
 		type = calculerTypeMonstre();
 		entree = calculerEntreeMonstre(entrees, nombreEntrees);
-		monstres[i] = creerMonstre(type, entree);
+		monstres[i] = creerMonstre(type, niveau, entree);
 	}
 	*nombreMonstres = nombre;
 	return monstres;

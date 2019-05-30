@@ -29,7 +29,7 @@
 * permettra de les manipuler plus facilement.
 */
 
-#define TAILLE_VAGUE_BASE 2
+#define TAILLE_VAGUE_BASE 20
 #define TEMPS_PAUSE_BASE 4 /*en secondes*/
 
 /* une constante de temps entre cle moment où la dernière vague s'achêve

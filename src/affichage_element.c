@@ -1,138 +1,163 @@
 
 #include "../include/affichage_element.h"
 
-void afficherVague(Vague *vague, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+void afficherVague(Vague *vague, GLuint banqueAffichage[], Dimensions listeDim[], Dimensions *dimImage)
 {
     int k;
+    int indiceBanque;
     Monstre *monstre;
+    /* on crée le type de lutin de toute pièce */
+    TypeLutin type;
+    type.nature = LUT_monstre;
     for( k=0; k<vague->nombreMonstres; k++ )
     {
+
         monstre = vague->monstres[k];
         if( monstre->etat == enMouvement )
-            afficherMonstre(monstre, banqueAffichage, banqueTextures, dimImage);
+        {
+             /* change le type */
+            type.typeMonstre = monstre->type;
+            /* calcule l'indice associé au type */
+            indiceBanque = correspondanceIndiceLutin(&type);
+            afficherMonstre(monstre, banqueAffichage[indiceBanque], &listeDim[indiceBanque], dimImage);
+        }
     }
 }
 
-void afficherChaine(Chaine chaine, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+void afficherChaine(Chaine chaine, GLuint banqueAffichage[], Dimensions listeDim[], Dimensions *dimImage)
 {
     /** on se contentera d'affciher la première vague lancée */
     while( chaine && chaine->etat != lancee )
         chaine = chaine->suivante;
     if( chaine )
-        afficherVague(chaine, banqueAffichage, banqueTextures, dimImage);
+        afficherVague(chaine, banqueAffichage, listeDim, dimImage);
 }
 
-void afficherCite(Cite *cite, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+void afficherCite(Cite *cite, GLuint banqueAffichage[], Dimensions listeDim[], Dimensions *dimImage)
 {
     /** on affichera pour l'instant que la liste des tours */
-    
-    afficherListeTour(cite->listeTour, banqueAffichage, banqueTextures, dimImage);
 
+    afficherListeTour(cite->listeTour, banqueAffichage,listeDim, dimImage);
 }
 
-void afficherListeTour(ListeTour liste, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+void afficherListeTour(ListeTour liste, GLuint banqueAffichage[], Dimensions listeDim[], Dimensions *dimImage)
 {
-
+    int indiceBanque;
+    /* idem Monstre */
+    TypeLutin type;
+    type.nature = LUT_tour;
     while( liste )
     {
-        afficherTour(liste, banqueAffichage, banqueTextures, dimImage);   
+        /* impérativement changer le type */
+        type.typeTour = liste->type;
+        indiceBanque = correspondanceIndiceLutin(&type);
+        /* */
+        afficherTour(liste, banqueAffichage[indiceBanque], &listeDim[indiceBanque], dimImage);   
         liste = liste->suivante;
     }
 }
 
-void afficherMonstre(Monstre *monstre, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+void afficherMonstre(Monstre *monstre, GLuint idAffichage, Dimensions *dimLutin, Dimensions *dimImage)
 {
-    /* on crée le type de lutin de toute pièce */
-    TypeLutin type;
-    type.nature = LUT_monstre;
-    type.typeMonstre = monstre->type;
-
+    double posX, posY;
+    
     /* on récupère les coordonnées du monstre */
     Point coordMonstre;
     calculerPositionMonstre(monstre, &coordMonstre);
+    /* calcul coordonnées virtuelles */
+    calculerCoordonneesVirtuelles(&coordMonstre, &posX, &posY, dimImage);
     /* on  affiche le monstre  */
-    afficherElement(&type, &coordMonstre, banqueAffichage, banqueTextures, dimImage );
+    /* on a le même lutin pour tous les monstres, 
+    * mais on change les couleurs selon le type.
+    */
+    GL_changerCouleurTrait(COULEUR_MONSTRE[monstre->type]);
+        glPushMatrix();
+            /* affiche le monstre au bon endroit */
+            glTranslatef(posX, posY, 0.);
+            afficherElement(idAffichage, dimLutin, dimImage);
+        glPopMatrix();
+        /* on réinitialise la couleur */
+    GL_changerCouleurTrait(COULEUR_PARDEFAUT);
 }
 
-void afficherTour(Tour *tour, GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions *dimImage)
+void afficherTour(Tour *tour, GLuint idAffichage, Dimensions *dimLutin, Dimensions *dimImage)
 {
+    /* la correspondance entre coordonnées (x,y) et position sur l'écran */
+    double posX, posY;
+    /* affichage prenant en compte les coordonn)ées de l'élémenent */
     double angle;
-    double xPos, yPos, xPosM, yPosM;
+    double mPosX, mPosY;
     Point coordCible;
     unsigned char couleurTir[NB_COULEURS];
-    /* on crée le type de lutin de toute pièce */
-    TypeLutin type;
-    type.nature = LUT_tour;
-    type.typeTour = tour->type;
+    /*  */
+    calculerCoordonneesVirtuelles(tour->coord, &posX, &posY, dimImage);
     /* on calcule l'angle par rapport à la cible */
     if( tour->cible )
     {
+        /* on calcule la position de la cible, l'angle */
         calculerPositionMonstre(tour->cible, &coordCible);
         angle = calculerAngle(tour->coord, &coordCible);
-        calculerCoordonneesVirtuelles(tour->coord, &xPos, &yPos, dimImage);
-        calculerCoordonneesVirtuelles(&coordCible, &xPosM, &yPosM, dimImage);
+        calculerCoordonneesVirtuelles(&coordCible, &mPosX, &mPosY, dimImage);
 
         /** Dessin **/
         /* ligne de mire*/
         calculerCouleurTir(couleurTir, tour);
-        dessinerSegment(xPos, yPos, xPosM, yPosM, couleurTir);
-        /* */
-        glPushMatrix();
-            /* on dirige la tour vers sa cible */
-            glTranslatef(xPos, yPos, 0.);
-            glRotatef(angle, 0., 0., 1.);
-            glTranslatef(-xPos, -yPos, 0.);
-             /* on  affiche le monstre  */
-            afficherElement(&type, tour->coord, banqueAffichage, banqueTextures, dimImage);
-        glPopMatrix();
+        dessinerSegment(posX, posY, mPosX, mPosY, couleurTir);
+        /** **/
     }
-    else
-    {
-        afficherElement(&type, tour->coord, banqueAffichage, banqueTextures, dimImage);
-    }
-}
-
-void afficherElement(TypeLutin *type, Point *coord, GLuint banqueAffichage[], GLuint banqueTextures[],  Dimensions *dimImage)
-{
-    /* l'indice du dessin dans la banque d'affichage */
-    int indice = correspondanceIndiceLutin(type);
-    /* la correspondance entre coordonnées (x,y) et position sur l'écran */
-    double posX, posY;
-    calculerCoordonneesVirtuelles(coord, &posX, &posY, dimImage);
-    /* affichage prenant en compte les coordonn)ées de l'élémenent */
-     
     glPushMatrix();
         /* On part du point en haut à gauche
         * de la fenêtre virtuelle,
         * d'où les deux soustractions
         */
         glTranslatef(posX, posY, 0.);
-        /* on appelle la liste d'affichage qui contient le lutin */
-        glPushMatrix();
-             glCallList(banqueAffichage[indice]);
-        glPopMatrix();
+        if( tour->cible )
+        {
+            /* on fait pointer la tour vers sa cible */
+             glRotatef(angle, 0., 0., 1.);
+             /* on dessine la ligne de mire */
+        }
+        /* on appelle la liste d'affichage qui contient le lutin
+        * la fonction mettra aussi le lutin à l'échelle
+         */
+        afficherElement(idAffichage, dimLutin, dimImage);
     glPopMatrix();
 }
 
-/////TEXTES/////////////
+
+void afficherElement(GLuint idAffichage, Dimensions *dimLutin, Dimensions *dimImage)
+{
+    /* affichage prenant en compte les dimensions de l'élément */
+    Dimensions dimEchelle;
+    calculerDimensionsEchelle(&dimEchelle, dimLutin);
+    /* */
+    glPushMatrix();
+        /* echelle */
+        //glScalef(dimEchelle.x, dimEchelle.y, 0.);
+        /* on appelle la liste d'affichage qui contient le lutin */
+        glCallList(idAffichage);
+    glPopMatrix();
+}
+
+/////TEXTES////////////
 
 void vBitmapOutput(int x, int y, char *string, void *font)
 {
     int len,i; // len donne la longueur de la chaîne de caractères
-
     glRasterPos2f(x,y); // Positionne le premier caractère de la chaîne
-    len = (int) strlen(string); // Calcule la longueur de la chaîne
-    for (i = 0; i < len; i++) glutBitmapCharacter(font,string[i]); // Affiche chaque caractère de la chaîne
+    len = (int)strlen(string); // Calcule la longueur de la chaîne
+    for(i = 0; i < len; i++)
+        glutBitmapCharacter(font,string[i]); // Affiche chaque caractère de la chaîne
 }
 
 void vStrokeOutput(GLfloat x, GLfloat y, char *string, void *font)
 {
     char *p;
-
     glPushMatrix(); // glPushMatrix et glPopMatrix sont utilisées pour sauvegarder 
             // et restaurer les systèmes de coordonnées non translatés
-    glTranslatef(x, y, 0); // Positionne le premier caractère de la chaîne
-    for (p = string; *p; p++) glutStrokeCharacter(font, *p); // Affiche chaque caractère de la chaîne
+        glTranslatef(x, y, 0); // Positionne le premier caractère de la chaîne
+        for(p = string; *p; p++)
+            glutStrokeCharacter(font, *p); // Affiche chaque caractère de la chaîne
     glPopMatrix();
 }
 

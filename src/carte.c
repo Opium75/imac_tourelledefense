@@ -9,6 +9,10 @@ Carte* allouerCarte(void)
 		printf("Échec d'allocation de la carte.\n");
 		exit(EXIT_FAILURE);
 	}
+	carte->chemins = NULL;
+	carte->indicesEntrees = NULL;
+	carte->indicesSorties =NULL;
+	carte->nombreSorties = NULL;
 	return carte;
 }
 
@@ -16,12 +20,14 @@ void libererCarte(Carte *carte)
 {
 	libererGraphe(carte->nombreNoeuds, carte->chemins);
 	libererIndicesEntrees(carte->indicesEntrees);
+	libererIndicesSorties(carte->indicesSorties, carte->nombreEntrees);
 	free(carte);
 }
 
 void terminalCarte(Carte *carte)
 {
 	MotClef MC_lu;
+	OPT_MotClef OPT_lue;
 	printf("\n--- AFFICHAGE CARTE ---\n");
 	/*** Version ***/
 	printf("Version carte : %d\n", carte->version);
@@ -35,6 +41,11 @@ void terminalCarte(Carte *carte)
 		printf("Couleur %s : ", MOTCLEFS[MC_lu]);
 		afficherCouleur(carte->couleurClef[MC_lu]);
 	}
+	if( carte->possedeArrierePlan )
+	{
+		printf("(*) Arrière-plan : %s\n", carte->nomArrierePlan);
+	}
+
 	/*** Chemins ***/
 	afficherGraphe(carte->chemins, carte->nombreNoeuds);
 	printf("\n--- FIN AFFICHAGE ---\n");

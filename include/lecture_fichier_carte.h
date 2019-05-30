@@ -20,7 +20,7 @@
 
 /*Étapes de lecture*/
 bool lireVersion(FILE *fichierCarte, int *version); /*Fonctionne pour l'instant uniquement pour des cartes de version 1*/
-bool lireParametres(FILE *fichierCarte, int version, unsigned int *energie, char nomImage[],  unsigned char couleurClef[][NB_COULEURS]);
+bool lireParametres(FILE *fichierCarte, Carte *carte);
 bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins);
 /**/
 
@@ -29,6 +29,7 @@ bool lireCarte(FILE *fichierCarte, Carte *carte); /*avec structure Carte*/
 /**/
 
 MotClef correspondanceMotClef(char motClef[], int version);
+OPT_MotClef correspondanceOption(char option[]);
 
 /*Fonction de formatage*/
 void sautLigne(FILE *fichierCarte);

@@ -58,8 +58,22 @@ Graphe* matriceVersListeGraphe(int nombreNoeuds, Graphe_MatAdj *grapheMat);
 /* à partir de la matrice d'adjacence associée*/
 
 /* utilisées lors de la constitution de la Carte */
-void extraireEntreesSortie(int **indicesEntrees, int *nombreEntrees, int *indiceSortie, int nombreNoeuds, Graphe *graphe);
+//void extraireEntreeSortie(int **indicesEntrees, int *nombreEntrees, int *indiceSortie, int nombreNoeuds, Graphe *graphe);
+
+/** PARCOURS EN PROFONDEUR / ENTRÉES SORTIES **/
+bool extraireEntreesSorties(int **indicesEntrees, int *nombreEntrees, int ***indicesSorties, int **nombreSorties, int nombreNoeuds, Graphe *graphe);
+void extraireEntrees(int **indicesEntrees, int *nombreEntrees, int nombreNoeuds, Graphe *graphe);
+bool extraireSorties(Noeud *noeud, int indiceEntree, int **indicesSorties, int *nombreSorties);
+
+int compterSorties(Noeud *noeud);
+void REC_compterSorties(Noeud *noeud, int indiceEntree, int *nombreSorties);
+
+void enregistrerSorties(Noeud *noeud, int *indicesSorties, int nombreSorties);
+void REC_enregistrerSorties(Noeud *noeud, int indiceEntree, int *indicesSorties, int *compteur, int nombreSorties);
+
 void libererIndicesEntrees(int* indicesEntrees);
+void libererIndicesSorties(int** indicesSorties, int nombreEntrees);
+/** **/
 
 /* utilisées dans la vérification de la Carte,
 * et l'algorithme du plus court chemin.

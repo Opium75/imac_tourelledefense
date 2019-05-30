@@ -6,6 +6,8 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 	int *indicesPrecedents, *parcours;
 	Noeud *noeud0 = monstre->depart;
 	/* On récupère les indices des précédents par l'algorithme de dijkstra */
+	/* On commence par calculer les distances à
+	* pou
 	indicesPrecedents = dijkstra(noeud0, carte->chemins, carte->nombreNoeuds, cite->listeTour);
 	/* On reconstruit le parcours à effectuer
 	* à noter que (i <= nombreNoeuds) ne doit pas se produire
@@ -121,7 +123,7 @@ bool changerSegmentMonstre(Monstre *monstre, double reste, Carte *carte, Cite *c
 }
 
 
-int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour)
+int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour, int *distanceSortie, bool renvoyerIndices)
 {
 	int j, indiceMin, d;
 	Noeud *noeud, *voisin;
@@ -130,23 +132,30 @@ int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour)
 	int *distances = creerVecteurEntier(nombreNoeuds, -1);
 	int *listeVerifies = creerVecteurEntier(nombreNoeuds, 0);
 	/* Liste chaînée qui décrira le résultat */
-	int *indicesPrecedents = creerVecteurEntier(nombreNoeuds, -1);
+	int *indicesPrecedents = NULL
+	if( renvoyerIndices )
+		indicesPrecedents = creerVecteurEntier(nombreNoeuds, -1);
 
 	/** Traitement **/
 	distances[noeud0->indice] = 0;
 	noeud = noeud0;
-
+	/* on renvoie aussi la distance à cette sortie,
+	* pour la comparer aux autres sorties
+	*/
+	*distanceSortie = 0;
 	while( noeud )
 	{
 		listeVerifies[noeud->indice] = true;
 		for( j=0; j<noeud->nombreSuccesseurs; j++ )
 		{
 			voisin = noeud->successeurs[j];
-			d = distances[noeud->indice] == -1 ? -1 : distances[noeud->indice] + calculerDistancePonderee(noeud, voisin, listeTour);
+			d = (distances[noeud->indice] == -1) ? -1 : distances[noeud->indice] + calculerDistancePonderee(noeud, voisin, listeTour);
 			if(  d != -1 && ( d < distances[voisin->indice] || distances[voisin->indice] == -1) )
 			{
 				distances[voisin->indice] = d;
-				indicesPrecedents[voisin->indice] = noeud->indice;
+				*distanceSortie +=d;
+				if( renvoyerIndices)
+					indicesPrecedents[voisin->indice] = noeud->indice;
 			}
 		}
 		indiceMin = indiceMinDistance(listeVerifies, distances, nombreNoeuds);
@@ -158,7 +167,9 @@ int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour)
 	/** Libération des tableaux **/
 	libererVecteurEntier(listeVerifies);
 	libererVecteurEntier(distances);
-
+	/* si on ne fait que calculer les distances,
+	* on renvoie pointeur nul
+	*/
 	return indicesPrecedents;
 }
 
@@ -205,11 +216,16 @@ int indiceMinDistance(int *listeVerifies, int *distances, int nombreNoeuds)
 	{
 		if( !listeVerifies[i] )
 		{
-			if( !trouve || ( ( distances[i] != -1 ) && distances[i] < minimum ) )
+			if( !trouve )
 			{
 				indiceMin = i;
 				minimum = distances[i];
 				trouve = true;
+			}
+			else if(  ( distances[i] != -1 ) && distances[i] < minimum )
+			{
+				indiceMin = i;
+				minimum = distances[i];
 			}
 		}
 	}

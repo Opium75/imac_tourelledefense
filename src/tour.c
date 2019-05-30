@@ -41,11 +41,13 @@ void terminalTour(Tour *tour)
 
 void terminalListe(ListeTour liste)
 {
+	printf("Liste de tours : \n");
 	while( liste )
 	{
 		terminalTour(liste);
 		liste = liste->suivante;
 	}
+	printf("\n");
 }
 
 bool recevoirDegats(Monstre *monstre, Tour *tour)

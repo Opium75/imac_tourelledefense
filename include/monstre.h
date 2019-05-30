@@ -68,13 +68,13 @@ typedef struct Monstre {
 	unsigned char modif_INDIC_mem;
 } Monstre;
 
-Monstre* creerMonstre(TypeMonstre type, Noeud *depart);
+Monstre* creerMonstre(TypeMonstre type, unsigned char niveau, Noeud *depart);
 void libererMonstre( Monstre *monstre);
 void terminalMonstre(Monstre *monstre);
 
-unsigned int calculerVie(TypeMonstre type);
-int calculerVitesse(TypeMonstre type);
-int calculerAttaque(TypeMonstre type);
+unsigned int calculerVie(TypeMonstre type, unsigned char niveau);
+int calculerVitesse(TypeMonstre type, unsigned char niveau);
+int calculerAttaque(TypeMonstre type, unsigned char niveau);
 void calculerResistances(unsigned int resistances[], TypeMonstre type);
 
 void attaquerJoueur(Monstre *monstre, int *pointage, int *argent);
