@@ -57,8 +57,9 @@ typedef struct _VAGUE {
 	/* Les monstres peuvent venir de plusieurs entrées*/
 	Noeud **entrees;
 	/* le noeud de sortie de la carte.  */
-	Noeud *sortie;
+	Noeud ***sorties;
 	int nombreEntrees;
+	int *nombreSorties;
 	/* Voir ici un tableau dynamique de pointeurs sur Monstre*/
 	Monstre **monstres;
 	int nombreMonstres;
@@ -106,10 +107,13 @@ clock_t calculerTempsPause(unsigned char niveau);
 int calculerNombreEntrees(int nombreEntreesTotal);
 int calculerNombreMonstres(unsigned char niveau);
 
-Noeud** calculerEntreesVague(int *nombreEntrees, Carte *carte);
+Noeud** calculerEntreesVague(int *nombreEntrees,  Carte *carte);
+Noeud*** calculerSortiesVague(Noeud **entrees, int nombreEntrees, int **nombreSortiesVague, Carte *carte);
+
 Monstre** creerMonstresVague(unsigned char niveau, int *nombreMonstres, Noeud **entrees, int nombreEntrees);
 
 void libererMonstresVague(int nombreMonstres, Monstre **monstres);
-void libereEntreesVague(int nombreEntreesVague, Noeud **entrees);
+void libererEntreesVague(int nombreEntreesVague, Noeud **entrees);
+void libererSortiesVague(int nombreEntreesVague, Noeud ***sorties, int *nombreSorties);
 
 #endif

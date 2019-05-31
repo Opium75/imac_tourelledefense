@@ -79,8 +79,7 @@ static const char *NOM_IMAGE_MONSTRE[] = {"virus"};
 static const char EXTENTION[] = ".png";
 
 
-
-SDL_Surface* lancerAffichage(void);
+void lancerAffichage(SDL_Surface **scene);
 void fermerAffichage(SDL_Surface *scene);
 
 void calculerCoordonneesVirtuelles(Point *coord, double *posX, double *posY, Dimensions *dimImage);

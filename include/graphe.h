@@ -63,13 +63,14 @@ Graphe* matriceVersListeGraphe(int nombreNoeuds, Graphe_MatAdj *grapheMat);
 /** PARCOURS EN PROFONDEUR / ENTRÉES SORTIES **/
 bool extraireEntreesSorties(int **indicesEntrees, int *nombreEntrees, int ***indicesSorties, int **nombreSorties, int nombreNoeuds, Graphe *graphe);
 void extraireEntrees(int **indicesEntrees, int *nombreEntrees, int nombreNoeuds, Graphe *graphe);
-bool extraireSorties(Noeud *noeud, int indiceEntree, int **indicesSorties, int *nombreSorties);
+bool extraireSorties(Noeud *noeud, int indiceEntree, int **indicesSorties, int *nombreSorties, int nombreNoeuds);
 
-int compterSorties(Noeud *noeud);
-void REC_compterSorties(Noeud *noeud, int indiceEntree, int *nombreSorties);
+int compterSorties(Noeud *noeud, int nombreNoeuds);
+void REC_compterSorties(Noeud *noeud, int *nombreSorties, int *listeComptes);
 
-void enregistrerSorties(Noeud *noeud, int *indicesSorties, int nombreSorties);
-void REC_enregistrerSorties(Noeud *noeud, int indiceEntree, int *indicesSorties, int *compteur, int nombreSorties);
+void enregistrerSorties(Noeud *noeud, int *indicesSorties, int nombreSorties, int nombreNoeuds);
+void REC_enregistrerSorties(Noeud *noeud, int *indicesSorties, int *compteur, int nombreSorties, int *listeComptes);
+
 
 void libererIndicesEntrees(int* indicesEntrees);
 void libererIndicesSorties(int** indicesSorties, int nombreEntrees);

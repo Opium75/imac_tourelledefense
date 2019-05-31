@@ -55,7 +55,9 @@ Jeu* allouerJeu(void);
 /* LECTURE DES FICHIERS ETC AVANT JEU */
 bool preparerJeu(Jeu *jeu, char *nomDonnees);
 
+void lancerJeu(Jeu *jeu);
 void relancerJeu(Jeu *jeu);
+void quitterJeu(Jeu *jeu);
 
 /** JOUEUR **/
 Joueur* allouerJoueur(void);

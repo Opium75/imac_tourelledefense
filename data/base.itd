@@ -1,7 +1,7 @@
 @ITD 1
 #There was a button, I pushed it.
 carte base.ppm
-arriereplan infox.png
+#arriereplan infox.png
 construct 255 200 80
 in 0 200 0
 out 200 0 0

@@ -13,6 +13,7 @@ Jeu* creerJeu(unsigned char niveau, Joueur *joueur, Carte *carte, Cite *cite, Va
 	jeu->carte = carte;
 	jeu->cite = cite;
 	jeu->chaine = chaine;
+
 	return jeu;
 }
 
@@ -33,6 +34,7 @@ Jeu* allouerJeu(void)
 
 	/** on initialise les ressources de l'affichage ailleurs **/
 	jeu->scene = NULL;
+	jeu->arrierePlan = NULL;
 	return jeu;
 }
 
@@ -62,8 +64,6 @@ bool preparerJeu(Jeu *jeu, char *nomDonnees)
 	char cheminImage[MAX_TAILLE_CHEMIN_FICHIER];
 
 	int nombreModif;
-
-	jeu->carte = allouerCarte();
 
 	/*** Chemin du fichier et Ouverture ***/
 	printf("Chargement de la carte...");
@@ -97,13 +97,14 @@ bool preparerJeu(Jeu *jeu, char *nomDonnees)
 	}
 	printf(" Fait !\n");
 	/*Lecture de l'image associée*/
-	printf("Lecture des données image...\n");
+	printf("Lecture des données image...");
 	if( !PPM_lireImage(fichierImage, &(jeu->image) ) )
 		return false;
-
+	printf(" Fait ! \n");
 	
 
 	/** VÉRIFICATIONS **/
+	printf("Vérification des chemins...");
 	if( !validerChemins(jeu->carte, jeu->image, &nombreModif) )
 	{
 		printf("IMAGE INCORRECTE (modifications : %d)\n", nombreModif);
@@ -124,6 +125,7 @@ bool preparerJeu(Jeu *jeu, char *nomDonnees)
 		printf(" Fait !\n");
 			return false;
 	}
+	printf(" Fait ! \n");
 	/*** Chargement de l'image associée ***/
 	return true;
 }
@@ -144,12 +146,12 @@ void lancerJeu(Jeu *jeu)
 	Vague *vague = creerVague(jeu->niveau, jeu->carte);
 	jeu->chaine = vague;
 	lancerVague(jeu->chaine, jeu->carte, jeu->cite);
-
 	/** AFFICHAGE **/
 	/** LANCER LE CONTEXTE OPENGL D'AFFICHAGE
 	*** AVANT DE CHARGER LES RESSOURCES !!!
 	***/
-	jeu->scene = lancerAffichage();
+	lancerAffichage(jeu->scene);
+
 	chargerRessourcesAffichage(jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures, jeu->listeDim, jeu->image->dim);
 	
 }

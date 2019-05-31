@@ -19,15 +19,12 @@ int main(int argc, char *argv[])
 	/* on initialise la graine pour le tirage pseudo-aléatoire */
 	srand(time(NULL));
 
-	
-
 	/*****/
 	if( !preparerJeu(jeu, argv[1]) )
 	{
 		printf("Jeu -- Échec de préparation.\n");
 		return EXIT_FAILURE;
 	}
-
 	/***Lancement du jeu ***/
 	printf("Lancement du jeu...");
 	lancerJeu(jeu);

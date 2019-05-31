@@ -3,7 +3,8 @@
 Vague* creerVague(unsigned char niveau, Carte *carte)
 {
 	int nombreEntrees, nombreMonstres;
-	Noeud **entrees;
+	Noeud **entrees, ***sorties;
+	int *nombreSorties;
 	Monstre **monstres;
 	Vague *vague = malloc( sizeof(Vague) );
 	if( !vague ) 
@@ -22,22 +23,53 @@ Vague* creerVague(unsigned char niveau, Carte *carte)
 	/* on a pas encore déployé la vague */
 	vague->etat = nonLancee;
 
-	/*On récupère le noeud de sortie */
-	vague->sortie = carte->chemins[carte->indiceSortie];
-
 	/* On calcule d'abord les entrées, puis les monstres grâce aux entrées */
 	entrees = calculerEntreesVague(&nombreEntrees, carte);
-	monstres = creerMonstresVague(niveau, &nombreMonstres, entrees, nombreEntrees);
-
 	vague->entrees = entrees;
-	vague->monstres = monstres;
-
 	vague->nombreEntrees = nombreEntrees;
+	/*On récupère les noeuds de sortie correspondants*/
+	sorties = calculerSortiesVague(entrees, nombreEntrees, &nombreSorties, carte);
+	vague->sorties = sorties;
+	vague->nombreSorties = nombreSorties;
+
+	/**/
+	monstres = creerMonstresVague(niveau, &nombreMonstres, entrees, nombreEntrees);
+	vague->monstres = monstres;
 	vague->nombreMonstres = nombreMonstres;
 
 	vague->suivante = NULL;
 	
 	return vague;
+}
+
+Noeud*** calculerSortiesVague(Noeud **entrees, int nombreEntrees, int **nombreSortiesVague, Carte *carte)
+{
+	int k, j, indiceEntree;
+	Noeud ***sorties = malloc( nombreEntrees * sizeof(Noeud**) );
+	if( !sorties )
+	{
+		printf("Vague -- Échec d'allocation des sorties (nombre d'entrées : %d).\n", nombreEntrees);
+		exit(EXIT_FAILURE);
+	}
+	int indicesSortie;
+	*nombreSortiesVague = creerVecteurEntier(nombreEntrees,-1);
+	for( k=0; k<nombreEntrees; k++ )
+	{
+		indiceEntree = correspondanceIndicesEntrees(entrees[k]->indice, carte->indicesEntrees, carte->nombreEntrees);
+		(*nombreSortiesVague)[k] = carte->nombreSorties[indiceEntree];
+		sorties[k] = malloc( (*nombreSortiesVague)[k] * sizeof(Noeud*) );
+		if( !sorties )
+		{
+			printf("Vague -- Échec d'allocation des sorties (nombre de sorties : %d).\n", (*nombreSortiesVague)[k]);
+			exit(EXIT_FAILURE);
+		}
+		//
+		for( j=0; j<(*nombreSortiesVague)[k]; j++ )
+		{
+			sorties[k][j] = carte->chemins[ carte->indicesSorties[indiceEntree][j] ];
+		}
+	}
+	return sorties;
 }
 
 void calculerParcours(Monstre *monstre, Carte *carte, Cite *cite)
@@ -262,8 +294,8 @@ void terminalVague(Vague *vague)
 	printf("Entrées : \n");
 	afficherGraphe(vague->entrees, vague->nombreEntrees);
 	/*** Sortie ***/
-	printf("Sortie : \n");
-	afficherNoeud(vague->sortie);
+	printf("Sortiew : \n");
+	//afficherGraphe(vague->sortie, ...);
 
 	/*** Monstres ***/
 	printf("Monstres : (nombre = %d)\n", vague->nombreMonstres);
@@ -301,7 +333,7 @@ double calculerTempsSecondes(clock_t temps)
 }
 
 
-Noeud** calculerEntreesVague(int *nombreEntrees, Carte *carte)
+Noeud** calculerEntreesVague(int *nombreEntrees,  Carte *carte)
 {
 	/* tirages uniformes avec rand() */
 	int k, indice;
@@ -309,7 +341,7 @@ Noeud** calculerEntreesVague(int *nombreEntrees, Carte *carte)
 	Noeud **entrees = malloc( nombreEntreesVague * sizeof(Noeud*) );
 	if( !entree )
 	{
-		printf("Erreur, échec d'allocation dynamique, pour une vague !\n");
+		printf("Erreur, échec d'allocation dynamique pour une vague !\n");
 		exit(EXIT_FAILURE);
 	}
 	for( k=0; k<nombreEntreesVague; k++ )
@@ -354,12 +386,22 @@ void libererMonstresVague(int nombreMonstres, Monstre **monstres)
 	free(monstres);
 }
 
-void libereEntreesVague(int nombreEntreesVague, Noeud **entrees)
+void libererEntreesVague(int nombreEntreesVague, Noeud **entrees)
 {
 	/*On ne libére pas les noeuds, seulement le pointeur sur eux*/
 	free(entrees);
 }
 
+void libererSortiesVague(int nombreEntreesVague, Noeud ***sorties, int *nombreSorties)
+{
+	/* idem */
+	int i;
+	for( i=0; i<nombreEntreesVague; i++ )
+	{
+		free(sorties[i]);
+	}
+	free(nombreSorties);
+}
 void libererVague(Vague *vague, ListeTour liste)
 {
 	/* les tours abandonnent leur cible */
@@ -367,6 +409,7 @@ void libererVague(Vague *vague, ListeTour liste)
 	/* on libère les monstres */
 	libererMonstresVague(vague->nombreMonstres, vague->monstres);
 	/* libérer entrées ?*/
-	libereEntreesVague(vague->nombreEntrees, vague->entrees);
+	libererEntreesVague(vague->nombreEntrees, vague->entrees);
+	libererSortiesVague(vague->nombreEntrees, vague->sorties, vague->nombreSorties);
 	free(vague);
 }

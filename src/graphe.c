@@ -65,17 +65,20 @@ bool extraireEntreesSorties(int **indicesEntrees, int *nombreEntrees, int ***ind
 	bool possedeSortie;
 	/* on extrait d'abord les entrées */
 	extraireEntrees(indicesEntrees, nombreEntrees, nombreNoeuds, graphe);
+	afficherVecteurEntier( *indicesEntrees, *nombreEntrees);
 	/* puis les sorties correspondantes */
-	*indicesSorties = malloc( (*nombreEntrees) * sizeof(int*) );
+	*indicesSorties = malloc( (*nombreEntrees) * sizeof(int**) );
 	if( !indicesSorties )
 	{
 		printf("Carte -- Échec d'allocation des sorties !\n");
 		exit(EXIT_FAILURE);
 	}
+	*nombreSorties = creerVecteurEntier(*nombreEntrees, 0);
 	for( k=0; k<*nombreEntrees; k++ )
 	{
 		noeud = graphe[ (*indicesEntrees)[k] ];
-		possedeSortie = extraireSorties(noeud, (*indicesEntrees)[k], indicesSorties[k], nombreSorties[k]);
+		possedeSortie = extraireSorties(noeud, (*indicesEntrees)[k], &(*indicesSorties)[k], &(*nombreSorties)[k], nombreNoeuds);
+		afficherVecteurEntier( (*indicesSorties)[k], (*nombreSorties)[k] );
 		if( !possedeSortie )
 		{
 			printf("Graphe -- le noeud d'entrée n°%d n'admet aucun chemin vers une sortie.\n", (*indicesEntrees)[k]);
@@ -95,8 +98,8 @@ void extraireEntrees(int **indicesEntrees, int *nombreEntrees, int nombreNoeuds,
 			compteur++;
 	}
 	*nombreEntrees = compteur;
-	/* On se débarrasse de l'espace inutilisé */
 	*indicesEntrees = creerVecteurEntier(*nombreEntrees, 0);
+	compteur = 0;
 	for( i=0; i<nombreNoeuds; i++ )
 	{
 		if( (graphe[i])->type == entree )
@@ -107,17 +110,13 @@ void extraireEntrees(int **indicesEntrees, int *nombreEntrees, int nombreNoeuds,
 	}
 }
 
-bool extraireSorties(Noeud *noeud, int indiceEntree, int **indicesSorties, int *nombreSorties)
+bool extraireSorties(Noeud *noeud, int indiceEntree, int **indicesSorties, int *nombreSorties, int nombreNoeuds)
 {
-	int j;
-	Noeud *voisin;
-	bool possedeSortie;
-	int compteur;
 	/* */
-	possedeSortie = false;
-	compteur = 0;
 	/* premier passage où l'on ne fait que compter les sorties */
-	(*nombreSorties) = compterSorties(noeud);
+	
+	*nombreSorties = compterSorties(noeud, nombreNoeuds);
+
 	if( (*nombreSorties) == 0 )
 	{
 		/* pas de sortie pour ce noeud 
@@ -126,21 +125,24 @@ bool extraireSorties(Noeud *noeud, int indiceEntree, int **indicesSorties, int *
 		return false;
 	}
 	/* cette fois on les enregistre */
-	*indicesSorties = creerVecteurEntier(*nombreSorties,0); 
-	enregistrerSorties(noeud, *indicesSorties, *nombreSorties);
+	*indicesSorties = creerVecteurEntier(*nombreSorties,0);
+	enregistrerSorties(noeud, *indicesSorties, *nombreSorties, nombreNoeuds);
 	return true;
 }
 
-int compterSorties(Noeud *noeud)
+int compterSorties(Noeud *noeud, int nombreNoeuds)
 {
 	/* compte les sorties à partir d'UNE ENTRÉE */
 
 	int nombreSorties = 0;
-	REC_compterSorties(noeud, noeud->indice, &nombreSorties);
+	/* on garde en mémoire un noeud déjà compté */
+	int *listeComptes = creerVecteurEntier(nombreNoeuds, 0);
+	REC_compterSorties(noeud, &nombreSorties, listeComptes);
+	libererVecteurEntier(listeComptes);
 	return nombreSorties;
 }
 
-void REC_compterSorties(Noeud *noeud, int indiceEntree, int *nombreSorties)
+void REC_compterSorties(Noeud *noeud, int *nombreSorties, int *listeComptes)
 {
 	int j;
 	Noeud *voisin;
@@ -148,27 +150,28 @@ void REC_compterSorties(Noeud *noeud, int indiceEntree, int *nombreSorties)
 	for(j=0; j<noeud->nombreSuccesseurs; j++)
 	{
 		voisin = noeud->successeurs[j];
-		if( voisin->indice == indiceEntree )
+		if( !listeComptes[j] )
 		{
-			/* on a une boucle, on abandonne ce chemin */
-			continue;
-		}
-		else if( voisin->type == sortie )
-		{
-			(*nombreSorties)++;
-		}
-		else
-		{
-			/* on compte au niveau d'en-dessous */
-			REC_compterSorties(voisin, indiceEntree, nombreSorties);
+			if( voisin->type == sortie )
+			{
+				(*nombreSorties)++;
+				listeComptes[voisin->indice] = 1;
+			}
+			else
+			{
+				/* on compte au niveau d'en-dessous */
+				REC_compterSorties(voisin, nombreSorties, listeComptes);
+			}
 		}
 	}
 }
 
-void enregistrerSorties(Noeud *noeud, int *indicesSorties, int nombreSorties)
+void enregistrerSorties(Noeud *noeud, int *indicesSorties, int nombreSorties, int nombreNoeuds)
 {
 	int compteur = 0;
-	REC_enregistrerSorties(noeud, noeud->indice, indicesSorties, &compteur, nombreSorties);
+	int *listeComptes = creerVecteurEntier(nombreNoeuds, 0);
+	REC_enregistrerSorties(noeud, indicesSorties, &compteur, nombreSorties, listeComptes);
+	libererVecteurEntier(listeComptes);
 	if( compteur != nombreSorties )
 	{
 		/* à la fin, on doit avoir le même nombre
@@ -179,7 +182,7 @@ void enregistrerSorties(Noeud *noeud, int *indicesSorties, int nombreSorties)
 	}
 }
 
-void REC_enregistrerSorties(Noeud *noeud, int indiceEntree, int *indicesSorties, int *compteur, int nombreSorties)
+void REC_enregistrerSorties(Noeud *noeud, int *indicesSorties, int *compteur, int nombreSorties, int *listeComptes)
 {
 	int j;
 	Noeud *voisin;
@@ -187,20 +190,19 @@ void REC_enregistrerSorties(Noeud *noeud, int indiceEntree, int *indicesSorties,
 	for(j=0; j<noeud->nombreSuccesseurs; j++)
 	{
 		voisin = noeud->successeurs[j];
-		if( voisin->indice == indiceEntree )
+		if( !listeComptes[j] )
 		{
-			/* on a une boucle, on abandonne ce chemin */
-			continue;
-		}
-		else if( voisin->type == sortie )
-		{
-			(*compteur)++;
-			indicesSorties[ *compteur ] = voisin->indice;
-		}
-		else
-		{
-			/* on compte au niveau d'en-dessous */
-			REC_enregistrerSorties(voisin, indiceEntree, indicesSorties, compteur, nombreSorties);
+			if( voisin->type == sortie )
+			{
+				indicesSorties[ *compteur ] = voisin->indice;
+				(*compteur)++;
+				listeComptes[voisin->indice] = 1;
+			}
+			else
+			{
+				/* on compte au niveau d'en-dessous */
+				REC_enregistrerSorties(voisin, indicesSorties, compteur, nombreSorties, listeComptes);
+			}
 		}
 	}
 }

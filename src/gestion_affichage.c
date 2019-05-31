@@ -2,25 +2,22 @@
 
 
 
-SDL_Surface* lancerAffichage(void)
+void lancerAffichage(SDL_Surface **scene)
 {
+     printf("\nCoudou !!\n");
     /* Initialisation SDL*/
-    if( -1 == SDL_Init(SDL_INIT_VIDEO))
+    if( -1 == SDL_Init(SDL_INIT_VIDEO) )
     {
-        printf("Eh non en fait casse-toi");
+        printf("Eh non en fait casse-toi\n");
         exit(EXIT_FAILURE);
     }
-
+    printf("\nCoudou !!\n");
     /*ouverture fenêtre et création contexte OpenGL*/
-    SDL_Surface *scene;
-
-    redimensionner(&scene, LARGEUR_FENETRE, HAUTEUR_FENETRE); /* valeurs par défaut*/
+    redimensionner(scene, LARGEUR_FENETRE, HAUTEUR_FENETRE); /* valeurs par défaut*/
     SDL_WM_SetCaption(TITRE_FENETRE, NULL); /* titre fenêtre*/
 
     glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT);
-
-    return scene;
 }
 
 void fermerAffichage(SDL_Surface *scene)

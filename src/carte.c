@@ -51,6 +51,24 @@ void terminalCarte(Carte *carte)
 	printf("\n--- FIN AFFICHAGE ---\n");
 }
 
+
+int correspondanceIndicesEntrees(int indice, int *indicesEntrees, int nombreEntrees)
+{
+	int k;
+	k=0;
+	while( (k<nombreEntrees) && indicesEntrees[k] != indice )
+		k++;
+	if( k == nombreEntrees)
+	{
+		/* ce noeud n'est pas dans la liste des entrée, problème qqp */
+		printf("Parcours -- Le noeud d'indice n°%d n'est pas dans la liste des entrées.\n", indice);
+		return -1;
+	}
+	else
+		return k;
+
+}
+
 MotClef correspondanceType(TypeNoeud type)
 {
 	switch(type)

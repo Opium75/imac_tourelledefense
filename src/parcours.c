@@ -2,45 +2,68 @@
 
 int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtapes)
 {
-	int indice, compteurEtapes, j;
+	int indice, compteurEtapes, j, k;
 	int *indicesPrecedents, *parcours;
 	Noeud *noeud0 = monstre->depart;
+	int distanceMin, indiceSortieMin, nombreEtapesMin, d;
 	/* On récupère les indices des précédents par l'algorithme de dijkstra */
-	/* On commence par calculer les distances à
-	* pou
-	indicesPrecedents = dijkstra(noeud0, carte->chemins, carte->nombreNoeuds, cite->listeTour);
+	/* L'algorithme déterminera la sortie la plus proche ? */
+	int *distances = creerVecteurEntier(carte->nombreNoeuds, -1);
+	indicesPrecedents = dijkstra(noeud0, carte->chemins, carte->nombreNoeuds, cite->listeTour, distances);
 	/* On reconstruit le parcours à effectuer
 	* à noter que (i <= nombreNoeuds) ne doit pas se produire
 	* cela signifirait que le noeud n'admet pas de chemins vers la sortie
 	*/
-	indice = carte->indiceSortie;
-	compteurEtapes = 0;
-	/* on commence par compter le nombre d'étapes */
-	while( indice != noeud0->indice && (compteurEtapes < carte->nombreNoeuds) )
+	distanceMin = -1;
+	indiceSortieMin = -1;
+	nombreEtapesMin = -1;
+	/* recherche de l'indice effectif de sortie */
+	int indiceEntree = correspondanceIndicesEntrees(noeud0->indice, carte->indicesEntrees, carte->nombreEntrees);
+	/* */
+	for( k=0; k<carte->nombreSorties[indiceEntree]; k++ )
 	{
-		indice = indicesPrecedents[indice];
-		compteurEtapes++;
+		/* est-ce que cette sortie est la bonne ? */
+		indice = carte->indicesSorties[indiceEntree][k];
+		///////////////
+		compteurEtapes = 0;
+		d = 0;
+		/* on commence par compter le nombre d'étapes */
+		while( indice != noeud0->indice && (compteurEtapes < carte->nombreNoeuds) )
+		{
+			indice = indicesPrecedents[indice];
+			d += distances[indice];
+			compteurEtapes++;
+		}
+		if( compteurEtapes >=  carte->nombreNoeuds )
+		{
+			printf("Plus court chemin -- Nombre d'étapes supérieur au nombre de noeuds !\n");
+			exit(EXIT_FAILURE);
+		}
+		if(distanceMin == -1 || (d <= distanceMin ))
+		{
+			/* on a trouvé une sortie plus proche */
+			indiceSortieMin = indice;
+			nombreEtapesMin = compteurEtapes;
+		}
 	}
-	if( compteurEtapes >=  carte->nombreNoeuds )
-	{
-		printf("Plus court chemin -- Nombre d'étapes supérieur au nombre de noeuds !\n");
-		exit(EXIT_FAILURE);
-	}
-	parcours = malloc( compteurEtapes * sizeof(int) );
+	//
+	libererVecteurEntier(distances);
+	//
+	*nombreEtapes = nombreEtapesMin;
+	parcours = malloc( nombreEtapesMin * sizeof(int) );
 	if( !parcours )
 	{
-		printf("Plus court chemin -- Échec d'allocation dynamique du parcours. (nombre d'étapes : %d)\n", compteurEtapes);
+		printf("Plus court chemin -- Échec d'allocation dynamique du parcours. (nombre d'étapes : %d)\n", nombreEtapesMin);
 		exit(EXIT_FAILURE);
 	}
-	indice = carte->indiceSortie;
-	for( j=0; j<compteurEtapes; j++ )
+	indice = indiceSortieMin;
+	for( j=0; j<nombreEtapesMin; j++ )
 	{
 		/* Le parcours est inversé par rapport aux précédents */
-		parcours[compteurEtapes-1 - j] = indice;
+		parcours[nombreEtapesMin - 1 - j] = indice;
 		indice = indicesPrecedents[indice];
 	}
 	libererVecteurEntier(indicesPrecedents);
-	*nombreEtapes = compteurEtapes;
 	return parcours;
 }
 
@@ -123,26 +146,20 @@ bool changerSegmentMonstre(Monstre *monstre, double reste, Carte *carte, Cite *c
 }
 
 
-int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour, int *distanceSortie, bool renvoyerIndices)
+int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour, int *distances)
 {
 	int j, indiceMin, d;
 	Noeud *noeud, *voisin;
-	
+	/// IL FAUDRA RENVOYER LES DISTANCES ET CALCULER DANS calculerParcour
 	/** Créations des tableaux utilisés */
-	int *distances = creerVecteurEntier(nombreNoeuds, -1);
+	
 	int *listeVerifies = creerVecteurEntier(nombreNoeuds, 0);
 	/* Liste chaînée qui décrira le résultat */
-	int *indicesPrecedents = NULL
-	if( renvoyerIndices )
-		indicesPrecedents = creerVecteurEntier(nombreNoeuds, -1);
+	int *indicesPrecedents = creerVecteurEntier(nombreNoeuds, -1);
 
 	/** Traitement **/
 	distances[noeud0->indice] = 0;
 	noeud = noeud0;
-	/* on renvoie aussi la distance à cette sortie,
-	* pour la comparer aux autres sorties
-	*/
-	*distanceSortie = 0;
 	while( noeud )
 	{
 		listeVerifies[noeud->indice] = true;
@@ -153,9 +170,7 @@ int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour,
 			if(  d != -1 && ( d < distances[voisin->indice] || distances[voisin->indice] == -1) )
 			{
 				distances[voisin->indice] = d;
-				*distanceSortie +=d;
-				if( renvoyerIndices)
-					indicesPrecedents[voisin->indice] = noeud->indice;
+				indicesPrecedents[voisin->indice] = noeud->indice;
 			}
 		}
 		indiceMin = indiceMinDistance(listeVerifies, distances, nombreNoeuds);

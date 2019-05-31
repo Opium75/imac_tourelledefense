@@ -100,6 +100,8 @@ typedef struct {
 Carte* allouerCarte(void);
 void libererCarte(Carte *carte);
 
+int correspondanceIndicesEntrees(int indice, int *indicesEntrees, int nombreEntrees);
+
 void terminalCarte(Carte *carte); /*affichage sur console*/
 
 MotClef correspondanceType(TypeNoeud type);

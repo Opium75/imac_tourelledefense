@@ -7,7 +7,7 @@ bool validerChemins(Carte *carte, PPM_Image *imageCarte, int *nombreModif)
 
 	int compteurModif = 0;
 
-	bool valide;
+	bool valide = true;
 
 
 	/*À changer plus tard, question des arguments de la fonction */
@@ -18,8 +18,9 @@ bool validerChemins(Carte *carte, PPM_Image *imageCarte, int *nombreModif)
 	/*alias de variables définies par commodité. */
 	Noeud *noeud, *noeudSuccesseur;
 
-	/*vérification des entrées et sorties*/
-	valide = verifierEntreeSortie(carte);
+	/*lA vérification des entrées et sorties
+	* EST FAITE LORS DE LA CRÉATION DE LA CARTE*/
+	
 
 	/*vérification pour tous les chemins qui partent d' indice*/
 	for(indice=0; indice < nombreNoeuds; indice++)
@@ -241,69 +242,6 @@ void bresenham(PPM_Image *imageCarte, unsigned char couleurClef[][NB_COULEURS], 
 	libererPoint(point);
 }
 
-bool verifierEntreeSortie(Carte *carte)
-{	
-	int i;
-	Noeud *noeud;
-	Graphe *chemins = carte->chemins;
-	bool aSortie, valide = true;
-	int *listeVerifies = creerVecteurEntier(carte->nombreNoeuds, 0);
-	/* liste des noeuds déjà vérifiés, initalisée à faux (0)
-	* évite de vérifier un noeud deux fois (dans la récurrence)
-	*/
-	for(i=0; i < carte->nombreNoeuds; i++)
-	{
-		noeud = chemins[i];
-		if( noeud->type == entree )
-		{
-			aSortie = REC_verifierSortie(noeud, carte->nombreNoeuds, listeVerifies);
-			if( !aSortie )
-			{
-				printf("Chemin -- Entrée d'indice %d n'a pas de sortie.\n", i);
-				valide = false;
-			}
-		}
-	}
-	libererVecteurEntier(listeVerifies);
-	return valide;
-}
-
-
-bool REC_verifierSortie(Noeud *noeud, int nombreNoeuds, int *listeVerifies)
-{
-	int j;
-	Noeud *voisin;
-	bool valide = true;
-	if( listeVerifies[noeud->indice] )
-	{
-		/* Si l'on a déjà vérifié le noeud, on peut alors récupérer
-		* la valeur déjà vérifiée (1 si valide, 2 si invalide)
-		*/
-		return (listeVerifies[noeud->indice] == 1);
-	}
-	for(j=0; j<noeud->nombreSuccesseurs; j++)
-	{
-		voisin = (noeud->successeurs)[j];
-		if(voisin->type == sortie)
-		{
-			listeVerifies[noeud->indice] = 1;
-			return true;
-		}
-		
-		if( listeVerifies[voisin->indice] )
-		{
-			listeVerifies[noeud->indice] = listeVerifies[voisin->indice];
-			return (listeVerifies[voisin->indice] == 1);
-		}
-		/* Si l'on a pas encore vérifié ce noeud */
-		valide = REC_verifierSortie(voisin, nombreNoeuds, listeVerifies);
-		if( valide )
-			return true;
-	}
-	/* On n'a pas trouvé de sortie partant de ce noeud */
-	listeVerifies[noeud->indice] = 2;
-	return false;
-}
 
 bool verifierCoord(unsigned int largeur, unsigned int hauteur, Noeud *noeud)
 {

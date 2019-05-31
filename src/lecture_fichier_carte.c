@@ -50,8 +50,14 @@ bool lireCarte(FILE *fichierCarte, Carte *carte)
 
 	/** étape supplémentaire : lister les entrées (pour vagues de monstres) et LA SEULE sortie **/
 	//extraireEntreeSortie(&indicesEntrees, &nombreEntrees, &indiceSortie, nombreNoeuds, chemins);
-	valide = extraireEntreesSorties(&(carte->indicesEntrees), &(carte->nombreEntrees), &(carte->indicesSorties), &(carte->nombreSorties), carte->nombreNoeuds, carte->chemins);
 
+	
+	valide = extraireEntreesSorties(&(carte->indicesEntrees), &(carte->nombreEntrees), &(carte->indicesSorties), &(carte->nombreSorties), carte->nombreNoeuds, carte->chemins);
+	if( !valide )
+	{
+		printf("Entrées / Sorties invalides, échec de lecture.\n");
+		return false;
+	}
 	/********** Prochaine étape : vérifs -> verif_carte.c ***********/
 
 	return valide;
@@ -202,7 +208,6 @@ bool lireParametres(FILE *fichierCarte, Carte *carte)
 			valide = false;
 		}
 	}
-	printf("Coucou <oifjzoqreij\n");
 	if( !valide )
 		printf("\n");
 	return valide;

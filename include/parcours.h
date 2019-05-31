@@ -18,7 +18,7 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 * plus il y a de tours à portées du segment,
 * plus la distance est considérée longue.
 */
-int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour);
+int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour, int *distances);
 
 int calculerDistancePonderee(Noeud *noeud, Noeud *voisin, Tour *listeTour);
 int indiceMinDistance(int *listeVerifies, int *distances, int nombreNoeuds);
