@@ -15,6 +15,8 @@ int main(int argc, char *argv[])
 	/*Données carte*/
 	jeu = allouerJeu();
 
+	
+
 	/** TEMPS **/
 	/* on initialise la graine pour le tirage pseudo-aléatoire */
 	srand(time(NULL));
@@ -25,6 +27,7 @@ int main(int argc, char *argv[])
 		printf("Jeu -- Échec de préparation.\n");
 		return EXIT_FAILURE;
 	}
+	//terminalCarte(jeu->carte);
 	/***Lancement du jeu ***/
 	printf("Lancement du jeu...");
 	lancerJeu(jeu);

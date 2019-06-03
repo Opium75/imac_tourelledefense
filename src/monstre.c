@@ -25,6 +25,8 @@ Monstre* creerMonstre(TypeMonstre type, unsigned char niveau, Noeud *depart)
 	monstre->nombreEtapes = 0;
 	monstre->indiceEtape = -1;
 
+	monstre->indiceEntree = depart->indice;
+
 	return monstre;
 }
 
@@ -72,13 +74,13 @@ void attaquerJoueur(Monstre *monstre, int *pointage, int *argent)
 
 unsigned int calculerVie(TypeMonstre type, unsigned char niveau)
 {
-	unsigned int vie = VIE_BASE*VIE_TYPE[type]*niveau+1;
+	unsigned int vie = VIE_BASE*VIE_TYPE[type]*log(niveau)+1;
 	return vie;
-}
+} 
 
 int calculerVitesse(TypeMonstre type, unsigned char niveau)
 {
-	int vitesse = VITESSE_BASE*VITESSE_TYPE[type]*niveau+1;
+	int vitesse = VITESSE_BASE*VITESSE_TYPE[type]*log(niveau+1)+1;
 	return vitesse;
 }
 

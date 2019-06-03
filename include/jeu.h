@@ -34,11 +34,13 @@ typedef struct {
 	Vague *chaine;
 	PPM_Image *image;
 	/** pour l'affichage **/
+	SDL_Surface *arrierePlan;
+	GLuint textureArrierePlan;
+	GLuint affichageArrierePlan;
 	SDL_Surface *lutins[NB_LUTINS];
 	Dimensions listeDim[NB_LUTINS];
-	SDL_Surface *arrierePlan;
-	GLuint banqueTextures[NB_RESSOURCES];
-	GLuint banqueAffichage[NB_RESSOURCES];
+	GLuint banqueTextures[NB_LUTINS];
+	GLuint banqueAffichage[NB_LUTINS];
 	SDL_Surface *scene;
 } Jeu;
 
@@ -77,5 +79,7 @@ void gestionTouche(Jeu *jeu, SDL_Event *e);
 void traitementJeu(Jeu* jeu, time_t deltaT);
 
 void libererJeu(Jeu *jeu);
+
+void debug(void);
 
 #endif

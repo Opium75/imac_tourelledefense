@@ -5,65 +5,72 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 	int indice, compteurEtapes, j, k;
 	int *indicesPrecedents, *parcours;
 	Noeud *noeud0 = monstre->depart;
+	Noeud *noeud;
 	int distanceMin, indiceSortieMin, nombreEtapesMin, d;
 	/* On récupère les indices des précédents par l'algorithme de dijkstra */
 	/* L'algorithme déterminera la sortie la plus proche ? */
 	int *distances = creerVecteurEntier(carte->nombreNoeuds, -1);
 	indicesPrecedents = dijkstra(noeud0, carte->chemins, carte->nombreNoeuds, cite->listeTour, distances);
+	//afficherVecteurEntier(indicesPrecedents, carte->nombreNoeuds);
+	//afficherVecteurEntier(distances, carte->nombreNoeuds);
 	/* On reconstruit le parcours à effectuer
 	* à noter que (i <= nombreNoeuds) ne doit pas se produire
 	* cela signifirait que le noeud n'admet pas de chemins vers la sortie
 	*/
+	/** Il faut retrouver un noeud d'entrée (par nécessairement celui dont provient le monstre)
+	** pour connaître les sorties accessibles depuis le noeud actuel du montre.
+	** En fait, le monstre ne peut pas accéder à toutes ces sorties
+	** mais le calcul des précédents piochera la sortie parmi ces sorties-là.
+	**/
+	/* on récupère l'indice d'entrée du monstre */
+	int indiceEntree = correspondanceIndicesEntrees(monstre->indiceEntree, carte->indicesEntrees, carte->nombreEntrees);
+	/* */
 	distanceMin = -1;
 	indiceSortieMin = -1;
 	nombreEtapesMin = -1;
-	/* recherche de l'indice effectif de sortie */
-	int indiceEntree = correspondanceIndicesEntrees(noeud0->indice, carte->indicesEntrees, carte->nombreEntrees);
-	/* */
+	//afficherVecteurEntier(distances, carte->nombreNoeuds);
 	for( k=0; k<carte->nombreSorties[indiceEntree]; k++ )
 	{
-		/* est-ce que cette sortie est la bonne ? */
+		/* déterminer l'indice de la sortie la plus proche (minimum des distances) */
 		indice = carte->indicesSorties[indiceEntree][k];
-		///////////////
-		compteurEtapes = 0;
-		d = 0;
-		/* on commence par compter le nombre d'étapes */
-		while( indice != noeud0->indice && (compteurEtapes < carte->nombreNoeuds) )
+		if(distanceMin == - 1 || (
+								distances[indice] != -1 && distances[indice] < distanceMin 
+								)
+			)
 		{
-			indice = indicesPrecedents[indice];
-			d += distances[indice];
-			compteurEtapes++;
-		}
-		if( compteurEtapes >=  carte->nombreNoeuds )
-		{
-			printf("Plus court chemin -- Nombre d'étapes supérieur au nombre de noeuds !\n");
-			exit(EXIT_FAILURE);
-		}
-		if(distanceMin == -1 || (d <= distanceMin ))
-		{
-			/* on a trouvé une sortie plus proche */
 			indiceSortieMin = indice;
-			nombreEtapesMin = compteurEtapes;
+			distanceMin = distances[indice];
 		}
+	}
+	/* calcul du nombre d'étapes */
+	indice = indiceSortieMin;
+	compteurEtapes = 0;
+	/* on ne va pas juqu'au noeud d'entrée, donc noeud0 et pas noeud*/
+	while( indice != noeud0->indice && (compteurEtapes < carte->nombreNoeuds) )
+	{
+		indice = indicesPrecedents[indice];
+		d += distances[indice];
+		compteurEtapes++;
 	}
 	//
 	libererVecteurEntier(distances);
 	//
-	*nombreEtapes = nombreEtapesMin;
-	parcours = malloc( nombreEtapesMin * sizeof(int) );
+	*nombreEtapes = compteurEtapes;
+	parcours = malloc( (*nombreEtapes) * sizeof(int) );
 	if( !parcours )
 	{
-		printf("Plus court chemin -- Échec d'allocation dynamique du parcours. (nombre d'étapes : %d)\n", nombreEtapesMin);
+		printf("Plus court chemin -- Échec d'allocation dynamique du parcours. (nombre d'étapes : %d)\n", *nombreEtapes);
 		exit(EXIT_FAILURE);
 	}
 	indice = indiceSortieMin;
-	for( j=0; j<nombreEtapesMin; j++ )
+	for( j=0; j<*nombreEtapes; j++ )
 	{
 		/* Le parcours est inversé par rapport aux précédents */
-		parcours[nombreEtapesMin - 1 - j] = indice;
+		parcours[*nombreEtapes - 1 - j] = indice;
 		indice = indicesPrecedents[indice];
 	}
 	libererVecteurEntier(indicesPrecedents);
+	//afficherVecteurEntier(parcours, *nombreEtapes);
 	return parcours;
 }
 
@@ -103,7 +110,8 @@ bool avancerMonstre(Monstre *monstre, clock_t deltaT, Carte *carte, Cite *cite)
 bool changerSegmentMonstre(Monstre *monstre, double reste, Carte *carte, Cite *cite)
 {
 	int nouveauNombreEtapes;
-	if( monstre->modif_INDIC_mem == cite->modif_INDIC )
+	if( monstre->modif_INDIC_mem == cite->modif_INDIC
+		|| monstre->indiceEtape == monstre->nombreEtapes-1 )
 	{
 		/* si l'indicateur d'état est le même
 		* que celui enregistré la dernière fois,
@@ -132,6 +140,7 @@ bool changerSegmentMonstre(Monstre *monstre, double reste, Carte *carte, Cite *c
 		monstre->etat = estSorti;
 		return true;
 	}
+	
 	/* on passe à l'étape suivante */
 	monstre->depart = monstre->arrivee;
 	monstre->arrivee = (carte->chemins)[  monstre->parcours[monstre->indiceEtape] ];
@@ -162,7 +171,8 @@ int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour,
 	noeud = noeud0;
 	while( noeud )
 	{
-		listeVerifies[noeud->indice] = true;
+		printf("%d\n", noeud->indice);
+		listeVerifies[noeud->indice] = 1;
 		for( j=0; j<noeud->nombreSuccesseurs; j++ )
 		{
 			voisin = noeud->successeurs[j];
@@ -181,22 +191,10 @@ int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour,
 	}
 	/** Libération des tableaux **/
 	libererVecteurEntier(listeVerifies);
-	libererVecteurEntier(distances);
 	/* si on ne fait que calculer les distances,
 	* on renvoie pointeur nul
 	*/
 	return indicesPrecedents;
-}
-
-void afficherVecteur(int *vecteur, int taille)
-{
-	int k;
-	printf("(");
-	for(k=0; k<taille; k++)
-	{
-		printf("%d ",vecteur[k]);
-	}
-	printf(")\n");
 }
 
 int calculerDistancePonderee(Noeud *noeud, Noeud *voisin, Tour *listeTour )
@@ -229,15 +227,16 @@ int indiceMinDistance(int *listeVerifies, int *distances, int nombreNoeuds)
 	bool trouve = false;
 	for( i=1; i<nombreNoeuds; i++ )
 	{
+		//printf("Salut c'est %d, %d\n", i, distances[i]);
 		if( !listeVerifies[i] )
 		{
-			if( !trouve )
+			if( (distances[i] != -1) && !trouve )
 			{
 				indiceMin = i;
 				minimum = distances[i];
 				trouve = true;
 			}
-			else if(  ( distances[i] != -1 ) && distances[i] < minimum )
+			else if( (distances[i] != -1) && (distances[i] < minimum) )
 			{
 				indiceMin = i;
 				minimum = distances[i];

@@ -47,6 +47,14 @@ void terminalCarte(Carte *carte)
 	}
 
 	/*** Chemins ***/
+	printf("Entrées :\n");
+	afficherVecteurEntier(carte->indicesEntrees, carte->nombreEntrees);
+	printf("Sorties :\n");
+	for( int i=0; i<carte->nombreEntrees; i++ )
+	{
+		printf("Sorties de l'entrée n°%d : ", i);
+		afficherVecteurEntier(carte->indicesSorties[i], carte->nombreSorties[i]);
+	}
 	afficherGraphe(carte->chemins, carte->nombreNoeuds);
 	printf("\n--- FIN AFFICHAGE ---\n");
 }

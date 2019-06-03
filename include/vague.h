@@ -100,6 +100,9 @@ void libererChaine(Chaine chaine,  ListeTour liste);
 
 void terminalVague(Vague *vague);
 
+
+void calculerParcours(Monstre *monstre, Carte *carte, Cite *cite);
+
 /* passage de temps processeur par unité de longueur à unité de longueur par secondes */
 double calculerTempsSecondes(clock_t temps);
 

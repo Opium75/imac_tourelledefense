@@ -40,8 +40,8 @@ static const Uint32 FRAMERATE_MILLISECONDS = 1000 / 60;
 #define NB_RESSOURCES NB_ARRIERE_PLAN + NB_LUTINS
 
 
-#define BASE_TAILLE_TOUR 20 /* EN PIXELS */
-#define BASE_TAILLE_MONSTRE 10 /* IDEM */
+#define BASE_TAILLE_TOUR 30 /* EN PIXELS */
+#define BASE_TAILLE_MONSTRE 30 /* IDEM */
 
 //static const unsigned char MAX_VAL_COULEUR[NB_COULEURS] = {MAX_VAL_COULEUR, MAX_VAL_COULEUR, MAX_VAL_COULEUR};
 //static const unsigned char COULEUR_MONSTRE[NB_TYPES_MONSTRE][NB_COULEURS] = { {MAX_VAL_COULEUR, MAX_VAL_COULEUR, MAX_VAL_COULEUR}, {0, 169, 122} };
@@ -76,7 +76,9 @@ static const char *NOM_IMAGE_TOUR[] = { "tourR", "tourV", "tourB", "tourJ"};
 
 static const char *NOM_IMAGE_MONSTRE[] = {"virus"};
 
-static const char EXTENTION[] = ".png";
+static const char NOM_ARRIEREPLAN_CARTE[] = "infox";
+
+static const char EXTENSION[] = ".png";
 
 
 void lancerAffichage(SDL_Surface **scene);
@@ -84,7 +86,7 @@ void fermerAffichage(SDL_Surface *scene);
 
 void calculerCoordonneesVirtuelles(Point *coord, double *posX, double *posY, Dimensions *dimImage);
 void calculerCoordonneesEchelle(Point *cood, int x, int y, Dimensions *dimImage);
-void calculerDimensionsEchelle(Dimensions *dimEchelle, Dimensions *dimLutin);
+void calculerDimensionsEchelle(double *propX, double *propY, Dimensions *dimLutin);
 
 void GL_changerCouleurTrait(const unsigned char couleur[]);
 
@@ -95,20 +97,20 @@ void calculerCouleurTir(unsigned char couleurTir[], Tour *tour);
 /*** RESSOURCES D'AFFICHAGE ***/
 /* remplir la liste d'affichage à partir des textures des lutins*/
 
-void chargerRessourcesAffichage(SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions listeDim[], Dimensions *dimImage);
-void libererRessourcesAffichage(SDL_Surface *lutins[],  GLuint banqueAffichage[], GLuint banqueTextures[]);
+void chargerRessourcesAffichage(SDL_Surface *arrierePlan, GLuint *affichageArrierePlan, GLuint *textureArrierePlan, SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions listeDim[], Dimensions *dimImage, bool possedeArrierePlan, char nomArrierePlan[]);
 
 void remplirListeType(TypeLutin listeType[]);
 void remplirListeDimensions(Dimensions listeDim[], TypeLutin listeType[]);
-void remplirBanqueAffichage(GLuint banqueAffichage[], GLuint banqueTextures[], TypeLutin listeType[], Dimensions listeDim[],  Dimensions *dimImage);
 
 /* on chargera  toutes les textures deau début du programme */
-void chargerToutesTextures(SDL_Surface *lutins[], GLuint banqueTextures[]);
-SDL_Surface* chargerTextureArrierePlan(GLuint idTexture);
+void chargerTextureArrierePlan(SDL_Surface *arrierePlan, GLuint *idTexture, char nomArrierePlan[]);
+void chargerTexturesLutins(SDL_Surface *lutins[], GLuint banqueTextures[]);
 SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type);
 
-void libererToutesTexturesLutins(GLuint banqueTextures[]);
-void libererToutesImagesLutins(SDL_Surface *lutins[]);
+void  chargerAffichageArrierePlan(GLuint *idAffichage, GLuint idTexture, Dimensions *dimImage);
+void chargerAffichageLutins(GLuint banqueAffichage[], GLuint banqueTextures[]);
+
+void libererRessourcesAffichage(SDL_Surface *arrierePlan, GLuint *affichageArrierePlan, GLuint *textureArrierePlan, SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[]);
 /*** ***/
 
 /* le dessin même à partir des textures */

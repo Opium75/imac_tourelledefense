@@ -7,14 +7,9 @@
 bool lireCarte(FILE *fichierCarte, Carte *carte)
 {
 	bool valide; /*booléen*/
-	int version;
-	unsigned int energie;
-	int nombreNoeuds, nombreEntrees;
-	Graphe *chemins;
-	int *indicesEntrees, indiceSortie;
 
 	/**** vérif code et version****/ 
-	valide = lireVersion(fichierCarte, &version);
+	valide = lireVersion(fichierCarte, &(carte->version));
 
 	if( !valide )
 	{
@@ -33,7 +28,7 @@ bool lireCarte(FILE *fichierCarte, Carte *carte)
 	/**********/
 
 	/***** Lecture de du graphe des chemins *****/
-	valide = lireChemins(fichierCarte, &nombreNoeuds, &chemins);
+	valide = lireChemins(fichierCarte, &(carte->nombreNoeuds), &(carte->chemins));
 
 	if( !valide )
 	{
@@ -41,12 +36,6 @@ bool lireCarte(FILE *fichierCarte, Carte *carte)
 		return false;
 	}
 	/***********/
-
-	/*Remplissage des champs de la carte.*/
-	carte->version = version;
-	carte->energie = energie;
-	carte->nombreNoeuds = nombreNoeuds;
-	carte->chemins = chemins;
 
 	/** étape supplémentaire : lister les entrées (pour vagues de monstres) et LA SEULE sortie **/
 	//extraireEntreeSortie(&indicesEntrees, &nombreEntrees, &indiceSortie, nombreNoeuds, chemins);
@@ -95,6 +84,8 @@ bool lireParametres(FILE *fichierCarte, Carte *carte)
 	/* alias */
 	int version = carte->version;
 
+	long int pos;
+
 	char chaineMotClef[MAX_TAILLE_MOTCLEF];
 	MotClef MC_lu;
 	OPT_MotClef OPT_lue;
@@ -103,8 +94,9 @@ bool lireParametres(FILE *fichierCarte, Carte *carte)
 	for(i=0; i < NB_PARAM_PAR_VERSION[version-1]; i++) /*amorcé à 0*/
 		aEteLu[i] = 0;
 	/***** Lecture des paramètres d'en-tête ******/
-	for(i=0; i < NB_PARAM_PAR_VERSION[version-1]; i++) /*condition correspond aux nombre de paramètres attendus pour la version*/
+	for(i=0; i < NB_PARAM_PAR_VERSION[version-1] + NB_PARAM_OPTION; i++) /*condition correspond aux nombre de paramètres attendus pour la version*/
 	{
+		pos = ftell(fichierCarte);
 		if( fgetc(fichierCarte) == CODE_COM )
 		{
 			/*gestion des commetaire ?*/
@@ -116,11 +108,21 @@ bool lireParametres(FILE *fichierCarte, Carte *carte)
 		else 
 		{
 			/*on revient sur nos pas*/
-			fseek(fichierCarte,-sizeof(char),SEEK_CUR);
+			fseek(fichierCarte, pos, SEEK_SET);
 			/*et on recommence*/
+			pos = ftell(fichierCarte);
 			if ( !lireChaine(fichierCarte, "Paramètre", i, chaineMotClef) )
 				return false;
+			if( atoi(chaineMotClef) )
+			{
+				/* On a atteint les noeuds
+				* on revient sur nos pas et on passe à la suite.
+				*/
+				fseek(fichierCarte, pos, SEEK_SET);
+				break;
+			}
 			MC_lu = correspondanceMotClef(chaineMotClef, version);
+
 			if( MC_lu != -1 && aEteLu[MC_lu] )
 			{
 				/* si on avait déjà eu lu ce mot-clef, on  renvoie une erreur.*/
@@ -259,7 +261,8 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 		/*indice du noeud est compris entre 0 et nombreNoeuds-1*/
 		/* PAS NÉCESSAIREMENT, IL FAUDRA FAIRE UNE VÉRIF EN PLUS
 		*/
-		if( indice != k ) /* ( indice < 0 || indice >= *nombreNoeuds ) marchera aussi, mais on nous impose un ordre.*/
+		/* On impose pas d'ordre.*/
+		if( indice < 0 || indice >= *nombreNoeuds )
 		{
 			printf("Graphe -- Ligne n°%d, indice %d invalide : doit être égal à la ligne.\n", k, indice);
 			return false;
@@ -284,7 +287,6 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 			printf("Graphe -- Ligne n°%d, coordonnées (%d,%d) incorrectes : doivent être positives.\n", k, x, y);
 			return false;
 		}
-
 		coord = creerPoint( (unsigned int) x, (unsigned int) y );
 		(grapheMat->listeType)[indice] = type;
 		(grapheMat->listeCoord)[indice] = coord;
@@ -300,18 +302,17 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 				return false;
 			if( indiceSuccesseur > *nombreNoeuds )
 			{
-				printf("Graphe -- Ligne n°%d, indice successeur %d incorrect : indice hors limite. (Nombre noeuds = %d)\n", k, indiceSuccesseur, *nombreNoeuds);
+				printf("Graphe -- Ligne n°%d, indice n°%d successeur %d incorrect : indice hors limite. (Nombre noeuds = %d)\n", k, indice, indiceSuccesseur, *nombreNoeuds);
 				return false;
 			}
 			if( indiceSuccesseur == indice )
 			{
-				printf("Graphe -- Ligne n°%d, indice successeur %d incorrect : un noeud ne peut pas être son propre successeur.\n", k, indiceSuccesseur);
+				printf("Graphe -- Ligne n°%d, indice n°%d successeur %d incorrect : un noeud ne peut pas être son propre successeur.\n", k, indice, indiceSuccesseur);
 				return false;
 			}
 			(grapheMat->adjacence)[indice][ indiceSuccesseur ] = 1; /*On a compté un successeur en plus.*/
 		}
 		/*À la fin de la boucle, on a le bon nombre de successeur (moyennant une vérification que l'on fera plus tard.)*/
-
 		/*On remplit la matrice d'adjacence à partir du résultat.*/
 	}
 	/*afficherMatriceCarree( *nombreNoeuds, grapheMat->adjacence );*/

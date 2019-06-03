@@ -282,7 +282,7 @@ void libererChaine(Chaine chaine, ListeTour liste)
 
 void terminalVague(Vague *vague)
 {
-	int indice;
+	int indice, k;
 	printf("--- AFFICHAGE VAGUE ---\n");
 	/** état **/
 	printf("État : %s\n", ETAT_VAGUE[vague->etat] );
@@ -292,10 +292,15 @@ void terminalVague(Vague *vague)
 	printf("Temps pause : %ld/%ld tours processeur\n", vague->tempsPause_acc, vague->tempsPause);
 	/*** Entrées ***/
 	printf("Entrées : \n");
-	afficherGraphe(vague->entrees, vague->nombreEntrees);
-	/*** Sortie ***/
-	printf("Sortiew : \n");
-	//afficherGraphe(vague->sortie, ...);
+	for( k=0; k<vague->nombreEntrees; k++ )
+	{
+		printf("ENTRÉE %d\n",k);
+		afficherGraphe(vague->entrees, vague->nombreEntrees);
+		/*** Sortie ***/
+		printf("	Sorties : \n");
+		afficherGraphe(vague->sorties[k], vague->nombreSorties[k]);
+	}
+	
 
 	/*** Monstres ***/
 	printf("Monstres : (nombre = %d)\n", vague->nombreMonstres);
@@ -408,6 +413,7 @@ void libererVague(Vague *vague, ListeTour liste)
 	reinitialiserCibles(liste);
 	/* on libère les monstres */
 	libererMonstresVague(vague->nombreMonstres, vague->monstres);
+
 	/* libérer entrées ?*/
 	libererEntreesVague(vague->nombreEntrees, vague->entrees);
 	libererSortiesVague(vague->nombreEntrees, vague->sorties, vague->nombreSorties);

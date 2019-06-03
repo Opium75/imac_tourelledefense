@@ -16,7 +16,7 @@
 
 /*Constantes pour fichiers .itd*/
 
-#define MAX_TAILLE_MOTCLEF 10
+#define MAX_TAILLE_MOTCLEF 15
 
 #define CODE_COM '#'
 #define CODE_SAUT_LIGNE '\n' /*ne pas modifier*/
@@ -83,7 +83,7 @@ typedef struct {
 	char nomImage[MAX_TAILLE_NOM_FICHIER];
 	/* POUR L'AFFICHAGE UN PEU PLUS JOLI */
 	bool possedeArrierePlan;
-		char nomArrierePlan[MAX_TAILLE_NOM_FICHIER];
+	char nomArrierePlan[MAX_TAILLE_NOM_FICHIER];
 	unsigned char couleurClef[NB_COULEURS_CLEFS][NB_COULEURS];
 	int nombreNoeuds;
 	Graphe *chemins;

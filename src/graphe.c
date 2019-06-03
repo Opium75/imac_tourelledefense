@@ -65,7 +65,6 @@ bool extraireEntreesSorties(int **indicesEntrees, int *nombreEntrees, int ***ind
 	bool possedeSortie;
 	/* on extrait d'abord les entrées */
 	extraireEntrees(indicesEntrees, nombreEntrees, nombreNoeuds, graphe);
-	afficherVecteurEntier( *indicesEntrees, *nombreEntrees);
 	/* puis les sorties correspondantes */
 	*indicesSorties = malloc( (*nombreEntrees) * sizeof(int**) );
 	if( !indicesSorties )
@@ -78,7 +77,6 @@ bool extraireEntreesSorties(int **indicesEntrees, int *nombreEntrees, int ***ind
 	{
 		noeud = graphe[ (*indicesEntrees)[k] ];
 		possedeSortie = extraireSorties(noeud, (*indicesEntrees)[k], &(*indicesSorties)[k], &(*nombreSorties)[k], nombreNoeuds);
-		afficherVecteurEntier( (*indicesSorties)[k], (*nombreSorties)[k] );
 		if( !possedeSortie )
 		{
 			printf("Graphe -- le noeud d'entrée n°%d n'admet aucun chemin vers une sortie.\n", (*indicesEntrees)[k]);
@@ -139,6 +137,7 @@ int compterSorties(Noeud *noeud, int nombreNoeuds)
 	int *listeComptes = creerVecteurEntier(nombreNoeuds, 0);
 	REC_compterSorties(noeud, &nombreSorties, listeComptes);
 	libererVecteurEntier(listeComptes);
+	printf("Nombre de sorties : %d \n", nombreSorties);
 	return nombreSorties;
 }
 
@@ -150,12 +149,12 @@ void REC_compterSorties(Noeud *noeud, int *nombreSorties, int *listeComptes)
 	for(j=0; j<noeud->nombreSuccesseurs; j++)
 	{
 		voisin = noeud->successeurs[j];
-		if( !listeComptes[j] )
+		if( !listeComptes[voisin->indice] )
 		{
+			listeComptes[voisin->indice] = 1;
 			if( voisin->type == sortie )
 			{
 				(*nombreSorties)++;
-				listeComptes[voisin->indice] = 1;
 			}
 			else
 			{
@@ -190,13 +189,13 @@ void REC_enregistrerSorties(Noeud *noeud, int *indicesSorties, int *compteur, in
 	for(j=0; j<noeud->nombreSuccesseurs; j++)
 	{
 		voisin = noeud->successeurs[j];
-		if( !listeComptes[j] )
+		if( !listeComptes[voisin->indice] )
 		{
+			listeComptes[voisin->indice] = 1;
 			if( voisin->type == sortie )
 			{
 				indicesSorties[ *compteur ] = voisin->indice;
 				(*compteur)++;
-				listeComptes[voisin->indice] = 1;
 			}
 			else
 			{
@@ -217,8 +216,9 @@ void libererIndicesSorties(int** indicesSorties, int nombreEntrees)
 	int i;
 	for( i=0; i<nombreEntrees; i++ )
 	{
-		free(indicesSorties);
+		free(indicesSorties[i]);
 	}
+	free(indicesSorties);
 }
 
 Noeud* creerNoeud(TypeNoeud type, int indice, Point *coord, int nombreSuccesseurs)

@@ -4,14 +4,13 @@
 
 void lancerAffichage(SDL_Surface **scene)
 {
-     printf("\nCoudou !!\n");
     /* Initialisation SDL*/
     if( -1 == SDL_Init(SDL_INIT_VIDEO) )
     {
         printf("Eh non en fait casse-toi\n");
         exit(EXIT_FAILURE);
     }
-    printf("\nCoudou !!\n");
+   
     /*ouverture fenêtre et création contexte OpenGL*/
     redimensionner(scene, LARGEUR_FENETRE, HAUTEUR_FENETRE); /* valeurs par défaut*/
     SDL_WM_SetCaption(TITRE_FENETRE, NULL); /* titre fenêtre*/
@@ -26,21 +25,36 @@ void fermerAffichage(SDL_Surface *scene)
     SDL_Quit();
 }
 
-
-
-void chargerRessourcesAffichage(SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions listeDim[], Dimensions *dimImage)
+void chargerRessourcesAffichage(SDL_Surface *arrierePlan, GLuint *affichageArrierePlan, GLuint *textureArrierePlan, SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions listeDim[], Dimensions *dimImage, bool possedeArrierePlan, char nomArrierePlan[])
 {
+    
     /* création des listes des types de lutins, et dimensions */
     TypeLutin listeType[NB_LUTINS];
     remplirListeType(listeType);
     remplirListeDimensions(listeDim, listeType);
     /* */
     /* chargement des textures */
-    chargerToutesTextures(lutins, banqueTextures);
-    remplirBanqueAffichage(banqueAffichage, banqueTextures, listeType, listeDim, dimImage);
+    chargerTexturesLutins(lutins, banqueTextures);
+    chargerAffichageLutins(banqueAffichage, banqueTextures);
+    if( possedeArrierePlan )
+    {
+        chargerTextureArrierePlan(arrierePlan, textureArrierePlan, nomArrierePlan);
+        chargerAffichageArrierePlan(affichageArrierePlan, *textureArrierePlan, dimImage);
+    }
+    /* */
 }
 
-void remplirBanqueAffichage(GLuint banqueAffichage[], GLuint banqueTextures[], TypeLutin listeType[], Dimensions listeDim[], Dimensions *dimImage)
+void  chargerAffichageArrierePlan(GLuint *idAffichage, GLuint idTexture, Dimensions *dimImage)
+{
+    *idAffichage = glGenLists(1);
+    /* dessiner les lutins */
+    glNewList(*idAffichage, GL_COMPILE);
+        dessinerTexture(idTexture);
+    glEndList();
+}
+
+
+void chargerAffichageLutins(GLuint banqueAffichage[], GLuint banqueTextures[])
 {
     int k;
     /***    POURQUOI ÀÇA MARCHE PAS ARHJAGR ***/
@@ -49,15 +63,15 @@ void remplirBanqueAffichage(GLuint banqueAffichage[], GLuint banqueTextures[], T
     for( k=0; k<NB_LUTINS; k++)
     {
         /* création d'une liste d'affichage */
-         banqueAffichage[k] = glGenLists(1);
+        banqueAffichage[k] = glGenLists(1);
         /* dessiner les lutins */
         glNewList(banqueAffichage[k], GL_COMPILE);
-            dessinerLutinEchelle(banqueTextures[k], &listeType[k], &listeDim[k]);
+            dessinerTexture(banqueTextures[k]);
         glEndList();
     }
 }
 
-void chargerToutesTextures(SDL_Surface *lutins[], GLuint banqueTextures[])
+void chargerTexturesLutins(SDL_Surface *lutins[], GLuint banqueTextures[])
 {
     /** SUITE À UNE ERREUR NON RÉSOLUE, QUI CORROMPT banqueTextures (chargée en tas, si c'est utile à savoir),
     * on utilise une banqueInter (chargée donc en pile) pour charger les textures,
@@ -83,12 +97,38 @@ void chargerToutesTextures(SDL_Surface *lutins[], GLuint banqueTextures[])
         banqueTextures[k] = banque[k];
     }
     /* un grand mystère. */
+
 }
 
-SDL_Surface* chargerTextureArrierePlan(GLuint idTexture)
+void chargerTextureArrierePlan(SDL_Surface *arrierePlan, GLuint *idTexture, char nomArrierePlan[])
 {
-    SDL_Surface *arrierePlan;
     /* CHEMIN */
+    char cheminArrierePlan[MAX_TAILLE_CHEMIN_FICHIER];
+    sprintf(cheminArrierePlan,"%s/%s",REP_ARRIEREPLAN_CARTE, nomArrierePlan);
+    printf("Chemin arrière-plan : %s\n", cheminArrierePlan);
+    arrierePlan = IMG_Load(cheminArrierePlan);
+    if( !arrierePlan )
+    {
+        printf("Arrière-plan -- Échec d'ouverture au chemin : %s.\n", cheminArrierePlan);
+        exit(EXIT_FAILURE);
+    }
+    /* */
+    glGenTextures( (GLsizei) 1, idTexture);
+    /** CHARGEMENT MÉMOIRE GRAPHIQUE (?) **/
+    glBindTexture(GL_TEXTURE_2D, *idTexture);
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D( GL_TEXTURE_2D,
+                    0,
+                    GL_RGBA,
+                    arrierePlan->w,
+                    arrierePlan->h,
+                    0,
+                    GL_RGBA,
+                    GL_UNSIGNED_BYTE,
+                    arrierePlan->pixels
+                    );
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
 }
 
 SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type)
@@ -99,7 +139,7 @@ SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type)
     /* on construit le chemin du lutin */
     correspondanceCheminLutin(cheminLutin, type);
     /** VÉRIF **/
-   printf("Chemin lutin : %s\n", cheminLutin);
+    printf("Chemin lutin : %s\n", cheminLutin);
     /** CHARGEMENT MÉMOIRE VIVE **/
     lutin = IMG_Load(cheminLutin);
     if( !lutin )
@@ -124,32 +164,22 @@ SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type)
     return lutin;
 }
 
-void libererRessourcesAffichage(SDL_Surface *lutins[],  GLuint banqueAffichage[], GLuint banqueTextures[])
+void libererRessourcesAffichage(SDL_Surface *arrierePlan, GLuint *affichageArrierePlan, GLuint *textureArrierePlan, SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[])
 {
     int k;
     /* ON LIBÈRE LES TEXTURES PUIS LES IMAGES */
+    glDeleteTextures(1, textureArrierePlan);
+    glDeleteLists(*affichageArrierePlan, 1);
+    /* */
     glDeleteTextures(NB_LUTINS, banqueTextures);
     glDeleteLists(banqueAffichage[0], NB_LUTINS);
+    /* */
     for( k=0; k<NB_LUTINS; k++ )
     {
         SDL_FreeSurface(lutins[k]);
     }
+    SDL_FreeSurface(arrierePlan);
     
-}
-
-
-void libererToutesTexturesLutins(GLuint banqueTextures[])
-{
-    glDeleteTextures(NB_LUTINS, banqueTextures);
-}
-
-void libererToutesImagesLutins(SDL_Surface *lutins[])
-{
-    int k;
-    for( k=0; k<NB_LUTINS; k++ )
-    {
-        SDL_FreeSurface(lutins[k]);
-    }
 }
 
 void remplirListeType(TypeLutin listeType[])
@@ -214,30 +244,10 @@ void dessinerSegment(double x1, double y1, double x2, double y2, unsigned char c
     GL_changerCouleurTrait(COULEUR_PARDEFAUT);    
 }
 
-void calculerDimensionsEchelle(Dimensions *dimEchelle, Dimensions *dimLutin)
+void calculerDimensionsEchelle(double *propX, double *propY, Dimensions *dimLutin)
 {
-    dimEchelle->x = dimLutin->x/(double)LARGEUR_FENETRE;
-    dimEchelle->y = dimLutin->y/(double)HAUTEUR_FENETRE;
-}
-
-void  dessinerLutinEchelle(GLuint idTexture, TypeLutin *type, Dimensions *dimLutin)
-{
-    /* on prend ici en compte la taille de l'image, de l'écran etc..*/
-    double propX, propY;
-    propX = dimLutin->x/(double)LARGEUR_FENETRE;
-    propY = dimLutin->y/(double)HAUTEUR_FENETRE;
-    /** DESSIN **/
-
-    glPushMatrix();
-       glScalef(propX, propY, 1.);
-            /* on le dessine en prenant en compte les transformations d'échelle */
-            dessinerTexture(idTexture);
-    glPopMatrix();
-}
-
-void dessinerArrierePlan()
-{
-
+    *propX = dimLutin->x/(double)LARGEUR_FENETRE;
+    *propY = dimLutin->y/(double)HAUTEUR_FENETRE;
 }
 
 void dessinerTexture(GLuint idTexture)
@@ -329,7 +339,7 @@ void correspondanceCheminLutin(char *cheminLutin, TypeLutin *type)
             printf("NOoooon\n");
             exit(EXIT_FAILURE);
     }
-    strncat(cheminLutin, EXTENTION, MAX_TAILLE_NOM_FICHIER);
+    strncat(cheminLutin, EXTENSION, MAX_TAILLE_NOM_FICHIER);
 }
 
 void redimensionner(SDL_Surface** surface, unsigned int largeur, unsigned int hauteur)

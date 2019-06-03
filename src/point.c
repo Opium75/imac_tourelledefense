@@ -21,7 +21,7 @@ Point* copiePoint(Point *point)
 int calculerDistance(Point *p1, Point *p2)
 {
 	int distance;
-	distance = (int)sqrt( (double)pow(((int)p2->x - (int)p1->x),2) + pow(((int)p2->y - (int)p1->y),2) );
+	distance = (int)sqrt( pow(((int)p2->x - (int)p1->x),2) + pow(((int)p2->y - (int)p1->y),2) );
 	return distance;
 }
 
@@ -34,17 +34,23 @@ int calculerDistanceCarree(Point *p1, Point *p2)
 
 Point* creerProjeteOrtho(Point *point, Point *segP1, Point *segP2)
 {
+	double xProj, yProj;
 	int deltaX = (int)segP2->x - (int)segP1->x;
 	int deltaY = (int)segP2->y - (int)segP1->y;
-	bool renverser = abs(deltaX) < abs(deltaY);
+	int orgineX = (int)point->x - (int)segP1->x;
+	int origineY = (int)point->y - (int)segP1->y;
+	bool renverser = ( abs(deltaX) < abs(deltaY) );
 	double c = renverser ? deltaX/(double)deltaY : deltaY/(double)deltaX;
 	double norme = sqrt( (double)pow(deltaY,2) + pow(deltaX,2) );
-	double xProj = point->x*deltaX/norme;
-	double yProj = point->y*deltaY/norme;
+	double prodScal = deltaX*orgineX + deltaY*origineY;
+	xProj = prodScal/norme;
+	yProj = prodScal/norme;
 	if( renverser )
 		xProj *= c;
 	else
 		yProj *= c;
+	xProj += segP1->x;
+	yProj += segP1->y;
 	Point *projeteOrtho = creerPoint( (unsigned int)xProj, (unsigned int)yProj );
 	return projeteOrtho;
 }

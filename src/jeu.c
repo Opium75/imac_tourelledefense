@@ -141,26 +141,29 @@ void relancerJeu(Jeu *jeu)
 
 void lancerJeu(Jeu *jeu)
 {
+	/** LANCER LE CONTEXTE OPENGL D'AFFICHAGE
+	*** AVANT DE CHARGER LES RESSOURCES !!!
+	***/
+	/*** Pour une raison obscure, SDL_Init provoque une erreur de seg
+	*** si on appelle lancerAffichage après le lancement de la vague
+	*** depuis le passage à plusieurs sorties
+	***/
+	SDL_Surface *scene;
+	lancerAffichage(&scene);
+	jeu->scene = scene;
 	/** VAGUE DE MONSTRES **/
 	/* première itération */
 	Vague *vague = creerVague(jeu->niveau, jeu->carte);
 	jeu->chaine = vague;
 	lancerVague(jeu->chaine, jeu->carte, jeu->cite);
-	/** AFFICHAGE **/
-	/** LANCER LE CONTEXTE OPENGL D'AFFICHAGE
-	*** AVANT DE CHARGER LES RESSOURCES !!!
-	***/
-	lancerAffichage(jeu->scene);
-
-	chargerRessourcesAffichage(jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures, jeu->listeDim, jeu->image->dim);
-	
+	char *nomArrierePlan = jeu->carte->nomArrierePlan;
+	bool possedeArrierePlan = jeu->carte->possedeArrierePlan;
+	chargerRessourcesAffichage(jeu->arrierePlan, &(jeu->affichageArrierePlan),  &(jeu->textureArrierePlan), jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures, jeu->listeDim, jeu->image->dim, possedeArrierePlan, nomArrierePlan);
 }
 
 void quitterJeu(Jeu *jeu)
 {
-	
 	libererJeu(jeu);
-
 }
 
 void traitementJeu(Jeu* jeu, time_t deltaT)
@@ -169,8 +172,10 @@ void traitementJeu(Jeu* jeu, time_t deltaT)
 	* la fonction est appelée à chaque itération du jeu
 	*/
 	/* les vagues de monstres */
-	
-	traitementChaine(&(jeu->chaine), deltaT, jeu->carte, jeu->cite, &(jeu->niveau), &(jeu->joueur->pointage), &(jeu->joueur->argent) );
+	//printf("Who let the dogs out ?\n");
+	//terminalMonstre(jeu->chaine->monstres[0]);
+	traitementChaine(&(jeu->chaine), deltaT, jeu->carte, jeu->cite, &(jeu->niveau), &(jeu->joueur->pointage), &(jeu->joueur->argent));
+	//printf("Woof ?\n");	
 	/* la vague, les monstres ont été mis à jour.
 	* On traite maintenant la cité.
 	*/
@@ -202,7 +207,6 @@ void boucleJeu(Jeu *jeu)
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		/** AFFICHAGE ***/
-		
 
 		afficherJeu(jeu);
 		
@@ -317,13 +321,16 @@ void gestionClic(Jeu *jeu, SDL_Event *e)
 
 void afficherJeu(Jeu *jeu)
 {
-    /* on afficher la cité, la chaîne de monstres */
-
-    //afficherCarte();
+   /* l'arrière-plan s'il existe */
+	if( jeu->carte->possedeArrierePlan )
+	{
+		 afficherCarte(jeu->affichageArrierePlan, jeu->image->dim);
+	}
     //peut-être mettre en arguments le score et l'argent et changer le type d'argu que la fonction attend : afficher Carte(jeu->pointage, jeu->argent);
-  	 
+  	
+  	/* on afficher la cité, la chaîne de monstres */
     afficherCite(jeu->cite, jeu->banqueAffichage, jeu->listeDim, jeu->image->dim);
-   
+
     afficherChaine(jeu->chaine, jeu->banqueAffichage, jeu->listeDim, jeu->image->dim);
 }
 
@@ -332,12 +339,25 @@ void libererJeu(Jeu *jeu)
 	/* on libère tout */
 	libererJoueur(jeu->joueur);
 	libererCarte(jeu->carte);
-	libererCite(jeu->cite);
-
+	/* LIBÉRER LA CHAÎNE AVANT LA CITÉ
+	* CAR LA CHAÎNE RÉINITIALISE LES CIBLES DES TOURS
+	*/
 	libererChaine(jeu->chaine, jeu->cite->listeTour);
+	libererCite(jeu->cite);
 	PPM_libererImage(jeu->image);
 	/** l'affichage aussi **/
-	libererRessourcesAffichage(jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures);
+	libererRessourcesAffichage(jeu->arrierePlan, &(jeu->affichageArrierePlan), &(jeu->textureArrierePlan), jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures);
 	fermerAffichage(jeu->scene);
 	free(jeu);
+}
+
+
+void debug(void)
+{
+	static int woof = 0;
+	if( !(woof%6) )
+		printf("\nWho let the dogs out ?\n");
+	else
+		printf("Woof\n");
+	woof++;
 }

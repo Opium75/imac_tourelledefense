@@ -21,6 +21,7 @@
 #include "gestion_affichage.h"
 
 //#include "commun.h"
+void afficherCarte(GLuint idAffichage, Dimensions *dimImage);
 
 void afficherVague(Vague *vague, GLuint banqueAffichage[],  Dimensions listeDim[], Dimensions *dimImage);
 void afficherChaine(Chaine chaine, GLuint banqueAffichage[], Dimensions listeDim[], Dimensions *dimImage);
@@ -30,9 +31,7 @@ void afficherCite(Cite *cite, GLuint banqueAffichage[],  Dimensions listeDim[], 
 
 void afficherMonstre(Monstre *monstre, GLuint idAffichage,  Dimensions *dimLutin, Dimensions *dimImage);
 void afficherTour(Tour *tour,  GLuint idAffichage,  Dimensions *dimLutin, Dimensions *dimImage);
-void afficherElement(GLuint idAffichage,  Dimensions *dimLutin, Dimensions *dimImage);
-
-int afficherCarte(void);
+void afficherElement(GLuint idAffichage, Dimensions *dimImage);
 
 void vBitmapOutput(int x, int y, char *string, void *font);
 void vStrokeOutput(GLfloat x, GLfloat y, char *string, void *font);

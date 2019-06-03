@@ -65,6 +65,10 @@ typedef struct Monstre {
 	/* cella là c'est pour savoir
 	* si l'on doit recalculer le chemin à une intersection.
 	*/
+	int indiceEntree;
+	/* il est utile dans le calcul du plus cours chemin
+	* de savoir par quelle entrée de la carte le monstre est arrivé
+	*/
 	unsigned char modif_INDIC_mem;
 } Monstre;
 
