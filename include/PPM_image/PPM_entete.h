@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "../lecture_fichier_carte.h"
-#include "../commun.h"
+#include "../fichier.h"
 
 #define CODE_COM_PPM '#'
 #define CODE_SAUT_LIGNE_PPM '\n'

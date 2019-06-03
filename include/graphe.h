@@ -26,6 +26,8 @@ static const char *TYPENOEUD[] =
 };
 
 #define NB_TYPES_NOEUD 4 /*ne pas modifier*/
+
+#define LARGEUR_CHEMIN 40 /* utilisé dans la gestion de l'espace pour construire la cité */
 /**/
 
 
@@ -63,7 +65,7 @@ Graphe* matriceVersListeGraphe(int nombreNoeuds, Graphe_MatAdj *grapheMat);
 /** PARCOURS EN PROFONDEUR / ENTRÉES SORTIES **/
 bool extraireEntreesSorties(int **indicesEntrees, int *nombreEntrees, int ***indicesSorties, int **nombreSorties, int nombreNoeuds, Graphe *graphe);
 void extraireEntrees(int **indicesEntrees, int *nombreEntrees, int nombreNoeuds, Graphe *graphe);
-bool extraireSorties(Noeud *noeud, int indiceEntree, int **indicesSorties, int *nombreSorties, int nombreNoeuds);
+bool extraireSorties(Noeud *noeud, int **indicesSorties, int *nombreSorties, int nombreNoeuds);
 
 int compterSorties(Noeud *noeud, int nombreNoeuds);
 void REC_compterSorties(Noeud *noeud, int *nombreSorties, int *listeComptes);

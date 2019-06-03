@@ -63,6 +63,21 @@ int calculerDistanceSegment(Point *point, Point *segP1, Point *segP2)
 	return distanceSegment;
 }
 
+bool estProjeteSegment(Point *point, Point *segP1, Point *segP2)
+{
+	bool estProjete;
+	int minX, maxX, minY, maxY;
+
+	minX = min((int)segP1->x, (int)segP2->x);
+	maxX = max((int)segP1->x, (int)segP2->x);
+	minY = min((int)segP1->y, (int)segP2->y);
+	maxY = max((int)segP1->y, (int)segP2->y);
+	/* vérifie si le projeté est sur le segment (et pas seulement sur la droite. */
+	estProjete = (point->x > minX) && (point->x <  maxX);
+	estProjete |= (point->y > minY) && (point->y < maxY);
+	return estProjete;
+}
+
 unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement)
 {
 	unsigned int c = (unsigned int)(((int)b - (int)a)*avancement) + a;

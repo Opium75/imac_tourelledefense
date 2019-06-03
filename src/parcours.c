@@ -4,12 +4,30 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 {
 	int indice, compteurEtapes, j, k;
 	int *indicesPrecedents, *parcours;
-	Noeud *noeud0 = monstre->depart;
+	Noeud *noeud0;
+
+	int *indicesSortiesNoeud;
+	int nombreSortiesNoeud;
+
+	int entierProba;
+
 	Noeud *noeud;
-	int distanceMin, indiceSortieMin, nombreEtapesMin, d;
+	int distanceMin, indiceSortieMin, nombreEtapesMin;
 	/* On récupère les indices des précédents par l'algorithme de dijkstra */
 	/* L'algorithme déterminera la sortie la plus proche ? */
 	int *distances = creerVecteurEntier(carte->nombreNoeuds, -1);
+	/*** ***/
+	/* SI LE MONSTRE N'EST PAS ENCORE DÉPLOYÉ, IL N'A PAS D'ARRIVÉE
+	* ET ON DOIT CACULER À PARTIR DE SON DÉPART
+	* MAIS SI AU CONTRAIRE IL EST EN MOUVEMENT,
+	* IL EST ENCORE SUR LE SEGMENT QU'IL VIENT DE PARCOURIR
+	* ON CALCULE DONC À PARTIR DE SON ARRIVÉE
+	*/
+	if( !monstre->arrivee )
+		noeud0 = monstre->depart;
+	else
+		noeud0 = monstre->arrivee;
+	/*** ***/
 	indicesPrecedents = dijkstra(noeud0, carte->chemins, carte->nombreNoeuds, cite->listeTour, distances);
 	//afficherVecteurEntier(indicesPrecedents, carte->nombreNoeuds);
 	//afficherVecteurEntier(distances, carte->nombreNoeuds);
@@ -25,23 +43,41 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 	/* on récupère l'indice d'entrée du monstre */
 	int indiceEntree = correspondanceIndicesEntrees(monstre->indiceEntree, carte->indicesEntrees, carte->nombreEntrees);
 	/* */
+
+	/** ON RÉCUPÈRE LES SORTIES ACCESSIBLES PAR LE MONSTRE **/
+	extraireSorties(noeud0, &indicesSortiesNoeud, &nombreSortiesNoeud, carte->nombreNoeuds);
+	/** **/
+
 	distanceMin = -1;
 	indiceSortieMin = -1;
 	nombreEtapesMin = -1;
-	//afficherVecteurEntier(distances, carte->nombreNoeuds);
-	for( k=0; k<carte->nombreSorties[indiceEntree]; k++ )
+	//afficherVecteurEntier(indicesPrecedents, carte->nombreNoeuds);
+
+	/* déterminer l'indice de la sortie la plus proche (minimum des distances) */
+	/** AVEC PROBABILITÉ DE NE PAS LA PRENDRE, ET UNE AUTRE AU HASARD **/
+	entierProba = rand()%INVERSE_PROBA_ECART;
+	if( !entierProba )
 	{
-		/* déterminer l'indice de la sortie la plus proche (minimum des distances) */
-		indice = carte->indicesSorties[indiceEntree][k];
-		if(distanceMin == - 1 || (
-								distances[indice] != -1 && distances[indice] < distanceMin 
-								)
-			)
+		indiceSortieMin = indicesSortiesNoeud[rand()%nombreSortiesNoeud];
+	}
+	else
+	{
+		for( k=0; k<nombreSortiesNoeud; k++ )
 		{
-			indiceSortieMin = indice;
-			distanceMin = distances[indice];
+			indice = indicesSortiesNoeud[k];
+			if(distanceMin == - 1 || (
+									distances[indice] != -1 && distances[indice] < distanceMin 
+									)
+				)
+			{
+				indiceSortieMin = indice;
+				distanceMin = distances[indice];
+			}
 		}
 	}
+	//
+	libererVecteurEntier(indicesSortiesNoeud);
+	libererVecteurEntier(distances);
 	/* calcul du nombre d'étapes */
 	indice = indiceSortieMin;
 	compteurEtapes = 0;
@@ -49,11 +85,8 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 	while( indice != noeud0->indice && (compteurEtapes < carte->nombreNoeuds) )
 	{
 		indice = indicesPrecedents[indice];
-		d += distances[indice];
 		compteurEtapes++;
 	}
-	//
-	libererVecteurEntier(distances);
 	//
 	*nombreEtapes = compteurEtapes;
 	parcours = malloc( (*nombreEtapes) * sizeof(int) );
@@ -89,7 +122,7 @@ bool avancerMonstre(Monstre *monstre, clock_t deltaT, Carte *carte, Cite *cite)
 	d = calculerDistance(monstre->depart->coord, monstre->arrivee->coord);
 	parcourue = (double)d*monstre->avancement;
 	/* sur quel modèle le monstre va avancer ? */
-	aParcourir = (deltaT*(monstre->vitesse))/(double)CLOCKS_PER_SEC;
+	aParcourir = (double)monstre->vitesse*(deltaT/(double)CLOCKS_PER_SEC);
 	//printf("Et voilà : parcourue %lf distance %d vitesse %ld à parcourir %lf\n", parcourue, d, monstre->vitesse, aParcourir);
 	if( parcourue + aParcourir >= d )
 	{
@@ -171,16 +204,18 @@ int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour,
 	noeud = noeud0;
 	while( noeud )
 	{
-		printf("%d\n", noeud->indice);
 		listeVerifies[noeud->indice] = 1;
-		for( j=0; j<noeud->nombreSuccesseurs; j++ )
+		if( distances[noeud->indice] != -1 )
 		{
-			voisin = noeud->successeurs[j];
-			d = (distances[noeud->indice] == -1) ? -1 : distances[noeud->indice] + calculerDistancePonderee(noeud, voisin, listeTour);
-			if(  d != -1 && ( d < distances[voisin->indice] || distances[voisin->indice] == -1) )
+			for( j=0; j<noeud->nombreSuccesseurs; j++ )
 			{
-				distances[voisin->indice] = d;
-				indicesPrecedents[voisin->indice] = noeud->indice;
+				voisin = noeud->successeurs[j];
+				d = distances[noeud->indice] + calculerDistancePonderee(noeud, voisin, listeTour);
+				if(  (d < distances[voisin->indice]) || (distances[voisin->indice] == -1) )
+				{
+					distances[voisin->indice] = d;
+					indicesPrecedents[voisin->indice] = noeud->indice;
+				}
 			}
 		}
 		indiceMin = indiceMinDistance(listeVerifies, distances, nombreNoeuds);
@@ -188,6 +223,7 @@ int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour,
 			noeud = NULL;
 		else
 			noeud = chemins[indiceMin];
+
 	}
 	/** Libération des tableaux **/
 	libererVecteurEntier(listeVerifies);
@@ -225,22 +261,25 @@ int indiceMinDistance(int *listeVerifies, int *distances, int nombreNoeuds)
 	int i;
 	int indiceMin, minimum;
 	bool trouve = false;
-	for( i=1; i<nombreNoeuds; i++ )
+	for( i=0; i<nombreNoeuds; i++ )
 	{
-		//printf("Salut c'est %d, %d\n", i, distances[i]);
 		if( !listeVerifies[i] )
 		{
-			if( (distances[i] != -1) && !trouve )
+			if( distances[i] != -1 )
 			{
-				indiceMin = i;
-				minimum = distances[i];
-				trouve = true;
+				if( !trouve )
+				{
+					indiceMin = i;
+					minimum = distances[i];
+					trouve = true;
+				}
+				else if( distances[i] < minimum )
+				{
+					indiceMin = i;
+					minimum = distances[i];
+				}
 			}
-			else if( (distances[i] != -1) && (distances[i] < minimum) )
-			{
-				indiceMin = i;
-				minimum = distances[i];
-			}
+			
 		}
 	}
 	

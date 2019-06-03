@@ -12,7 +12,6 @@
 #include "couleur.h"
 #include "PPM_image/PPM_image.h"
 
-#include "commun.h"
 
 #define NB_COULEURS_SEGMENT 3
 

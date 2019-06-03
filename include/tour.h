@@ -15,15 +15,17 @@
 * #define NB_TYPES_TOUR 4
 */
 
+#define RAYON_TOUR 80 /* en pixel, rond */
+
 /*attibuts unitaires*/
 #define PUISSANCE_BASE 1 /*relatif aux points de vie et résistance des monstres.*/
-#define TEMPS_TIR_BASE 2 /*en secondes*/
-#define PORTEE_BASE 50 /*en pixels*/
+#define TEMPS_TIR_BASE 0.1 /*en secondes*/
+#define PORTEE_BASE 200 /*en pixels*/
 #define COUT_BASE 1 /*PIÈCES*/
 
 static const unsigned int PUISSANCE_TYPE[NB_TYPES_TOUR] = {4, 1, 2, 2};
 static const unsigned int PORTEE_TYPE[NB_TYPES_TOUR] = {2, 1, 8, 2};
-static const unsigned int TEMPS_TIR_TYPE[NB_TYPES_TOUR] = {1, 8, 2, 2};
+static const double TEMPS_TIR_TYPE[NB_TYPES_TOUR] = {1, 4, 2, 2};
 static const unsigned int COUT_TYPE[NB_TYPES_TOUR] = {2, 2, 2, 2};
 
 typedef enum {T_rouge, T_vert, T_bleu, T_jaune} TypeTour; 
@@ -79,6 +81,8 @@ int calculerIndiceClique(int *indicesTours, int *distancesTours, int nombreTours
 
 void traitementListe(ListeTour *liste, clock_t deltaT,  Monstre **monstres, int nombreMonstres);
 
+
+bool verifierEmplacementTour(ListeTour liste, Point *coordClique);
 
 /* Une fonction de MONSTRE
 * on préfère que Monstre contrôle les dégats qu'il reçoie

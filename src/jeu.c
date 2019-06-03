@@ -159,6 +159,7 @@ void lancerJeu(Jeu *jeu)
 	char *nomArrierePlan = jeu->carte->nomArrierePlan;
 	bool possedeArrierePlan = jeu->carte->possedeArrierePlan;
 	chargerRessourcesAffichage(jeu->arrierePlan, &(jeu->affichageArrierePlan),  &(jeu->textureArrierePlan), jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures, jeu->listeDim, jeu->image->dim, possedeArrierePlan, nomArrierePlan);
+
 }
 
 void quitterJeu(Jeu *jeu)
@@ -190,7 +191,7 @@ void boucleJeu(Jeu *jeu)
 
 	/* temps au début de la boucle */
 	tempsDebut = clock();
-	tempsEcoule  = 0;
+	tempsEcoule  = tempsDebut;
 	/** BOUCLE **/
 	boucle = true;
 	while(boucle)
@@ -198,8 +199,9 @@ void boucleJeu(Jeu *jeu)
 		/*récup temps au début de la boucle*/
 		tempsDebut_SDL = SDL_GetTicks();
 		deltaT = clock() - tempsEcoule;
-		tempsEcoule = clock() - tempsDebut;
+		tempsEcoule = clock();
 
+		//printf("Delta T : %ld, temps écoulé : %lf \n", deltaT, deltaT/(double)CLOCKS_PER_SEC);
 		/*** TRAITEMENT ***/
 		traitementJeu(jeu, deltaT);
 		
@@ -293,30 +295,26 @@ void gestionTouche(Jeu *jeu, SDL_Event *e)
 
 void gestionClic(Jeu *jeu, SDL_Event *e)
 {
-	TypeTour type;
+	int type;
 	Point coordClique;
 	calculerCoordonneesEchelle(&coordClique, e->button.x, e->button.y, jeu->image->dim);
-	char memTouche = jeu->joueur->memTouche;
-	/*  */
-	switch( memTouche )
+
+	/* */
+	type = toucheVersTypeTour(jeu->joueur->memTouche);
+	if( type != -1)
 	{
-		case 'r' :
-			type = T_rouge;
-			break;
-		case 'v' :
-			type = T_vert;
-			break;
-		case 'b' :
-			type = T_bleu;
-			break;
-		case 'j' :
-			type = T_jaune;
-			break;
-		default :
-			return;
+		if( construireTour(jeu->cite, jeu->carte->chemins, jeu->carte->nombreNoeuds, type, &coordClique) )
+		{
+			printf("Tour construite en ");
+			afficherPoint(&coordClique);
+
+		}
 	}
-	Tour *tour = creerTour(type, coordClique.x, coordClique.y);
-	ajouterTourCite(tour, jeu->cite);
+}
+
+void afficherJoueur(Joueur *joueur)
+{
+	afficherTouche(joueur->memTouche);
 }
 
 void afficherJeu(Jeu *jeu)
@@ -332,6 +330,9 @@ void afficherJeu(Jeu *jeu)
     afficherCite(jeu->cite, jeu->banqueAffichage, jeu->listeDim, jeu->image->dim);
 
     afficherChaine(jeu->chaine, jeu->banqueAffichage, jeu->listeDim, jeu->image->dim);
+
+    /* le joueur, et les textes associés */
+    afficherJoueur(jeu->joueur);
 }
 
 void libererJeu(Jeu *jeu)
@@ -360,4 +361,15 @@ void debug(void)
 	else
 		printf("Woof\n");
 	woof++;
+}
+
+int toucheVersTypeTour(char touche)
+{
+	int i;
+	for( i=0; i<NB_TYPES_TOUR; i++ )
+	{
+		if( TOUCHES_TOUR[i] == touche )
+			return (TypeTour) i;
+	}
+	return -1;
 }

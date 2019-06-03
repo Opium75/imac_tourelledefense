@@ -12,6 +12,9 @@
 #include "graphe.h"
 #include "carte.h"
 
+#define PROBA_ECART 0.2
+#define INVERSE_PROBA_ECART (int)(1/PROBA_ECART)
+
 /* revoie la liste des indices des noeuds à parcourir selon le plus court chemin */
 int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtapes);
 /* algorithme de dijkstra, avec les distances pondérées par les tours

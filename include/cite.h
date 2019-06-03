@@ -30,6 +30,11 @@ void traitementCite(Cite *cite, clock_t deltaT, Carte *carte, Monstre **monstres
 void ajouterTourCite(Tour *tour, Cite *cite);
 void enleverTourCite(int indiceTour, Cite *cite);
 
+bool verifierEmplacement(Cite *cite, Graphe *chemins, int nombreNoeuds, Point *coordClique);
+bool verifierEmplacementChemins(Graphe *chemins, int nombreNoeuds, Point *coordClique);
+
+bool construireTour(Cite *cite, Graphe *graphe, int nombreNoeuds, TypeTour type, Point *coordClique);
+
 
 /*** CITÉ ***/
 /* Typiquement des fonctions qu'on ne va appeler qu'une fois*/

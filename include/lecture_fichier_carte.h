@@ -12,7 +12,8 @@
 #include "graphe.h"
 #include "carte.h"
 
-#include "commun.h"
+
+#define MAX_TAILLE_CODE 10 /*on prévoit large, dans le cads où le code est incorrect.*/
 
 /*On n'autorise maintenant qu'une seule sortie */
 

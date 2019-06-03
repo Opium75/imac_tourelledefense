@@ -76,7 +76,7 @@ bool extraireEntreesSorties(int **indicesEntrees, int *nombreEntrees, int ***ind
 	for( k=0; k<*nombreEntrees; k++ )
 	{
 		noeud = graphe[ (*indicesEntrees)[k] ];
-		possedeSortie = extraireSorties(noeud, (*indicesEntrees)[k], &(*indicesSorties)[k], &(*nombreSorties)[k], nombreNoeuds);
+		possedeSortie = extraireSorties(noeud, &(*indicesSorties)[k], &(*nombreSorties)[k], nombreNoeuds);
 		if( !possedeSortie )
 		{
 			printf("Graphe -- le noeud d'entrée n°%d n'admet aucun chemin vers une sortie.\n", (*indicesEntrees)[k]);
@@ -108,7 +108,7 @@ void extraireEntrees(int **indicesEntrees, int *nombreEntrees, int nombreNoeuds,
 	}
 }
 
-bool extraireSorties(Noeud *noeud, int indiceEntree, int **indicesSorties, int *nombreSorties, int nombreNoeuds)
+bool extraireSorties(Noeud *noeud, int **indicesSorties, int *nombreSorties, int nombreNoeuds)
 {
 	/* */
 	/* premier passage où l'on ne fait que compter les sorties */
@@ -137,7 +137,6 @@ int compterSorties(Noeud *noeud, int nombreNoeuds)
 	int *listeComptes = creerVecteurEntier(nombreNoeuds, 0);
 	REC_compterSorties(noeud, &nombreSorties, listeComptes);
 	libererVecteurEntier(listeComptes);
-	printf("Nombre de sorties : %d \n", nombreSorties);
 	return nombreSorties;
 }
 

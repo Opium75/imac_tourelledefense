@@ -150,29 +150,37 @@ void afficherElement(GLuint idAffichage, Dimensions *dimImage)
 
 /////TEXTES////////////
 
-void vBitmapOutput(int x, int y, char *string, void *font)
+void afficherTouche(char toucheCode)
 {
-    int len,i; // len donne la longueur de la chaîne de caractères
-    glRasterPos2f(x,y); // Positionne le premier caractère de la chaîne
-    len = (int)strlen(string); // Calcule la longueur de la chaîne
-    for(i = 0; i < len; i++)
-        glutBitmapCharacter(font,string[i]); // Affiche chaque caractère de la chaîne
+    char texteTouche[MAX_TAILLE_TEXTE];
+    sprintf(texteTouche, "%s : %c", TEXTE_TOUCHE, toucheCode);
+    vBitmapOutput( texteTouche, &POSITION_TEXTE_TOUCHE, GLUT_BITMAP_HELVETICA_18);
 }
 
-void vStrokeOutput(GLfloat x, GLfloat y, char *string, void *font)
+void afficherTexte(char texte[], Point *origine, Dimensions *dimImage)
 {
-    char *p;
+    vBitmapOutput(texte, origine, GLUT_BITMAP_HELVETICA_18);
+}
+
+void vBitmapOutput(char *chaine, Point *origine, void *police)
+{
+    glRasterPos2f((GLfloat)origine->x/LARGEUR_FENETRE, (GLfloat)origine->y/LARGEUR_FENETRE); // Positionne le premier caractère de la chaîne
+    int c;
+    for(c=0; !chaine[c]; c++)
+        glutBitmapCharacter(police, chaine[c]); // Affiche chaque caractère de la chaîne
+}
+
+void vStrokeOutput(char *chaine, Point *origine, void *police, Dimensions *dimImage)
+{
+    double posX, posY;
+    int c;
+    calculerCoordonneesVirtuelles(origine, &posX, &posY, dimImage);
     glPushMatrix(); // glPushMatrix et glPopMatrix sont utilisées pour sauvegarder 
-            // et restaurer les systèmes de coordonnées non translatés
-        glTranslatef(x, y, 0); // Positionne le premier caractère de la chaîne
-        for(p = string; *p; p++)
-            glutStrokeCharacter(font, *p); // Affiche chaque caractère de la chaîne
+            // et restaurer les systèmes de coordonnées non translatées
+        glTranslatef(posX, posY, 0.); // Positionne le premier caractère de la chaîne
+        for(c=0; !chaine[c]; c++)
+            glutStrokeCharacter(police, chaine[c]); // Affiche chaque caractère de la chaîne
     glPopMatrix();
-}
-
-void afficheTouche(char txtP[25], char touchecode){
-    sprintf(txtP, "Touche pressee : %c", touchecode);
-    vBitmapOutput( 20, 65, txtP, GLUT_BITMAP_HELVETICA_18);
 }
 
 ///////////////////////
