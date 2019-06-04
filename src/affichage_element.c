@@ -93,7 +93,7 @@ void afficherTour(Tour *tour, GLuint idAffichage, Dimensions *dimLutin, Dimensio
 {
     /* la correspondance entre coordonnées (x,y) et position sur l'écran */
     double posX, posY;
-    /* affichage prenant en compte les coordonn)ées de l'élémenent */
+    /* affichage prenant en compte les coordonnées de l'élément */
     double angle;
     double mPosX, mPosY;
     Point coordCible;
@@ -118,10 +118,6 @@ void afficherTour(Tour *tour, GLuint idAffichage, Dimensions *dimLutin, Dimensio
         /** **/
     }
     glPushMatrix();
-        /* On part du point en haut à gauche
-        * de la fenêtre virtuelle,
-        * d'où les deux soustractions
-        */
         glTranslatef(posX, posY, 0.);
         //ICI ÉCHELLE
         glScalef(propX, propY, 1.);
@@ -138,39 +134,149 @@ void afficherTour(Tour *tour, GLuint idAffichage, Dimensions *dimLutin, Dimensio
     glPopMatrix();
 }
 
+void afficherImageRang(int rang, GLuint idAffichage, Point *coordRang, Dimensions *dimRang, Dimensions *dimImage)
+{
+    double posX, posY;
+    double mPosX, mPosY;
+    /*  */
+    double propX, propY;
+    Point coordEchelle;
+    calculerCoordonneesPourcentage(&coordEchelle, coordRang, dimImage);
+    calculerCoordonneesVirtuelles(&coordEchelle, &posX, &posY, dimImage);
+    /* */
+    calculerDimensionsEchelle(&propX, &propY, dimRang);
+    glPushMatrix();
+        glTranslatef(posX, posY, 0.);
+        //ICI ÉCHELLE
+        glScalef(propX, propY, 1.);
+        afficherElement(idAffichage, dimImage);
+    glPopMatrix();
+}
+
 
 void afficherElement(GLuint idAffichage, Dimensions *dimImage)
 {
     /* */
-    glPushMatrix();
-        /* on appelle la liste d'affichage qui contient le lutin */
-        glCallList(idAffichage);
-    glPopMatrix();
+     double posX, posY;
+    /* on appelle la liste d'affichage qui contient l'élément */
+    glCallList(idAffichage);
 }
+
 
 /////TEXTES////////////
-
-void afficherTouche(char toucheCode)
+char *allouerTexte(int taille)
 {
-    char texteTouche[MAX_TAILLE_TEXTE];
-    sprintf(texteTouche, "%s : %c", TEXTE_TOUCHE, toucheCode);
-    vBitmapOutput( texteTouche, &POSITION_TEXTE_TOUCHE, GLUT_BITMAP_HELVETICA_18);
+    char *texte = calloc(taille, sizeof(char));
+    if( !texte )
+    {
+        printf("Texte -- Échec d'allocation dynamique (taille = %d).\n", taille);
+        exit(EXIT_FAILURE);
+    }
+    return texte;
 }
 
-void afficherTexte(char texte[], Point *origine, Dimensions *dimImage)
+void libererTexte(char *texte)
 {
-    vBitmapOutput(texte, origine, GLUT_BITMAP_HELVETICA_18);
+    free(texte);
 }
 
-void vBitmapOutput(char *chaine, Point *origine, void *police)
+void afficherNiveau(unsigned char niveau, Dimensions *dimImage)
 {
-    glRasterPos2f((GLfloat)origine->x/LARGEUR_FENETRE, (GLfloat)origine->y/LARGEUR_FENETRE); // Positionne le premier caractère de la chaîne
+     char *texteNiveau = allouerTexte(MAX_TAILLE_TEXTE);
+        /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
+        **** ou corrupted size vs. prev_size
+        **** à la sortie du programme
+        **** À CORRIGER
+        ****/
+        sprintf(texteNiveau, "%s%hhu", TEXTE_NIVEAU, niveau);
+        afficherTexte( texteNiveau, &POSITION_TEXTE_NIVEAU, COULEUR_TEXTE_NIVEAU,  dimImage);
+    libererTexte(texteNiveau);
+}
+
+void afficherPointage(int pointage, Dimensions *dimImage)
+{
+    char *textePointage = allouerTexte(MAX_TAILLE_TEXTE);
+        /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
+        **** ou corrupted size vs. prev_size
+        **** à la sortie du programme
+        **** À CORRIGER
+        ****/
+        sprintf(textePointage, "%s%d", TEXTE_POINTAGE, pointage);
+        afficherTexte( textePointage, &POSITION_TEXTE_POINTAGE, COULEUR_TEXTE_POINTAGE, dimImage);
+    libererTexte(textePointage);
+}
+
+void afficherArgent(int argent, Dimensions *dimImage)
+{
+    char *texteArgent = allouerTexte(MAX_TAILLE_TEXTE);
+        /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
+        **** ou corrupted size vs. prev_size
+        **** à la sortie du programme
+        **** À CORRIGER
+        ****/
+        sprintf(texteArgent, "%s%d", TEXTE_ARGENT, argent);
+        afficherTexte( texteArgent, &POSITION_TEXTE_ARGENT, COULEUR_TEXTE_ARGENT, dimImage);
+    libererTexte(texteArgent);
+}
+
+void afficherRang(int rang, Dimensions *dimImage)
+{
+    char *texteRang = allouerTexte(MAX_TAILLE_TEXTE);
+        /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
+        **** ou corrupted size vs. prev_size
+        **** à la sortie du programme
+        **** À CORRIGER
+        ****/
+        strcpy(texteRang, TEXTE_RANG);
+        strcat(texteRang, NOM_RANGS[rang]);
+        afficherTexte( texteRang, &POSITION_TEXTE_RANG, COULEUR_TEXTE_RANG, dimImage);
+    libererTexte(texteRang);
+}
+
+
+
+
+void afficherTouche(char toucheCode, Dimensions *dimImage)
+{
+    char *texteTouche = allouerTexte(MAX_TAILLE_TEXTE);
+        /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
+        **** ou corrupted size vs. prev_size
+        **** à la sortie du programme
+        **** À CORRIGER
+        ****/
+        strcpy(texteTouche, TEXTE_TOUCHE);
+        strncat(texteTouche, &toucheCode, 1);
+        //sprintf(texteTouche, "%s : %c", TEXTE_TOUCHE, toucheCode);
+        afficherTexte( texteTouche, &POSITION_TEXTE_TOUCHE, COULEUR_TEXTE_TOUCHE, dimImage);
+    libererTexte(texteTouche);
+}
+
+
+void afficherTexte(char *texte, Point *origine, unsigned char couleurTexte[], Dimensions *dimImage)
+{
+    GL_changerCouleurTrait(couleurTexte);
+        GLUT_afficherTexte(texte, origine, GLUT_BITMAP_HELVETICA_18, dimImage);
+    GL_changerCouleurTrait(COULEUR_PARDEFAUT);
+}
+
+void GLUT_afficherTexte(char *texte, Point *origine, void *police, Dimensions *dimImage)
+{
+    double posX, posY;
+    Point origineEchelle;
+    /* pourcentage puis virtuelles */
+    calculerCoordonneesPourcentage(&origineEchelle, origine, dimImage);
+    calculerCoordonneesVirtuelles(&origineEchelle, &posX, &posY, dimImage);
+    glRasterPos2f((GLfloat)posX, (GLfloat)posY); // Positionne le premier caractère de la chaîne
     int c;
-    for(c=0; !chaine[c]; c++)
-        glutBitmapCharacter(police, chaine[c]); // Affiche chaque caractère de la chaîne
+    c=0;
+    while( texte[c] != '\0' )
+    {
+        glutBitmapCharacter(police, texte[c]); // Affiche chaque caractère de la chaîne
+        c++;
+    }
 }
 
-void vStrokeOutput(char *chaine, Point *origine, void *police, Dimensions *dimImage)
+void GLUT_afficherTexte2(char *texte, Point *origine, void *police, Dimensions *dimImage)
 {
     double posX, posY;
     int c;
@@ -178,200 +284,11 @@ void vStrokeOutput(char *chaine, Point *origine, void *police, Dimensions *dimIm
     glPushMatrix(); // glPushMatrix et glPopMatrix sont utilisées pour sauvegarder 
             // et restaurer les systèmes de coordonnées non translatées
         glTranslatef(posX, posY, 0.); // Positionne le premier caractère de la chaîne
-        for(c=0; !chaine[c]; c++)
-            glutStrokeCharacter(police, chaine[c]); // Affiche chaque caractère de la chaîne
+        c=0;
+        while( texte[c] != '\0' )
+        {
+            glutStrokeCharacter(police, texte[c]); // Affiche chaque caractère de la chaîne
+            c++;
+        }
     glPopMatrix();
 }
-
-///////////////////////
-
-// int afficherCarte(void) 
-// {
-
-//     char txtP[25];
-//     char touchecode = '\0';
-
-//     /* Initialisation de la SDL */
-//     if(-1 == SDL_Init(SDL_INIT_VIDEO)) 
-//     {
-//         fprintf(
-//             stderr, 
-//             "Impossible d'initialiser la SDL. Fin du programme.\n");
-//         exit(EXIT_FAILURE);
-//     }
-
-//     int taille = 1;
-//     char* vecteur[] = {"Cest le tableau pour mettre la taille des textes a afficher sur l ecran"};
-  
-//     glutInit(&taille, vecteur);
-  
-//     /* Ouverture d'une fenetre et creation d'un contexte OpenGL */
-//     SDL_Surface* surface;
-//     redimensionner(&surface, LARGEUR_FENETRE, HAUTEUR_FENETRE);
-
-//     // Image 
-//     SDL_Surface* image = IMG_Load("./images/carteTD.png");
-
-//     if (image == NULL){
-//         printf("Oh no :( \n");
-//     } else {
-//         printf("Ca marche loul\n");
-//     }
-
-
-//     //Texture
-
-//     GLuint texture1;
-//     glGenTextures(1, &texture1);
-
-//     glBindTexture(GL_TEXTURE_2D, texture1);
-
-//     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    
-//     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 
-//         image->w, image->h, 0,
-//     GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
-
-    
-//     glBindTexture(GL_TEXTURE_2D, 0);
-
-
-
-//     /* Initialisation du titre de la fenetre */
-//     SDL_WM_SetCaption(TITRE_FENETRE, NULL);
-  
-//     /* Boucle principale */
-//     int loop = 1;
-//     while(loop) 
-//     {
-//         /* Recuperation du temps au debut de la boucle */
-//         Uint32 startTime = SDL_GetTicks();
-        
-//         /* Placer ici le code de dessin */
-//         glClear(GL_COLOR_BUFFER_BIT);
-
-//         glEnable(GL_TEXTURE_2D);
-    
-//         glBindTexture(GL_TEXTURE_2D, texture1);
-
-//         glMatrixMode(GL_MODELVIEW);
-//         glLoadIdentity();
-
-        
-//         glPushMatrix();
-//             glBegin(GL_QUADS);
-//                 glTexCoord2f(0, 1);
-//                 glVertex2f(-0.5, -0.5);
-            
-//                 glTexCoord2f(1, 1);
-//                 glVertex2f(0.5, -0.5);
-            
-//                 glTexCoord2f(1, 0);
-//                 glVertex2f(0.5, 0.5);
-            
-//                 glTexCoord2f(0, 0);
-//                 glVertex2f(-0.5, 0.5);
-//             glEnd();
-//         glPopMatrix();
-
-//         glPushMatrix();
-//             glBegin(GL_QUADS);
-//                 glTexCoord2f(0, 1);
-//                 glVertex2f(-10, -10);
-            
-//                 glTexCoord2f(1, 1);
-//                 glVertex2f(10, -10);
-            
-//                 glTexCoord2f(1, 0);
-//                 glVertex2f(10, 10);
-            
-//                 glTexCoord2f(0, 0);
-//                 glVertex2f(-10, 10);
-//             glEnd();
-//         glPopMatrix();
-
-//         glBindTexture(GL_TEXTURE_2D, 0);
-//         glDisable(GL_TEXTURE_2D);
-
-//         // Texte
-//         vBitmapOutput( -95, 65, "Argent du joueur : ", GLUT_BITMAP_HELVETICA_18);
-//         vBitmapOutput( -95, 40, "Temps restant : ", GLUT_BITMAP_HELVETICA_18);
-
-//         //TOUCHE AFFICHE
-//         afficheTouche(txtP, touchecode);
-//         ///
-
-        
-//         /* Echange du front et du back buffer : mise a jour de la fenetre */
-//         SDL_GL_SwapBuffers();
-        
-//         /* Boucle traitant les evenements */
-//         SDL_Event e;
-//         while(SDL_PollEvent(&e)) 
-//         {
-//             /* L'utilisateur ferme la fenetre : */
-//             if(e.type == SDL_QUIT) 
-//             {
-//                 loop = 0;
-//                 break;
-//             }
-
-//             /* L'utilisateur ferme la fenetre : */
-//             if(e.type == SDL_QUIT) 
-//             {
-//                 loop = 0;
-//                 break;
-//             }
-        
-//             if( e.type == SDL_KEYDOWN 
-//                 && (e.key.keysym.sym == SDLK_q || e.key.keysym.sym == SDLK_ESCAPE))
-//             {
-//                 loop = 0; 
-//                 break;
-//             }
-            
-//             /* Quelques exemples de traitement d'evenements : */
-//             switch(e.type) 
-//             {
-//                 /* Redimensionnement fenetre */
-//                 case SDL_VIDEORESIZE:
-//                     redimensionner(&surface, e.resize.w, e.resize.h);
-//                     break;
-
-//                 /* Clic souris */
-//                 case SDL_MOUSEBUTTONUP:
-//                     printf("clic en (%d, %d)\n", e.button.x, e.button.y);
-//                     break;
-                
-//                 /* Touche clavier */
-//                 case SDL_KEYDOWN:
-//                     printf("touche pressee (code = %d)\n", e.key.keysym.sym);
-//                     printf("touche pressee (code = %c)\n", e.key.keysym.sym);
-
-//                     touchecode = e.key.keysym.sym;
-//                     break;
-                    
-//                 default:
-//                     break;
-//             }
-//         }
-
-//         /* Calcul du temps ecoule */
-//         Uint32 elapsedTime = SDL_GetTicks() - startTime;
-//         /* Si trop peu de temps s'est ecoule, on met en pause le programme */
-//         if(elapsedTime < FRAMERATE_MILLISECONDS) 
-//         {
-//             SDL_Delay(FRAMERATE_MILLISECONDS - elapsedTime);
-//         }
-//     }
-
-//     glDeleteTextures(1, &texture1);
-
-//     /* Liberation des ressources associees a la SDL */ 
-//     SDL_FreeSurface(image);
-//     SDL_Quit();
-    
-//     return EXIT_SUCCESS;
-// }
-

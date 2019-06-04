@@ -15,6 +15,7 @@
 #include "point.h"
 #include "monstre.h"
 #include "tour.h"
+#include "rang.h"
 
 /* Dimensions initiales et titre de la fenetre */
 static const unsigned int LARGEUR_FENETRE = 800;
@@ -38,7 +39,23 @@ static const Uint32 FRAMERATE_MILLISECONDS = 1000 / 60;
 #define NB_LUTINS_TOUR 4
 #define NB_LUTINS NB_LUTINS_MONSTRE + NB_LUTINS_TOUR
 /* TOTAL */
-#define NB_RESSOURCES NB_ARRIERE_PLAN + NB_LUTINS
+
+
+typedef struct {
+	SDL_Surface *arrierePlan;
+	GLuint textureArrierePlan;
+	GLuint affichageArrierePlan;
+	SDL_Surface *lutins[NB_LUTINS];
+	Dimensions listeDim[NB_LUTINS];
+	GLuint banqueTextures[NB_LUTINS];
+	GLuint banqueAffichage[NB_LUTINS];
+	/* rang */
+	SDL_Surface *rangs[NB_RANGS];
+	GLuint rangTextures[NB_RANGS];
+	GLuint rangAffichage[NB_RANGS];
+
+} Ressources;
+
 
 
 #define BASE_TAILLE_TOUR 30 /* EN PIXELS */
@@ -66,11 +83,15 @@ typedef struct {
 	};
 } TypeLutin;
 
-static const char REP_ARRIEREPLAN_CARTE[] = "./images/arriere_plan";
+static const char REP_ARRIEREPLAN_CARTE[] = "images/arriere_plan";
+
+static const char REP_RANG[] = "images/rang/";
 
 static const char *REP_LUTIN = "images/lutin/";
 static const char *CHEMIN_IMAGE_TOUR = "tour/";
 static const char *CHEMIN_IMAGE_MONSTRE = "monstre/";
+
+
 
 /** ATTENTION devra correspondre à l'ordre des TypeTour **/
 static const char *NOM_IMAGE_TOUR[] = { "tourR", "tourV", "tourB", "tourJ"};
@@ -79,8 +100,12 @@ static const char *NOM_IMAGE_MONSTRE[] = {"virus"};
 
 static const char NOM_ARRIEREPLAN_CARTE[] = "infox";
 
+static const char *NOM_IMAGE_RANG[] = {"norton", "bitdefender", "avast", "avg", "mcafee", "avira", "kaspersky", "clamav"};
+
 static const char EXTENSION[] = ".png";
 
+Ressources* allouerRessources();
+void libererRessources(Ressources *ressources);
 
 void lancerAffichage(SDL_Surface **scene);
 void fermerAffichage(SDL_Surface *scene);
@@ -98,20 +123,28 @@ void calculerCouleurTir(unsigned char couleurTir[], Tour *tour);
 /*** RESSOURCES D'AFFICHAGE ***/
 /* remplir la liste d'affichage à partir des textures des lutins*/
 
-void chargerRessourcesAffichage(SDL_Surface *arrierePlan, GLuint *affichageArrierePlan, GLuint *textureArrierePlan, SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[], Dimensions listeDim[], Dimensions *dimImage, bool possedeArrierePlan, char nomArrierePlan[]);
+void chargerRessourcesAffichage(Ressources *ressources, Dimensions *dimImage, bool possedeArrierePlan, char nomArrierePlan[]);
 
 void remplirListeType(TypeLutin listeType[]);
 void remplirListeDimensions(Dimensions listeDim[], TypeLutin listeType[]);
 
 /* on chargera  toutes les textures deau début du programme */
-void chargerTextureArrierePlan(SDL_Surface *arrierePlan, GLuint *idTexture, char nomArrierePlan[]);
-void chargerTexturesLutins(SDL_Surface *lutins[], GLuint banqueTextures[]);
-SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type);
 
-void  chargerAffichageArrierePlan(GLuint *idAffichage, GLuint idTexture, Dimensions *dimImage);
+void chargerTextureLutins(SDL_Surface *lutins[], GLuint banqueTextures[]);
+SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type);
 void chargerAffichageLutins(GLuint banqueAffichage[], GLuint banqueTextures[]);
 
-void libererRessourcesAffichage(SDL_Surface *arrierePlan, GLuint *affichageArrierePlan, GLuint *textureArrierePlan, SDL_Surface *lutins[], GLuint banqueAffichage[], GLuint banqueTextures[]);
+
+void chargerTextureArrierePlan(SDL_Surface **arrierePlan, GLuint *idTexture, char nomArrierePlan[]);
+void  chargerAffichageArrierePlan(GLuint *idAffichage, GLuint idTexture, Dimensions *dimImage);
+
+void chargerTextureRangs(SDL_Surface *rangs[], GLuint rangTextures[]);
+SDL_Surface* chargerTextureRang(GLuint idTexture, int indice);
+void chargerAffichageRangs(GLuint rangAffichage[], GLuint rangTextures[]);
+
+
+
+void libererRessourcesAffichage(Ressources *ressources);
 /*** ***/
 
 /* le dessin même à partir des textures */
@@ -124,6 +157,9 @@ void dessinerTexture(GLuint idTexture);
 TypeLutin correspondanceTypeLutin(int indice);
 int correspondanceIndiceLutin(TypeLutin *type);
 void correspondanceCheminLutin(char *cheminLutin, TypeLutin *type);
+
+/* pour les rangs */
+void correspondanceCheminRang(char *cheminRang, int indice);
 
 void redimensionner(SDL_Surface** surface, unsigned int largeur, unsigned int hauteur);
 

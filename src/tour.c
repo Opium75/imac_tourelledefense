@@ -49,7 +49,7 @@ void terminalListe(ListeTour liste)
 	printf("\n");
 }
 
-bool recevoirDegats(Monstre *monstre, Tour *tour)
+bool recevoirDegats(Monstre *monstre, Tour *tour, int *gainPoints, int *gainArgent)
 {
 	/* renvoie vrai si le monstre est vaincu, faux sinon */
 	int degats = 1 + tour->puissance/(1+monstre->resistances[tour->type]) ;
@@ -58,51 +58,70 @@ bool recevoirDegats(Monstre *monstre, Tour *tour)
 	{
 		/* le monstre est occis */
 		monstre->etat = estVaincu;
+		/* on gagne des points, de l'argent */
+		calculerGains(monstre, gainPoints, gainArgent);
 		return true;
 	}
 	//printf("D'acc mais %d/%u, %d \n", monstre->vie, monstre->vieMax, degats);
 	return false;
 }
 
-void attaquerMonstres(ListeTour liste, clock_t deltaT, Monstre **monstres, int nombreMonstres)
+void attaquerMonstres(ListeTour liste, clock_t deltaT, Monstre **monstres, int nombreMonstres, int *gainPointsTotal, int *gainArgentTotal)
 {
-	bool possedeCible, cibleVaincue;
+	int gainPoints, gainArgent;
+	int totalPoints, totalArgent;
+	totalPoints = totalArgent = 0;
 	Tour *tour = liste;
+	gainPoints = gainArgent = 0;
 	while( tour )
 	{
-		/** Possède-t-elle une cible ? Doit-elle en changer ? **/
-		possedeCible = ( tour->cible && tour->cible->etat == enMouvement );
-		if( doitChangerCible(tour) )
+		gainPoints = gainArgent = 0;
+		attaquerCible(tour, deltaT, monstres, nombreMonstres, &gainPoints, &gainArgent);
+		totalPoints += gainPoints;
+		totalArgent += gainArgent;
+		tour = tour->suivante;
+	}
+	*gainPointsTotal = totalPoints;
+	*gainArgentTotal = totalArgent;
+}
+
+void attaquerCible(Tour *tour, clock_t deltaT, Monstre **monstres, int nombreMonstres, int *gainPoints, int *gainArgent)
+{
+	bool possedeCible, cibleVaincue;
+	/** Possède-t-elle une cible ? Doit-elle en changer ? **/
+	possedeCible = ( tour->cible && tour->cible->etat == enMouvement );
+	if( doitChangerCible(tour) )
+	{
+		possedeCible = ciblerMonstre(tour, monstres, nombreMonstres);
+		tour->tempsTir_acc = 0;
+	}
+	/** **/
+	/** Est-il temps de tirer ? **/
+	if( possedeCible )
+	{
+		if( deltaT + tour->tempsTir_acc > tour->tempsTir )
 		{
-			possedeCible = ciblerMonstre(tour, monstres, nombreMonstres);
+			/* On attaque la cible */
+			cibleVaincue = recevoirDegats(tour->cible, tour, gainPoints, gainArgent);
+			/** Si la cible est vaincue**/
+			if( cibleVaincue )
+			{
+				/*et on ne la cible plus */
+				tour->cible = NULL;
+			}
+			/* On oublie pas de réinitialiser l'accumulateur */
 			tour->tempsTir_acc = 0;
 		}
-		/** **/
-		/** Est-il temps de tirer ? **/
-		if( possedeCible )
-		{
-			if( deltaT + tour->tempsTir_acc > tour->tempsTir )
-			{
-				/* On attaque la cible */
-				cibleVaincue = recevoirDegats(tour->cible, tour);
-				/* Si la cible est vaincue, on ne la cible plus */
-				if( cibleVaincue )
-					tour->cible = NULL;
-				/* On oublie pas de réinitialiser l'accumulateur */
-				tour->tempsTir_acc = 0;
-			}
-			else
-				tour->tempsTir_acc += deltaT;
-		}
-		tour = tour->suivante;
+		else
+			tour->tempsTir_acc += deltaT;
 	}
 }
 
-void traitementListe(ListeTour *liste, clock_t deltaT, Monstre **monstres, int nombreMonstres)
+void traitementListe(ListeTour *liste, clock_t deltaT, Monstre **monstres, int nombreMonstres, int *gainPointsTotal, int *gainArgentTotal)
 {
  	/** **/
  	/** On cible et attaque les monstres **/
- 	attaquerMonstres(*liste, deltaT, monstres, nombreMonstres);
+ 	attaquerMonstres(*liste, deltaT, monstres, nombreMonstres, gainPointsTotal, gainArgentTotal);
 }
 
 bool verifierEmplacementTour(ListeTour liste, Point *coordClique)

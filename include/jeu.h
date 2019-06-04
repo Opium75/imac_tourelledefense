@@ -19,6 +19,10 @@
 #include "gestion_affichage.h"
 #include "affichage_element.h"
 
+#include "rang.h"
+/* l'argent dont dispose le joueur en début de partie */
+
+#define ARGENT_DEPART 50
 
 typedef struct {
 	int pointage, argent;
@@ -34,27 +38,22 @@ typedef struct {
 	Vague *chaine;
 	PPM_Image *image;
 	/** pour l'affichage **/
-	SDL_Surface *arrierePlan;
-	GLuint textureArrierePlan;
-	GLuint affichageArrierePlan;
-	SDL_Surface *lutins[NB_LUTINS];
-	Dimensions listeDim[NB_LUTINS];
-	GLuint banqueTextures[NB_LUTINS];
-	GLuint banqueAffichage[NB_LUTINS];
 	SDL_Surface *scene;
+	Ressources *ressources;
 } Jeu;
+
+
 
 static const char TOUCHES_TOUR[] = {'r', 'v', 'b', 'j'};
 
 
 /** OPENGL **/
-void afficherJoueur(Joueur *joueur);
+void afficherJoueur(Joueur *joueur, Dimensions *dimImage);
 void afficherJeu(Jeu *jeu);
 /** **/
 
 void boucleJeu(Jeu *jeu);
 
-Jeu* creerJeu(unsigned char niveau, Joueur *joueur, Carte *carte, Cite *cite, Vague *chaine);
 Jeu* allouerJeu(void);
 
 /* LECTURE DES FICHIERS ETC AVANT JEU */
@@ -67,6 +66,8 @@ void quitterJeu(Jeu *jeu);
 /** JOUEUR **/
 Joueur* allouerJoueur(void);
 void libererJoueur(Joueur *joueur);
+
+int calculerRang(Joueur *joueur);
 /** **/
 
 /** SDL **/
@@ -74,12 +75,20 @@ void boucleJeu(Jeu *jeu);
 bool interfaceJeu(Jeu *jeu);
 /**/
 void gestionClic(Jeu *jeu, SDL_Event *e);
+void gestionConstruction(Joueur *joueur, Cite *cite, Carte *carte, Point *coordClique);
 
 int toucheVersTypeTour(char touche);
 void gestionTouche(Jeu *jeu, SDL_Event *e);
 
 /** **/
-void traitementJeu(Jeu* jeu, time_t deltaT);
+/* renvoie vrai si on a atteint la fin (le joueur est vaincu), faux sinon */
+bool traitementJeu(Jeu* jeu, time_t deltaT);
+bool traitementJoueur(Joueur *joueur, int gainPoints, int gainArgent, int pertePoints, int perteArgent);
+
+/*** FIN DU JEU ***/
+void afficherJeuFin(Jeu *jeu);
+void afficherJoueurFin(Joueur *joueur, Dimensions *dimImage);
+bool interfaceJeuFin(Jeu *jeu);
 
 void libererJeu(Jeu *jeu);
 

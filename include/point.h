@@ -35,6 +35,9 @@ int calculerDistanceSegment(Point *point, Point *segP1, Point *segP2);
 /* vérifie si le projeté est sur le segment (et pas seulement sur la droite. */
 bool estProjeteSegment(Point *point, Point *segP1, Point *segP2);
 
+/* utile pour afficher des éléments à un pourcentage de l'écran */
+void calculerCoordonneesPourcentage(Point *coordEchelle, Point *coord, Dimensions *dimImage);
+
 unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement);
 
 double calculerAngle(Point *origine, Point *point);

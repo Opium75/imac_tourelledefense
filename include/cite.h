@@ -25,7 +25,7 @@ typedef struct {
 	unsigned char modif_INDIC;
 } Cite;
 
-void traitementCite(Cite *cite, clock_t deltaT, Carte *carte, Monstre **monstres, int nombreMonstres);
+void traitementCite(Cite *cite, clock_t deltaT, Carte *carte, Monstre **monstres, int nombreMonstres, int *gainPointsTotal, int *gainArgentTotal);
 
 void ajouterTourCite(Tour *tour, Cite *cite);
 void enleverTourCite(int indiceTour, Cite *cite);
