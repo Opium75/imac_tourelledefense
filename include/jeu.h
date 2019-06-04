@@ -6,9 +6,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <GL/glu.h>
-#include <SDL/SDL.h>
-
 #include "./PPM_image/PPM_image.h"
 #include "carte.h"
 #include "lecture_fichier_carte.h"
@@ -18,7 +15,9 @@
 #include "vague.h"
 #include "gestion_affichage.h"
 #include "affichage_element.h"
-
+#include "bouton.h"
+#include "point.h"
+#include "jeu.h"
 
 typedef struct {
 	int pointage, argent;

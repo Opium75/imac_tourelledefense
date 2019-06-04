@@ -1,5 +1,12 @@
 #include "../include/jeu.h"
 
+/*char txtP[25];
+char touchecode = '\0';
+
+int taille = 1;
+char* vecteur[] = {"Cest le tableau pour mettre la taille des textes a afficher sur l ecran"};
+glutInit(taille, vecteur);*/
+
 Jeu* creerJeu(unsigned char niveau, Joueur *joueur, Carte *carte, Cite *cite, Vague *chaine)
 {
 	Jeu *jeu = malloc( sizeof(Jeu) );
@@ -148,9 +155,77 @@ void lancerJeu(Jeu *jeu)
 	*** si on appelle lancerAffichage après le lancement de la vague
 	*** depuis le passage à plusieurs sorties
 	***/
+
 	SDL_Surface *scene;
 	lancerAffichage(&scene);
 	jeu->scene = scene;
+	Uint32 tempsDebut_SDL;
+	Uint32 tempsEcoule_SDL;
+
+	//ESSAI BOUCLE BOUTON
+
+    printf("Arrivé là\n");
+
+	bool boucle = true;
+	while(boucle)
+	{
+		glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glColor3ub(187, 222, 251);
+
+		    glPushMatrix();
+		   // glTranslatef(50, 50, 1);
+		        glScalef(200, 200, 1);
+		        drawSquare(1);
+		        //printf("carré dessiné\n");
+		    glPopMatrix();
+
+		/*récup temps au début de la boucle*/
+		tempsDebut_SDL = SDL_GetTicks();
+		
+
+		SDL_Event e;
+		//bool boucle = true;
+		while(SDL_PollEvent(&e))
+		{
+			 /* L'utilisateur ferme la fenetre : */
+			if(e.type == SDL_QUIT) 
+			{
+				boucle = false;
+				break;
+			}
+		
+			if(	e.type == SDL_KEYDOWN 
+				&& (e.key.keysym.sym == SDLK_q || e.key.keysym.sym == SDLK_ESCAPE))
+			{
+				boucle = false; 
+				break;
+			}
+			
+	        switch(e.type) 
+	        {
+	            case SDL_MOUSEBUTTONUP:
+	            	printf("clic en (%d, %d)\n", e.button.x, e.button.y);
+	                isItButton(e, jeu->image->dim);
+	                break;
+	                
+	            default:
+	                break;
+	        }
+		}
+
+		/* Calcul du temps écoulé*/
+		tempsEcoule_SDL = SDL_GetTicks() - tempsEcoule_SDL;
+		/*Pause éventuell du programme si trop peu de temps écoulé*/
+		if( tempsEcoule_SDL < FRAMERATE_MILLISECONDS)
+		{
+			SDL_Delay(FRAMERATE_MILLISECONDS - tempsEcoule_SDL);
+		}
+	}
+
+	////
+
 	/** VAGUE DE MONSTRES **/
 	/* première itération */
 	Vague *vague = creerVague(jeu->niveau, jeu->carte);
@@ -159,6 +234,7 @@ void lancerJeu(Jeu *jeu)
 	char *nomArrierePlan = jeu->carte->nomArrierePlan;
 	bool possedeArrierePlan = jeu->carte->possedeArrierePlan;
 	chargerRessourcesAffichage(jeu->arrierePlan, &(jeu->affichageArrierePlan),  &(jeu->textureArrierePlan), jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures, jeu->listeDim, jeu->image->dim, possedeArrierePlan, nomArrierePlan);
+	
 }
 
 void quitterJeu(Jeu *jeu)
@@ -266,6 +342,7 @@ bool interfaceJeu(Jeu *jeu)
             case SDL_MOUSEBUTTONUP:
             	gestionClic(jeu, &e);
                 //printf("clic en (%d, %d)\n", e.button.x, e.button.y);
+                isItButton(e, jeu->image->dim);
                 break;
             
             /* Touche clavier */
@@ -274,6 +351,7 @@ bool interfaceJeu(Jeu *jeu)
             	 //terminalVague(jeu->chaine);
                 //terminalListe(jeu->cite->listeTour);
             	gestionTouche(jeu, &e);
+            	//touchecode = e.key.keysym.sym;
                 break;
                 
             default:
@@ -320,6 +398,7 @@ void gestionClic(Jeu *jeu, SDL_Event *e)
 }
 
 void afficherJeu(Jeu *jeu)
+
 {
    /* l'arrière-plan s'il existe */
 	if( jeu->carte->possedeArrierePlan )
@@ -332,6 +411,12 @@ void afficherJeu(Jeu *jeu)
     afficherCite(jeu->cite, jeu->banqueAffichage, jeu->listeDim, jeu->image->dim);
 
     afficherChaine(jeu->chaine, jeu->banqueAffichage, jeu->listeDim, jeu->image->dim);
+
+    	///TEXTES 
+
+   // vBitmapOutput( -95, 65, "Argent du joueur : ", GLUT_BITMAP_HELVETICA_18);
+    //vBitmapOutput( -95, 40, "Temps restant : ", GLUT_BITMAP_HELVETICA_18);
+	//afficheTouche(txtP, touchecode);
 }
 
 void libererJeu(Jeu *jeu)

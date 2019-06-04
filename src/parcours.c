@@ -171,7 +171,6 @@ int* dijkstra(Noeud *noeud0, Graphe *chemins, int nombreNoeuds, Tour *listeTour,
 	noeud = noeud0;
 	while( noeud )
 	{
-		printf("%d\n", noeud->indice);
 		listeVerifies[noeud->indice] = 1;
 		for( j=0; j<noeud->nombreSuccesseurs; j++ )
 		{
