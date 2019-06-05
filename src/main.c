@@ -3,6 +3,8 @@
 
 int main(int argc, char *argv[])
 {
+
+
 	/*vérif rapide.*/
 	if(argc < 2)
 	{
