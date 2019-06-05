@@ -1,11 +1,39 @@
-
 #include "../include/affichage_element.h"
 
 void afficherCarte(GLuint idAffichage, Dimensions *dimImage)
 {
     /* La carte prend tout l'espace de la fenêtre */
-    afficherElement(idAffichage, dimImage);
+    afficherElement(idAffichage);
 }
+
+
+void afficherAide(GLuint idAffichage, Dimensions *dimImage)
+{
+    /* l'aide remplace la carte */
+    afficherElement(idAffichage);
+}
+
+void afficherImageMenu(GLuint idAffichage, Point *coordMenu, Dimensions *dimMenu, Dimensions *dimImage)
+{
+    double posX, posY;
+    double propX, propY;
+    Point coord;
+    Dimensions dimEchelle;
+    /* calcul coordonnées virtuelles */
+    calculerCoordonneesPourcentage(&coord, coordMenu, dimImage);
+    calculerCoordonneesVirtuelles(&coord, &posX, &posY, dimImage);
+    /* calcul de l'échelle */
+    calculerDimensionsPourcentage(&dimEchelle, dimMenu, dimImage);
+    calculerDimensionsEchelleImage(&propX, &propY, &dimEchelle, dimImage);
+    /* on  affiche le menu  */
+        glPushMatrix();
+            /* affiche le monstre a<zu bon endroit */
+            glTranslatef(posX, posY, 0.);
+            glScalef(propX, propY, 1.);
+            afficherElement(idAffichage);
+        glPopMatrix();
+}
+
 
 void afficherVague(Vague *vague, GLuint banqueAffichage[], Dimensions listeDim[], Dimensions *dimImage)
 {
@@ -83,7 +111,7 @@ void afficherMonstre(Monstre *monstre, GLuint idAffichage, Dimensions *dimLutin,
             /* affiche le monstre au bon endroit */
             glTranslatef(posX, posY, 0.);
             glScalef(propX, propY, 1.);
-            afficherElement(idAffichage, dimImage);
+            afficherElement(idAffichage);
         glPopMatrix();
         /* on réinitialise la couleur */
     GL_changerCouleurTrait(COULEUR_PARDEFAUT);
@@ -130,7 +158,7 @@ void afficherTour(Tour *tour, GLuint idAffichage, Dimensions *dimLutin, Dimensio
         /* on appelle la liste d'affichage qui contient le lutin
         * la fonction mettra aussi le lutin à l'échelle
          */
-        afficherElement(idAffichage, dimImage);
+        afficherElement(idAffichage);
     glPopMatrix();
 }
 
@@ -141,23 +169,25 @@ void afficherImageRang(int rang, GLuint idAffichage, Point *coordRang, Dimension
     /*  */
     double propX, propY;
     Point coordEchelle;
+    Point dimEchelle;
     calculerCoordonneesPourcentage(&coordEchelle, coordRang, dimImage);
     calculerCoordonneesVirtuelles(&coordEchelle, &posX, &posY, dimImage);
     /* */
-    calculerDimensionsEchelle(&propX, &propY, dimRang);
+    calculerDimensionsPourcentage(&dimEchelle, dimRang, dimImage);
+    calculerDimensionsEchelleImage(&propX, &propY, &dimEchelle, dimImage);
+    /* */
     glPushMatrix();
         glTranslatef(posX, posY, 0.);
         //ICI ÉCHELLE
         glScalef(propX, propY, 1.);
-        afficherElement(idAffichage, dimImage);
+        afficherElement(idAffichage);
     glPopMatrix();
 }
 
 
-void afficherElement(GLuint idAffichage, Dimensions *dimImage)
+void afficherElement(GLuint idAffichage)
 {
     /* */
-     double posX, posY;
     /* on appelle la liste d'affichage qui contient l'élément */
     glCallList(idAffichage);
 }
@@ -219,7 +249,7 @@ void afficherArgent(int argent, Dimensions *dimImage)
     libererTexte(texteArgent);
 }
 
-void afficherRang(int rang, Dimensions *dimImage)
+void afficherTexteRang(int rang, Dimensions *dimImage)
 {
     char *texteRang = allouerTexte(MAX_TAILLE_TEXTE);
         /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
@@ -246,9 +276,46 @@ void afficherEtatJeu(int etatJeu, Dimensions *dimImage)
     libererTexte(texteEtat);
 }
 
+void afficherTitreMenu(Dimensions *dimImage)
+{
+    char *texteTitre = allouerTexte(MAX_TAILLE_TEXTE);
+        /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
+        **** ou corrupted size vs. prev_size
+        **** à la sortie du programme
+        **** À CORRIGER
+        ****/
+        strcpy(texteTitre, TEXTE_TITRE_MENU);
+        afficherTexte( texteTitre, &POSITION_TEXTE_TITRE_MENU, COULEUR_TEXTE_TITRE_MENU, dimImage);
+    libererTexte(texteTitre);
+}
 
+void afficherTexteBoutonMenu(Dimensions *dimImage)
+{
+    char *texteBouton = allouerTexte(MAX_TAILLE_TEXTE);
+        /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
+        **** ou corrupted size vs. prev_size
+        **** à la sortie du programme
+        **** À CORRIGER
+        ****/
+        strcpy(texteBouton, TEXTE_BOUTON_MENU);
+        afficherTexte( texteBouton, &POSITION_TEXTE_BOUTON_MENU, COULEUR_TEXTE_BOUTON_MENU, dimImage);
+    libererTexte(texteBouton);
+}
 
-
+void afficherCredits(Dimensions *dimImage)
+{
+    int i;
+    char *texteCredits = allouerTexte(MAX_TAILLE_TEXTE);
+    Point *coordCredits =  copiePoint(&POSITION_CREDITS);
+        for( i=0; i<NB_CREDITS; i++ )
+        {
+            coordCredits->y += DECALAGE_TEXTES_CREDITS;
+            strcpy(texteCredits, TEXTES_CREDITS[i]);;
+            afficherTexte( texteCredits, coordCredits, COULEUR_TEXTE_CREDITS, dimImage);
+        }
+    libererPoint(coordCredits);
+    libererTexte(texteCredits);
+}
 void afficherTouche(char toucheCode, Dimensions *dimImage)
 {
     char *texteTouche = allouerTexte(MAX_TAILLE_TEXTE);

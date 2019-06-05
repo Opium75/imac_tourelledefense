@@ -3,8 +3,6 @@
 
 int main(int argc, char *argv[])
 {
-
-
 	/*vérif rapide.*/
 	if(argc < 2)
 	{
@@ -32,7 +30,7 @@ int main(int argc, char *argv[])
 	//terminalCarte(jeu->carte);
 	/***Lancement du jeu ***/
 	printf("Lancement du jeu...");
-	lancerJeu(jeu);
+	chargerJeu(jeu);
 	//terminalVague(jeu->chaine);
 	printf(" Fait !\n");
 	printf("\n--- TRAITEMENT ---\n");

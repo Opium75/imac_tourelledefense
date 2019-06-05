@@ -7,23 +7,6 @@ int taille = 1;
 char* vecteur[] = {"Cest le tableau pour mettre la taille des textes a afficher sur l ecran"};
 glutInit(taille, vecteur);*/
 
-Jeu* creerJeu(unsigned char niveau, Joueur *joueur, Carte *carte, Cite *cite, Vague *chaine)
-{
-	Jeu *jeu = malloc( sizeof(Jeu) );
-	if( !jeu )
-	{
-		printf("Jeu -- Échec d'allocation dynamique !\n");
-		exit(EXIT_FAILURE);
-	}
-	jeu->niveau = niveau;
-	jeu->joueur = joueur;
-	jeu->carte = carte;
-	jeu->cite = cite;
-	jeu->chaine = chaine;
-
-	return jeu;
-}
-
 Jeu* allouerJeu(void)
 {
 	Jeu *jeu = malloc( sizeof(Jeu) );
@@ -148,7 +131,7 @@ void relancerJeu(Jeu *jeu)
 	////
 }
 
-void lancerJeu(Jeu *jeu)
+void chargerJeu(Jeu *jeu)
 {
 	/** LANCER LE CONTEXTE OPENGL D'AFFICHAGE
 	*** AVANT DE CHARGER LES RESSOURCES !!!
@@ -161,72 +144,6 @@ void lancerJeu(Jeu *jeu)
 	SDL_Surface *scene;
 	lancerAffichage(&scene);
 	jeu->scene = scene;
-	Uint32 tempsDebut_SDL;
-	Uint32 tempsEcoule_SDL;
-
-	//ESSAI BOUCLE BOUTON
-
-    printf("Arrivé là\n");
-
-	bool boucle = true;
-	while(boucle)
-	{
-		glClear(GL_COLOR_BUFFER_BIT);
-		glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glColor3ub(187, 222, 251);
-
-		    glPushMatrix();
-		   // glTranslatef(50, 50, 1);
-		        glScalef(200, 200, 1);
-		        drawSquare(1);
-		        //printf("carré dessiné\n");
-		    glPopMatrix();
-
-		/*récup temps au début de la boucle*/
-		tempsDebut_SDL = SDL_GetTicks();
-		
-
-		SDL_Event e;
-		//bool boucle = true;
-		while(SDL_PollEvent(&e))
-		{
-			 /* L'utilisateur ferme la fenetre : */
-			if(e.type == SDL_QUIT) 
-			{
-				boucle = false;
-				break;
-			}
-		
-			if(	e.type == SDL_KEYDOWN 
-				&& (e.key.keysym.sym == SDLK_q || e.key.keysym.sym == SDLK_ESCAPE))
-			{
-				boucle = false; 
-				break;
-			}
-			
-	        switch(e.type) 
-	        {
-	            case SDL_MOUSEBUTTONUP:
-	            	printf("clic en (%d, %d)\n", e.button.x, e.button.y);
-	                isItButton(e, jeu->image->dim);
-	                break;
-	                
-	            default:
-	                break;
-	        }
-		}
-
-		/* Calcul du temps écoulé*/
-		tempsEcoule_SDL = SDL_GetTicks() - tempsEcoule_SDL;
-		/*Pause éventuell du programme si trop peu de temps écoulé*/
-		if( tempsEcoule_SDL < FRAMERATE_MILLISECONDS)
-		{
-			SDL_Delay(FRAMERATE_MILLISECONDS - tempsEcoule_SDL);
-		}
-	}
-
-	////
 
 	/** VAGUE DE MONSTRES **/
 	/* première itération */
@@ -239,7 +156,6 @@ void lancerJeu(Jeu *jeu)
 	bool possedeArrierePlan = jeu->carte->possedeArrierePlan;
 	chargerRessourcesAffichage(jeu->ressources, jeu->image->dim, possedeArrierePlan, nomArrierePlan);
 	/* on lance le jeu en bonne et due forme */
-	jeu->etat = lance;
 }
 
 void quitterJeu(Jeu *jeu)
@@ -440,6 +356,7 @@ void gestionClic(Jeu *jeu, SDL_Event *e)
 	{
 		case nonLance :
 			/* si l'on a appuyé sur le bouton ? */
+			gestionMenu(jeu, &coordClique);
 			break;
 		case lance :
 			/* on gère la construction */
@@ -451,9 +368,25 @@ void gestionClic(Jeu *jeu, SDL_Event *e)
 		case fini :
 			break;
 	}
-
 	/* */
-	
+}
+
+void gestionMenu(Jeu *jeu, Point *coordClique)
+{
+	/* le bouton correspondra au texte */
+	bool estClique;
+	Point coordBouton;
+	Dimensions dimTexteMenu;
+	/* premier calcul de la position du bouton de menu */
+	calculerCoordonneesPourcentage(&coordBouton, &POSITION_TEXTE_BOUTON_MENU, jeu->image->dim);
+	calculerDimensionsPourcentage(&dimTexteMenu, &DIM_TEXTE_BOUTON_MENU, jeu->image->dim);
+	/* est-ce que l'on a cliqué sur le bouton ?*/
+	estClique = texteEstClique(&coordBouton, &dimTexteMenu, coordClique, jeu->image->dim);
+	if( estClique )
+	{
+		/* on lance le jeu */
+		jeu->etat = lance;
+	}
 }
 
 void gestionConstruction(Joueur *joueur, Cite *cite, Carte *carte, Point *coordClique)
@@ -527,7 +460,6 @@ void afficherJoueur(Joueur *joueur, EtatJeu etat, Dimensions *dimImage)
 }
 
 
-
 void afficherJeu(Jeu *jeu)
 
 {
@@ -539,9 +471,12 @@ void afficherJeu(Jeu *jeu)
   	switch( jeu->etat )
   	{
   		case nonLance :
-  			/* afficher un bouton ? */
+  			afficherImageMenu(jeu->ressources->affichageMenu, &POSITION_IMAGE_MENU, &DIM_IMAGE_MENU, jeu->image->dim);
+  			afficherTitreMenu(jeu->image->dim);
+  			afficherTexteBoutonMenu(jeu->image->dim);
+  			afficherCredits(jeu->image->dim);
   			break;
-  		case lance : case enPause :
+  		case lance :
   			/* l'arrière-plan s'il existe */
 			if( jeu->carte->possedeArrierePlan )
 			{
@@ -556,14 +491,22 @@ void afficherJeu(Jeu *jeu)
 			afficherNiveau(jeu->niveau, jeu->image->dim);
 		    afficherJoueur(jeu->joueur, jeu->etat, jeu->image->dim);
 		    break;
+		case enPause :
+			/* on affiche l'aide */
+			afficherAide(jeu->ressources->affichageAide, jeu->image->dim);
+
+			afficherNiveau(jeu->niveau, jeu->image->dim);
+		    afficherJoueur(jeu->joueur, jeu->etat, jeu->image->dim);
+			break;
 		case fini :
 			rang = calculerRang(jeu->joueur);
 			afficherNiveau(jeu->niveau, jeu->image->dim);
 			/* LE TEXTE DU RANG ET SON IMAGE */
-			afficherRang(rang, jeu->image->dim);
 			afficherImageRang(rang, ressources->rangAffichage[rang], &POSITION_IMAGE_RANG, &DIM_IMAGE_RANG, jeu->image->dim);
+			afficherTexteRang(rang, jeu->image->dim);
 			/* */
 			afficherJoueur(jeu->joueur, jeu->etat, jeu->image->dim);
+			afficherCredits(jeu->image->dim);
 			break;
   	}
   	/* on affiche l'état du jeu quoi qu'il arrive */

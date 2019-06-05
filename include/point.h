@@ -37,6 +37,8 @@ bool estProjeteSegment(Point *point, Point *segP1, Point *segP2);
 
 /* utile pour afficher des éléments à un pourcentage de l'écran */
 void calculerCoordonneesPourcentage(Point *coordEchelle, Point *coord, Dimensions *dimImage);
+void calculerDimensionsPourcentage(Dimensions *dimEchelle, Dimensions *dim, Dimensions *dimImage);
+
 
 unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement);
 

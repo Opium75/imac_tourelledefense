@@ -65,7 +65,7 @@ Jeu* allouerJeu(void);
 /* LECTURE DES FICHIERS ETC AVANT JEU */
 bool preparerJeu(Jeu *jeu, char *nomDonnees);
 
-void lancerJeu(Jeu *jeu);
+void chargerJeu(Jeu *jeu);
 void relancerJeu(Jeu *jeu);
 void quitterJeu(Jeu *jeu);
 
@@ -78,11 +78,14 @@ int calculerRang(Joueur *joueur);
 
 /** SDL **/
 /**/
-void gestionClic(Jeu *jeu, SDL_Event *e);
-void gestionConstruction(Joueur *joueur, Cite *cite, Carte *carte, Point *coordClique);
 
 int toucheVersTypeTour(char touche);
+
+void gestionClic(Jeu *jeu, SDL_Event *e);
+void gestionConstruction(Joueur *joueur, Cite *cite, Carte *carte, Point *coordClique);
 void gestionTouche(Jeu *jeu, SDL_Event *e);
+
+void gestionMenu(Jeu *jeu, Point *coordClique);
 
 /** TRAITEMENT **/
 void traitementJeu(Jeu* jeu, time_t deltaT);
@@ -94,8 +97,9 @@ void boucleJeu(Jeu *jeu);
 /* renvoie vrai tant que l'on a pas quitté le jeu */
 bool interfaceJeu(Jeu *jeu);
 
-
 void libererJeu(Jeu *jeu);
+
+
 
 void debug(void);
 

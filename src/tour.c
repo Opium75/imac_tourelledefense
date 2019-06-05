@@ -53,6 +53,7 @@ bool recevoirDegats(Monstre *monstre, Tour *tour, int *gainPoints, int *gainArge
 {
 	/* renvoie vrai si le monstre est vaincu, faux sinon */
 	int degats = 1 + tour->puissance/(1+monstre->resistances[tour->type]) ;
+	/* on inflige les dégâts */
 	monstre->vie -= degats;
 	if( monstre->vie <= 0 )
 	{

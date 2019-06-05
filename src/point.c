@@ -84,6 +84,12 @@ void calculerCoordonneesPourcentage(Point *coordEchelle, Point *coord, Dimension
     coordEchelle->y =   (unsigned int)( ((double)coord->y/100. *(double)dimImage->y) );
 }
 
+void calculerDimensionsPourcentage(Dimensions *dimEchelle, Dimensions *dim, Dimensions *dimImage)
+{
+    calculerCoordonneesPourcentage(dimEchelle, dim, dimImage);
+}
+
+
 
 unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement)
 {

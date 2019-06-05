@@ -42,9 +42,15 @@ static const Uint32 FRAMERATE_MILLISECONDS = 1000 / 60;
 
 
 typedef struct {
+	/* menu de démarrage */
+	SDL_Surface *menu;
+	GLuint textureMenu;
+	GLuint affichageMenu;
+	/* arrière-plan */
 	SDL_Surface *arrierePlan;
 	GLuint textureArrierePlan;
 	GLuint affichageArrierePlan;
+	/* lutin */
 	SDL_Surface *lutins[NB_LUTINS];
 	Dimensions listeDim[NB_LUTINS];
 	GLuint banqueTextures[NB_LUTINS];
@@ -53,7 +59,10 @@ typedef struct {
 	SDL_Surface *rangs[NB_RANGS];
 	GLuint rangTextures[NB_RANGS];
 	GLuint rangAffichage[NB_RANGS];
-
+	/* aide */
+	SDL_Surface *aide;
+	GLuint textureAide;
+	GLuint affichageAide;
 } Ressources;
 
 
@@ -98,7 +107,10 @@ static const char *NOM_IMAGE_TOUR[] = { "tourR", "tourV", "tourB", "tourJ"};
 
 static const char *NOM_IMAGE_MONSTRE[] = {"virus"};
 
-static const char NOM_ARRIEREPLAN_CARTE[] = "infox";
+static const char NOM_ARRIEREPLAN_AIDE[] = "aide.png";
+
+static const char NOM_IMAGE_MENU[] = "imac.png";
+
 
 static const char *NOM_IMAGE_RANG[] = {"norton", "bitdefender", "avast", "avg", "mcafee", "avira", "kaspersky", "clamav"};
 
@@ -112,7 +124,10 @@ void fermerAffichage(SDL_Surface *scene);
 
 void calculerCoordonneesVirtuelles(Point *coord, double *posX, double *posY, Dimensions *dimImage);
 void calculerCoordonneesEchelle(Point *cood, int x, int y, Dimensions *dimImage);
-void calculerDimensionsEchelle(double *propX, double *propY, Dimensions *dimLutin);
+/* par rapport aux dimensions de la fenêtre */
+void calculerDimensionsEchelle(double *propX, double *propY, Dimensions *dimElement);
+/* par rapport au dimensions de l'image spécifiée */
+void calculerDimensionsEchelleImage(double *propX, double *propY, Dimensions *dimElement, Dimensions *dimImage);
 
 void GL_changerCouleurTrait(const unsigned char couleur[]);
 
@@ -130,8 +145,13 @@ void remplirListeDimensions(Dimensions listeDim[], TypeLutin listeType[]);
 
 /* on chargera  toutes les textures deau début du programme */
 
+/** Les deux fonctions principales **/
+void chargerTexture( SDL_Surface **image,  GLuint *idTexture, char *chemin);
+void chargerAffichage(GLuint *idAffichage, GLuint idTexture);
+/** **/
+
 void chargerTextureLutins(SDL_Surface *lutins[], GLuint banqueTextures[]);
-SDL_Surface* chargerTextureLutin(GLuint idTexture, TypeLutin *type);
+SDL_Surface* chargerTextureLutin(GLuint *idTexture, TypeLutin *type);
 void chargerAffichageLutins(GLuint banqueAffichage[], GLuint banqueTextures[]);
 
 
@@ -139,7 +159,7 @@ void chargerTextureArrierePlan(SDL_Surface **arrierePlan, GLuint *idTexture, cha
 void  chargerAffichageArrierePlan(GLuint *idAffichage, GLuint idTexture, Dimensions *dimImage);
 
 void chargerTextureRangs(SDL_Surface *rangs[], GLuint rangTextures[]);
-SDL_Surface* chargerTextureRang(GLuint idTexture, int indice);
+SDL_Surface* chargerTextureRang(GLuint *idTexture, int indice);
 void chargerAffichageRangs(GLuint rangAffichage[], GLuint rangTextures[]);
 
 
@@ -148,7 +168,7 @@ void libererRessourcesAffichage(Ressources *ressources);
 /*** ***/
 
 /* le dessin même à partir des textures */
-void dessinerLutinEchelle(GLuint idTexture, TypeLutin *type, Dimensions *dimLutin);
+/* ON DESSINE L'IMAGE CENTRÉE À L'ORIGINE */
 void dessinerTexture(GLuint idTexture);
 /* */
 
