@@ -29,6 +29,8 @@ typedef struct {
 	char memTouche;
 } Joueur;
 
+typedef enum { nonLance, lance, enPause, fini} EtatJeu;
+
 /* Mega-structure qui comprend toutes les autres */
 typedef struct {
 	unsigned char niveau;
@@ -40,16 +42,20 @@ typedef struct {
 	/** pour l'affichage **/
 	SDL_Surface *scene;
 	Ressources *ressources;
+	EtatJeu etat;
 } Jeu;
 
 
 
 static const char TOUCHES_TOUR[] = {'r', 'v', 'b', 'j'};
 
+static const char TOUCHE_PAUSE = 'p';
+
+
 
 /** OPENGL **/
-void afficherJoueur(Joueur *joueur, Dimensions *dimImage);
 void afficherJeu(Jeu *jeu);
+void afficherJoueur(Joueur *joueur, EtatJeu etat, Dimensions *dimImage);
 /** **/
 
 void boucleJeu(Jeu *jeu);
@@ -71,8 +77,6 @@ int calculerRang(Joueur *joueur);
 /** **/
 
 /** SDL **/
-void boucleJeu(Jeu *jeu);
-bool interfaceJeu(Jeu *jeu);
 /**/
 void gestionClic(Jeu *jeu, SDL_Event *e);
 void gestionConstruction(Joueur *joueur, Cite *cite, Carte *carte, Point *coordClique);
@@ -80,15 +84,16 @@ void gestionConstruction(Joueur *joueur, Cite *cite, Carte *carte, Point *coordC
 int toucheVersTypeTour(char touche);
 void gestionTouche(Jeu *jeu, SDL_Event *e);
 
-/** **/
+/** TRAITEMENT **/
+void traitementJeu(Jeu* jeu, time_t deltaT);
+
 /* renvoie vrai si on a atteint la fin (le joueur est vaincu), faux sinon */
-bool traitementJeu(Jeu* jeu, time_t deltaT);
 bool traitementJoueur(Joueur *joueur, int gainPoints, int gainArgent, int pertePoints, int perteArgent);
 
-/*** FIN DU JEU ***/
-void afficherJeuFin(Jeu *jeu);
-void afficherJoueurFin(Joueur *joueur, Dimensions *dimImage);
-bool interfaceJeuFin(Jeu *jeu);
+void boucleJeu(Jeu *jeu);
+/* renvoie vrai tant que l'on a pas quitté le jeu */
+bool interfaceJeu(Jeu *jeu);
+
 
 void libererJeu(Jeu *jeu);
 

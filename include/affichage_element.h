@@ -29,6 +29,10 @@ static const Point POSITION_TEXTE_POINTAGE = {0, 15};
 static const Point POSITION_TEXTE_ARGENT = {0, 20};
 static const Point POSITION_TEXTE_TOUCHE = {0, 25}; /* POURCENTAGE DE LA DIMENSIONS DE L'IMAGE */
 
+/* ETAT DU JEU */
+static const Point POSITION_TEXTE_ETAT_JEU = {80, 90};
+
+/* FIN DU JEU */
 static const Point POSITION_TEXTE_RANG = {0, 30}; /* POURCENTAGE DE LA DIMENSIONS DE L'IMAGE */
 static const Point POSITION_IMAGE_RANG = {50, 30};
 
@@ -40,6 +44,9 @@ static const unsigned char COULEUR_TEXTE_POINTAGE[NB_COULEURS] = {255, 0, 255};
 static const unsigned char COULEUR_TEXTE_ARGENT[NB_COULEURS] = {255, 255, 0};
 static const unsigned char COULEUR_TEXTE_TOUCHE[NB_COULEURS] = {0, 255, 255};
 
+static const unsigned char COULEUR_TEXTE_ETAT_JEU[NB_COULEURS] = {200, 255, 255};
+
+
 static const unsigned char COULEUR_TEXTE_RANG[NB_COULEURS] = {0, 255, 0};
 
 static const char TEXTE_NIVEAU[] = "Niveau : ";
@@ -48,6 +55,11 @@ static const char TEXTE_ARGENT[] = "Argent : ";
 static const char TEXTE_TOUCHE[] = "Touche : ";
 
 static const char TEXTE_RANG[] = "Rang :";
+
+/* affichage de l'état du jeu */
+static const char *TEXTES_ETAT_JEU[] = {"COMMENCER", "EN COURS", "PAUSE", "FIN"};
+
+
 
 
 //#include "commun.h"
@@ -73,6 +85,9 @@ void afficherPointage(int pointage, Dimensions *dimImage);
 void afficherArgent(int argent, Dimensions *dimImage);
 void afficherTouche(char toucheCode, Dimensions *dimImage);
 
+/* afficher un texte relatif à l'état du jeu */
+void afficherEtatJeu(int etatJeu, Dimensions *dimImage);
+
 /* pour la fin, résultats */
 void afficherRang(int rang, Dimensions *dimImage);
 
@@ -80,7 +95,5 @@ void afficherTexte(char *texte, Point *origine, unsigned char couleurTexte[], Di
 
 
 void GLUT_afficherTexte(char *texte, Point *origine, void *police, Dimensions *dimImage);
-void GLUT_afficherTexte2(char *texte, Point *origine, void *police, Dimensions *dimImage);
-
 
 #endif

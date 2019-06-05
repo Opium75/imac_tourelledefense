@@ -233,6 +233,19 @@ void afficherRang(int rang, Dimensions *dimImage)
     libererTexte(texteRang);
 }
 
+void afficherEtatJeu(int etatJeu, Dimensions *dimImage)
+{
+    char *texteEtat = allouerTexte(MAX_TAILLE_TEXTE);
+        /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
+        **** ou corrupted size vs. prev_size
+        **** à la sortie du programme
+        **** À CORRIGER
+        ****/
+        strcpy(texteEtat, TEXTES_ETAT_JEU[etatJeu]);
+        afficherTexte( texteEtat, &POSITION_TEXTE_ETAT_JEU, COULEUR_TEXTE_ETAT_JEU, dimImage);
+    libererTexte(texteEtat);
+}
+
 
 
 
@@ -274,21 +287,4 @@ void GLUT_afficherTexte(char *texte, Point *origine, void *police, Dimensions *d
         glutBitmapCharacter(police, texte[c]); // Affiche chaque caractère de la chaîne
         c++;
     }
-}
-
-void GLUT_afficherTexte2(char *texte, Point *origine, void *police, Dimensions *dimImage)
-{
-    double posX, posY;
-    int c;
-    calculerCoordonneesVirtuelles(origine, &posX, &posY, dimImage);
-    glPushMatrix(); // glPushMatrix et glPopMatrix sont utilisées pour sauvegarder 
-            // et restaurer les systèmes de coordonnées non translatées
-        glTranslatef(posX, posY, 0.); // Positionne le premier caractère de la chaîne
-        c=0;
-        while( texte[c] != '\0' )
-        {
-            glutStrokeCharacter(police, texte[c]); // Affiche chaque caractère de la chaîne
-            c++;
-        }
-    glPopMatrix();
 }
