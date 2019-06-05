@@ -80,7 +80,7 @@ unsigned int calculerVie(TypeMonstre type, unsigned char niveau)
 
 int calculerVitesse(TypeMonstre type, unsigned char niveau)
 {
-	int vitesse = VITESSE_BASE*VITESSE_TYPE[type]*log(niveau+1)+1;
+	int vitesse = VITESSE_BASE*VITESSE_TYPE[type]*(int)log2((int)niveau+2)+1;
 	return vitesse;
 }
 

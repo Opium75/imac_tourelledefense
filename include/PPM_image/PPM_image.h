@@ -8,7 +8,7 @@
 
 #include "../point.h"
 #include "PPM_entete.h"
-#include "../commun.h"
+#include "../fichier.h"
 
 /*Si l'image est en NDG, seul le canal rouge (=gris) est utilisé.*/
 /*J'ai choisi d'intégrer les moyennes de luminosité à la structure par commodité, ça mange pas de pain.*/

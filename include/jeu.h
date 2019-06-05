@@ -43,8 +43,11 @@ typedef struct {
 	SDL_Surface *scene;
 } Jeu;
 
+static const char TOUCHES_TOUR[] = {'r', 'v', 'b', 'j'};
+
 
 /** OPENGL **/
+void afficherJoueur(Joueur *joueur);
 void afficherJeu(Jeu *jeu);
 /** **/
 
@@ -63,17 +66,17 @@ void quitterJeu(Jeu *jeu);
 /** JOUEUR **/
 Joueur* allouerJoueur(void);
 void libererJoueur(Joueur *joueur);
-/**
-
-void lancerJeu(Jeu *jeu);
-void quitterJeu(Jeu *jeu);
+/** **/
 
 /** SDL **/
 void boucleJeu(Jeu *jeu);
 bool interfaceJeu(Jeu *jeu);
 /**/
 void gestionClic(Jeu *jeu, SDL_Event *e);
+
+int toucheVersTypeTour(char touche);
 void gestionTouche(Jeu *jeu, SDL_Event *e);
+
 /** **/
 void traitementJeu(Jeu* jeu, time_t deltaT);
 

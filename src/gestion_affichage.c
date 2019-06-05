@@ -10,6 +10,10 @@ void lancerAffichage(SDL_Surface **scene)
         printf("Eh non en fait casse-toi\n");
         exit(EXIT_FAILURE);
     }
+    int temp = 1;
+    char *tempC[] = {"Coucou c'est un message, peut-être ?"};
+    glutInit(&temp, tempC);
+
    
     /*ouverture fenêtre et création contexte OpenGL*/
     redimensionner(scene, LARGEUR_FENETRE, HAUTEUR_FENETRE); /* valeurs par défaut*/
@@ -237,10 +241,13 @@ void calculerCoordonneesEchelle(Point *coord, int x, int y, Dimensions *dimImage
 void dessinerSegment(double x1, double y1, double x2, double y2, unsigned char couleur[NB_COULEURS])
 {
     GL_changerCouleurTrait(couleur);
-        glBegin(GL_LINES);
-            glVertex2f(x1, y1);
-            glVertex2f(x2, y2);
-        glEnd();
+        glEnable(GL_BLEND);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+            glBegin(GL_LINES);
+                glVertex2f(x1, y1);
+                glVertex2f(x2, y2);
+            glEnd();
+        glDisable(GL_BLEND);
     GL_changerCouleurTrait(COULEUR_PARDEFAUT);    
 }
 

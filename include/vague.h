@@ -30,11 +30,11 @@
 */
 
 #define TAILLE_VAGUE_BASE 20
-#define TEMPS_PAUSE_BASE 4 /*en secondes*/
+#define TEMPS_PAUSE_BASE 0.001 /*en secondes*/
 
 /* une constante de temps entre cle moment où la dernière vague s'achêve
 * et la prochaine vague se lance */
-#define TEMPS_ENTRACTE 5 /* secondes */
+#define TEMPS_ENTRACTE 0.1 /* secondes */
 
 /* c'est pourri comme énum, mais bon. */
 typedef enum {nonLancee, lancee} EtatVague;

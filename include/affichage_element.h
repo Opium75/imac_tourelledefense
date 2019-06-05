@@ -20,6 +20,12 @@
 
 #include "gestion_affichage.h"
 
+#define MAX_TAILLE_TEXTE 50
+
+static const Point POSITION_TEXTE_TOUCHE = {-95, 65};
+
+static const char TEXTE_TOUCHE[] = "Touche";
+
 //#include "commun.h"
 void afficherCarte(GLuint idAffichage, Dimensions *dimImage);
 
@@ -33,13 +39,12 @@ void afficherMonstre(Monstre *monstre, GLuint idAffichage,  Dimensions *dimLutin
 void afficherTour(Tour *tour,  GLuint idAffichage,  Dimensions *dimLutin, Dimensions *dimImage);
 void afficherElement(GLuint idAffichage, Dimensions *dimImage);
 
-void vBitmapOutput(int x, int y, char *string, void *font);
-void vStrokeOutput(GLfloat x, GLfloat y, char *string, void *font);
-void afficheTouche(char txtP[25], char touchecode);
 
+void afficherTouche(char toucheCode);
+void afficherTexte(char texte[], Point *origine, Dimensions *dimImage);
 
-
-
+void vBitmapOutput(char *chaine, Point *origine, void *police);
+void vStrokeOutput(char *chaine, Point *origine, void *police, Dimensions *dimImage);
 
 
 

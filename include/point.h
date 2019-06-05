@@ -7,6 +7,9 @@
 #include <stdbool.h>
 #include <math.h>
 
+#define max(a,b) a>b ? a : b
+#define min(a,b) a>b ? b : a
+
 
 #define NB_DIMENSIONS 2
 
@@ -29,6 +32,8 @@ int calculerDistanceCarree(Point *p1, Point *p2);
 Point* creerProjeteOrtho(Point *point, Point *segP1, Point *segP2);
 /* utilisation du projeté pour calculer la distance du point au segment */
 int calculerDistanceSegment(Point *point, Point *segP1, Point *segP2);
+/* vérifie si le projeté est sur le segment (et pas seulement sur la droite. */
+bool estProjeteSegment(Point *point, Point *segP1, Point *segP2);
 
 unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement);
 

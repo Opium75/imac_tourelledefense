@@ -28,7 +28,6 @@ Tour* creerTour(TypeTour type, unsigned int x, unsigned int y)
 
 void terminalTour(Tour *tour)
 {
-	int j;
 	printf("Tour -> type : %d\n", tour->type);
 	printf("		-> position :");
 	afficherPoint(tour->coord);
@@ -105,6 +104,20 @@ void traitementListe(ListeTour *liste, clock_t deltaT, Monstre **monstres, int n
  	/** On cible et attaque les monstres **/
  	attaquerMonstres(*liste, deltaT, monstres, nombreMonstres);
 }
+
+bool verifierEmplacementTour(ListeTour liste, Point *coordClique)
+{
+	Tour *tour = liste;
+	while( tour )
+	{
+		if( calculerDistance(tour->coord, coordClique) <= 2*RAYON_TOUR )
+			return false;
+		tour = tour->suivante;
+	}
+	return true;
+}
+
+
 
 void reinitialiserCibles(ListeTour liste)
 {
@@ -372,7 +385,7 @@ void libererTour(Tour *tour)
 }
 clock_t calculerTempsTir(TypeTour type)
 {
-	clock_t tempsTir = CLOCKS_PER_SEC*TEMPS_TIR_BASE*TEMPS_TIR_TYPE[type];
+	clock_t tempsTir = (clock_t)( (double)CLOCKS_PER_SEC*TEMPS_TIR_BASE*TEMPS_TIR_TYPE[type] );
 	return tempsTir;
 }
 

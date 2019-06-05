@@ -5,6 +5,7 @@
 #include <SDL/SDL_image.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -22,8 +23,8 @@ static const char TITRE_FENETRE[] = "TOURELLE DÉFENSE !!";
 
 
 /* Espace fenêtre virtuelle */
-static const float GL_VUE_LARGEUR = 1.;
-static const float GL_VUE_HAUTEUR = 1.;
+static const float GL_VUE_LARGEUR = 200.;
+static const float GL_VUE_HAUTEUR = 200.;
 
 
 /* Nombre de bits par pixel de la fenetre */

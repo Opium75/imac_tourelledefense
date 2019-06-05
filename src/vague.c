@@ -51,7 +51,6 @@ Noeud*** calculerSortiesVague(Noeud **entrees, int nombreEntrees, int **nombreSo
 		printf("Vague -- Échec d'allocation des sorties (nombre d'entrées : %d).\n", nombreEntrees);
 		exit(EXIT_FAILURE);
 	}
-	int indicesSortie;
 	*nombreSortiesVague = creerVecteurEntier(nombreEntrees,-1);
 	for( k=0; k<nombreEntrees; k++ )
 	{
@@ -91,7 +90,6 @@ void deployerMonstre(Monstre *monstre, Carte *carte, Cite *cite)
 
 void lancerVague(Vague *vague, Carte *carte, Cite *cite)
 {
-	int k;
 	Monstre *monstre;
 	/* on déploie le premier, on calcule pour le reste */
 	monstre = (vague->monstres)[0];
@@ -124,10 +122,10 @@ bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, 
 {
 	int k, j;
 	bool  estSorti, conditionEntracte;
+	double tempsEntracte;
 	Vague *vague;
 	Monstre *monstre;
 	/* les vagues de monstres */
-	
 	vague = *chaine;
 	if( vague->etat == lancee )
 	{
@@ -182,8 +180,9 @@ bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, 
 		/* la vague était en attente jusqu'à maintenant
 		* on vérifie que c'est toujours le cas
 		*/
-		conditionEntracte = ( calculerTempsSecondes(deltaT + vague->tempsEntracte_acc) > TEMPS_ENTRACTE );
-		//printf("Ceci n'est pas un message : %lf ?\n", calculerTempsSecondes(deltaT +vague->tempsEntracte_acc));
+		tempsEntracte = calculerTempsSecondes(deltaT + vague->tempsEntracte_acc);
+		conditionEntracte = ( tempsEntracte > TEMPS_ENTRACTE );
+		//printf("Ceci n'est pas un message : %lf ?\n", tempsEntracte);
 		if( conditionEntracte )
 		{
 				lancerVague(vague, carte, cite);
@@ -327,7 +326,7 @@ int calculerNombreMonstres(unsigned char niveau)
 
 clock_t calculerTempsPause(unsigned char niveau)
 {
-	clock_t tempsPause = CLOCKS_PER_SEC/(TEMPS_PAUSE_BASE*( 1./(1 + niveau) ));
+	clock_t tempsPause = (clock_t)( (CLOCKS_PER_SEC*TEMPS_PAUSE_BASE)*( 1./(1 + log(niveau+1)) )) ;
 	return tempsPause;
 }
 

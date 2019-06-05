@@ -28,7 +28,7 @@ static const char *ETAT_MONSTRE[] = {"Vaincu", "Sorti", "En attente", "En mouvem
 
 /*attributs unitaires*/
 #define VIE_BASE 3
-#define VITESSE_BASE 1
+#define VITESSE_BASE 5000 /* en pixels par seconde ? */
 #define RESISTANCE_BASE 1
 #define ATTAQUE_BASE 1
 static const unsigned int VIE_TYPE[NB_TYPES_MONSTRE] = {1, 2};
