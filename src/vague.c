@@ -117,12 +117,43 @@ int accesIndiceDeploiement(Vague *vague)
 		return k;
 }
 
+void avancerVague(Vague *vague,  clock_t deltaT, Carte *carte, Cite *cite, int *perteTotalePoints, int *perteTotaleArgent)
+{
+	int k;
+	Monstre *monstre;
+	bool estSorti;
+	int pertePoints, perteArgent;
+	int totalPoints, totalArgent;
+	totalPoints = totalArgent = 0;
+	for( k=0; k<vague->nombreMonstres; k++ )
+	{
+		monstre = vague->monstres[k];
+		if( monstre->etat == enMouvement )
+		{
+			estSorti = avancerMonstre(monstre, deltaT, carte, cite);
 
-bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, unsigned char *niveau, int *pointage, int *argent)
+			if( estSorti )
+			{
+				pertePoints = perteArgent = 0;
+				/* le monstre attaque le joueur */
+				attaquerJoueur(monstre, &pertePoints, &perteArgent);
+				totalPoints += pertePoints;
+				totalArgent += perteArgent;
+			}
+		}
+	}
+	*perteTotalePoints = totalPoints;
+	*perteTotaleArgent = totalArgent;
+
+}
+
+
+bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, unsigned char *niveau, int *perteTotalePoints, int *perteTotaleArgent)
 {
 	int k, j;
 	bool  estSorti, conditionEntracte;
 	double tempsEntracte;
+
 	Vague *vague;
 	Monstre *monstre;
 	/* les vagues de monstres */
@@ -145,21 +176,8 @@ bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, 
 		{
 			vague->tempsPause_acc += deltaT;
 		}
-		for( k=0; k<vague->nombreMonstres; k++ )
-		{
-			
-			monstre = vague->monstres[k];
-			if( monstre->etat == enMouvement )
-			{
-				estSorti = avancerMonstre(monstre, deltaT, carte, cite);
-
-				if( estSorti )
-				{
-					/* le monstre attaque le joueur */
-					attaquerJoueur(monstre, pointage, argent);
-				}
-			}
-		}
+		/* les monstres de la vague avancent */
+		avancerVague(vague, deltaT, carte, cite, perteTotalePoints, perteTotaleArgent);
 		/* est-ce que la vague est terminée ?  */
 		if( estTerminee(vague) )
 		{
@@ -320,7 +338,7 @@ int calculerNombreEntrees(int nombreEntreesTotal)
 
 int calculerNombreMonstres(unsigned char niveau)
 {
-	int nombreMonstres = (rand()%TAILLE_VAGUE_BASE)*(niveau+1) + 1;
+	int nombreMonstres = (rand()%TAILLE_VAGUE_BASE)*log2(niveau+1) + 1;
 	return nombreMonstres;
 }
 

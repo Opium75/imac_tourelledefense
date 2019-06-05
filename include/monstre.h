@@ -28,7 +28,7 @@ static const char *ETAT_MONSTRE[] = {"Vaincu", "Sorti", "En attente", "En mouvem
 
 /*attributs unitaires*/
 #define VIE_BASE 3
-#define VITESSE_BASE 5000 /* en pixels par seconde ? */
+#define VITESSE_BASE 1000 /* en pixels par seconde ? */
 #define RESISTANCE_BASE 1
 #define ATTAQUE_BASE 1
 static const unsigned int VIE_TYPE[NB_TYPES_MONSTRE] = {1, 2};
@@ -80,6 +80,9 @@ unsigned int calculerVie(TypeMonstre type, unsigned char niveau);
 int calculerVitesse(TypeMonstre type, unsigned char niveau);
 int calculerAttaque(TypeMonstre type, unsigned char niveau);
 void calculerResistances(unsigned int resistances[], TypeMonstre type);
+
+void calculerPertes(Monstre *monstre, int *pertePoints, int *perteArgent);
+void calculerGains(Monstre *monstre, int *gainPoints, int *gainArgent);
 
 void attaquerJoueur(Monstre *monstre, int *pointage, int *argent);
 

@@ -49,6 +49,5 @@ int main(int argc, char *argv[])
 	printf("Libération des ressources...");
 	quitterJeu(jeu);
 	printf(" Fait !\n");
-
 	return EXIT_SUCCESS;
 }

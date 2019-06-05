@@ -78,6 +78,13 @@ bool estProjeteSegment(Point *point, Point *segP1, Point *segP2)
 	return estProjete;
 }
 
+void calculerCoordonneesPourcentage(Point *coordEchelle, Point *coord, Dimensions *dimImage)
+{
+    coordEchelle->x = (unsigned int)( ((double)coord->x/100. * (double)dimImage->x) );
+    coordEchelle->y =   (unsigned int)( ((double)coord->y/100. *(double)dimImage->y) );
+}
+
+
 unsigned int valeurAffine(unsigned int a, unsigned int b, double avancement)
 {
 	unsigned int c = (unsigned int)(((int)b - (int)a)*avancement) + a;

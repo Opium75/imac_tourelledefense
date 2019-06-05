@@ -36,7 +36,7 @@ bool verifierEmplacement(Cite *cite, Graphe *chemins, int nombreNoeuds, Point *c
 {
 	bool valide = true;
 	/* on vérifie si le point est trop proche d'une tour, d'un chemin... */
-	//valide &=verifierEmplacementTour(cite->listeTour, coordClique);
+	valide &=verifierEmplacementTour(cite->listeTour, coordClique);
 	if( !valide )
 		return false;
 	valide &= verifierEmplacementChemins(chemins, nombreNoeuds, coordClique);
@@ -68,11 +68,11 @@ bool verifierEmplacementChemins(Graphe *chemins, int nombreNoeuds, Point *coordC
 	return true;
 }
 
-void traitementCite(Cite *cite, clock_t deltaT, Carte *carte, Monstre **monstres, int nombreMonstres)
+void traitementCite(Cite *cite, clock_t deltaT, Carte *carte, Monstre **monstres, int nombreMonstres, int *gainPointsTotal, int *gainArgentTotal)
 {
 	/* on va s'occuper d'abord des tours */
 	ListeTour *liste = &(cite->listeTour);
-	traitementListe(liste, deltaT, monstres, nombreMonstres);
+	traitementListe(liste, deltaT, monstres, nombreMonstres, gainPointsTotal, gainArgentTotal);
 }
 
 void modifierCite(Cite *cite); // ?? que faire ??aaaaaaaa

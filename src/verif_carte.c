@@ -9,7 +9,6 @@ bool validerChemins(Carte *carte, PPM_Image *imageCarte, int *nombreModif)
 
 	bool valide = true;
 
-
 	/*À changer plus tard, question des arguments de la fonction */
 	int nombreNoeuds = carte->nombreNoeuds;
 	Graphe *chemins = carte->chemins;

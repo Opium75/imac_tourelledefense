@@ -79,7 +79,7 @@ int trouverIndiceTourRayon(ListeTour liste, unsigned int x, unsigned int y, int 
 int calculerIndiceClique(int *indicesTours, int *distancesTours, int nombreToursTrouvees);
 
 
-void traitementListe(ListeTour *liste, clock_t deltaT,  Monstre **monstres, int nombreMonstres);
+void traitementListe(ListeTour *liste, clock_t deltaT,  Monstre **monstres, int nombreMonstres, int *gainPointsTotal, int *gainArgentTotal);
 
 
 bool verifierEmplacementTour(ListeTour liste, Point *coordClique);
@@ -88,8 +88,10 @@ bool verifierEmplacementTour(ListeTour liste, Point *coordClique);
 * on préfère que Monstre contrôle les dégats qu'il reçoie
 * pour qu'il sache qu'il doit disparaître
 */
-bool recevoirDegats(Monstre *monstre, Tour *tour);
-void attaquerMonstres(ListeTour liste, clock_t deltaT,  Monstre **monstres, int nombreMonstres);
+bool recevoirDegats(Monstre *monstre, Tour *tour, int *gainPoints, int *gainArgent);
+
+void attaquerCible(Tour *tour, clock_t deltaT, Monstre **monstres, int nombreMonstres, int *gainPoints, int *gainArgent);
+void attaquerMonstres(ListeTour liste, clock_t deltaT,  Monstre **monstres, int nombreMonstres, int *gainPointsTotal, int *gainArgentTotal);
 
 /* Fait cibler la tour sur un monstre à portée
 * renvoie vrai en cas de succès

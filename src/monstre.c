@@ -65,22 +65,20 @@ void terminalMonstre(Monstre *monstre)
 	}
 }
 
-void attaquerJoueur(Monstre *monstre, int *pointage, int *argent)
+void attaquerJoueur(Monstre *monstre, int *pertePoints, int *perteArgent)
 {
-	int perteArgent = monstre->attaque;
-	*argent -= perteArgent;
-	(*pointage)--;
+	calculerPertes(monstre, pertePoints, perteArgent);
 }
 
 unsigned int calculerVie(TypeMonstre type, unsigned char niveau)
 {
-	unsigned int vie = VIE_BASE*VIE_TYPE[type]*log(niveau)+1;
+	unsigned int vie = VIE_BASE*VIE_TYPE[type]*log2(niveau+1)+1;
 	return vie;
 } 
 
 int calculerVitesse(TypeMonstre type, unsigned char niveau)
 {
-	int vitesse = VITESSE_BASE*VITESSE_TYPE[type]*(int)log2((int)niveau+2)+1;
+	int vitesse = VITESSE_BASE*VITESSE_TYPE[type]*(int)log2(log2((int)niveau+2)+1)+1;
 	return vitesse;
 }
 
@@ -97,6 +95,19 @@ void calculerResistances(unsigned int resistances[], TypeMonstre type)
 	{
 		resistances[i] = RESISTANCE_BASE*RESISTANCES_TYPE[type][i];
 	}
+}
+
+void calculerGains(Monstre *monstre, int *gainPoints, int *gainArgent)
+{
+	*gainPoints = pow( ((int)monstre->vieMax)*monstre->vitesse*monstre->attaque, 1./3. );
+	*gainArgent = monstre->attaque;
+}
+
+void calculerPertes(Monstre *monstre, int *pertePoints, int *perteArgent)
+{
+	/* pas de parte de points pour l'instant */
+	*pertePoints =0;
+	*perteArgent = monstre->attaque;
 }
 
 TypeMonstre calculerTypeMonstre(void)

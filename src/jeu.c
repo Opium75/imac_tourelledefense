@@ -40,8 +40,7 @@ Jeu* allouerJeu(void)
 	jeu->image = NULL;
 
 	/** on initialise les ressources de l'affichage ailleurs **/
-	jeu->scene = NULL;
-	jeu->arrierePlan = NULL;
+	jeu->ressources = allouerRessources();
 	return jeu;
 }
 
@@ -54,7 +53,7 @@ Joueur* allouerJoueur(void)
 		exit(EXIT_FAILURE);
 	}
 	joueur->pointage = 0;
-	joueur->argent = 0;
+	joueur->argent = ARGENT_DEPART;
 	joueur->memTouche = '\0';
 	return joueur;
 }
@@ -231,6 +230,8 @@ void lancerJeu(Jeu *jeu)
 	Vague *vague = creerVague(jeu->niveau, jeu->carte);
 	jeu->chaine = vague;
 	lancerVague(jeu->chaine, jeu->carte, jeu->cite);
+	/* */
+	/* chargement des ressources */
 	char *nomArrierePlan = jeu->carte->nomArrierePlan;
 	bool possedeArrierePlan = jeu->carte->possedeArrierePlan;
 	chargerRessourcesAffichage(jeu->arrierePlan, &(jeu->affichageArrierePlan),  &(jeu->textureArrierePlan), jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures, jeu->listeDim, jeu->image->dim, possedeArrierePlan, nomArrierePlan);
@@ -242,33 +243,64 @@ void quitterJeu(Jeu *jeu)
 	libererJeu(jeu);
 }
 
-void traitementJeu(Jeu* jeu, time_t deltaT)
+bool traitementJeu(Jeu* jeu, time_t deltaT)
 {
+	bool fin = false;
+	int gainPoints, gainArgent;
+	int pertePoints, perteArgent;
+	gainPoints = gainArgent = pertePoints = perteArgent = 0;
 	/* ici, on fait tout les calculs et changements,
 	* la fonction est appelée à chaque itération du jeu
 	*/
 	/* les vagues de monstres */
-	//printf("Who let the dogs out ?\n");
 	//terminalMonstre(jeu->chaine->monstres[0]);
-	traitementChaine(&(jeu->chaine), deltaT, jeu->carte, jeu->cite, &(jeu->niveau), &(jeu->joueur->pointage), &(jeu->joueur->argent));
-	//printf("Woof ?\n");	
+	traitementChaine(&(jeu->chaine), deltaT, jeu->carte, jeu->cite, &(jeu->niveau), &pertePoints, &perteArgent);
 	/* la vague, les monstres ont été mis à jour.
 	* On traite maintenant la cité.
 	*/
-	traitementCite(jeu->cite, deltaT, jeu->carte, jeu->chaine->monstres, jeu->chaine->nombreMonstres);
+	traitementCite(jeu->cite, deltaT, jeu->carte, jeu->chaine->monstres, jeu->chaine->nombreMonstres, &gainPoints, &gainArgent);
+	/* on rajoute, soustrait des points, de l'argent, au joueur */
+	fin = traitementJoueur(jeu->joueur, gainPoints, gainArgent, pertePoints, perteArgent);
+	return fin;
 }
 
+bool traitementJoueur(Joueur *joueur, int gainPoints, int gainArgent, int pertePoints, int perteArgent)
+{
+	bool fin = false;
+	/* on modifie le total de points, argent si besoin */
+	if( (gainPoints - pertePoints) )
+		joueur->pointage += (gainPoints - pertePoints);
+	if( (gainArgent - perteArgent) )
+		joueur->argent += (gainArgent - perteArgent);
+	/* le joueur a-t-il perdu ? */
+	if( joueur->argent < 0 )
+	{
+		fin = true;
+	}
+	return fin;
+}
 void boucleJeu(Jeu *jeu)
 {
-	bool boucle;
+	bool boucle, fin;
 	clock_t deltaT, tempsDebut, tempsEcoule;
 	Uint32 tempsDebut_SDL, tempsEcoule_SDL;
+	/** CE QUI SUIT EST FAUX, MAIS C'EST AUSSI UNE POSSIBILITÉ
+	** ON POURRAIT CHANGER SI PLUS LOGIQUE
+	**/
+	/* on gère le gain dans la boucle de jeu
+	* et on l'applique dans le traitement
+	* sachant que om est modifié par le traitement 
+	* (victoire sur monstre, attaque du monstre )
+	* et l'interface (constructions, destruction)
+	*/
+	//int gainPoints, gainArgent, pertePoints, perteArgent;
 
 	/* temps au début de la boucle */
 	tempsDebut = clock();
 	tempsEcoule  = tempsDebut;
 	/** BOUCLE **/
 	boucle = true;
+	fin = false;
 	while(boucle)
 	{
 		/*récup temps au début de la boucle*/
@@ -276,22 +308,25 @@ void boucleJeu(Jeu *jeu)
 		deltaT = clock() - tempsEcoule;
 		tempsEcoule = clock();
 
-		//printf("Delta T : %ld, temps écoulé : %lf \n", deltaT, deltaT/(double)CLOCKS_PER_SEC);
-		/*** TRAITEMENT ***/
-		traitementJeu(jeu, deltaT);
 		
-		//terminalVague(jeu->chaine);
+		/* si l'on a pas encore fini le jeu (perdu) */
+		if( !fin )
+		{
+			/*** TRAITEMENT ***/
+			fin = traitementJeu(jeu, deltaT);
 
-		glClear(GL_COLOR_BUFFER_BIT);
-		/** AFFICHAGE ***/
+			/** AFFICHAGE ***/
+			afficherJeu(jeu);
 
-		afficherJeu(jeu);
-		
-		//afficherCarte();
+			boucle = interfaceJeu(jeu);
+		}
+		else
+		{
+			/* on affiche l'écran de fin */
+			afficherJeuFin(jeu);
 
-		boucle = interfaceJeu(jeu);
-		
-		
+			boucle = interfaceJeuFin(jeu);
+		}
 
 		/*Échange du tampon arrière et avant -> mise à jour fenêtre*/
 		SDL_GL_SwapBuffers();
@@ -335,8 +370,6 @@ bool interfaceJeu(Jeu *jeu)
         {
             /* Redimensionnement fenetre */
 			case SDL_VIDEORESIZE:
-                //reshape(&surface, e.resize.w, e.resize.h);
-                //glMatrixMode(GL_MODELVIEW);
                 break;
 
             /* Clic souris */
@@ -348,11 +381,50 @@ bool interfaceJeu(Jeu *jeu)
             
             /* Touche clavier */
             case SDL_KEYDOWN:
-                printf("touche pressée (code = %c)\n",e.key.keysym.sym);
-            	 //terminalVague(jeu->chaine);
-                //terminalListe(jeu->cite->listeTour);
             	gestionTouche(jeu, &e);
             	//touchecode = e.key.keysym.sym;
+                break;
+                
+            default:
+                break;
+        }
+	}
+	return boucle;
+}
+
+bool interfaceJeuFin(Jeu *jeu)
+{
+	/* ÉVÉNEMENTS SDL */
+	SDL_Event e;
+	bool boucle = true;
+	while(SDL_PollEvent(&e))
+	{
+		 /* L'utilisateur ferme la fenetre : */
+		if(e.type == SDL_QUIT) 
+		{
+			boucle = false;
+			break;
+		}
+	
+		if(	e.type == SDL_KEYDOWN 
+			&& (e.key.keysym.sym == SDLK_q || e.key.keysym.sym == SDLK_ESCAPE))
+		{
+			boucle = false; 
+			break;
+		}
+		/* Quelques exemples de traitement d'evenements : */
+        switch(e.type) 
+        {
+            /* Redimensionnement fenetre */
+			case SDL_VIDEORESIZE:
+                break;
+
+            /* Clic souris */
+            case SDL_MOUSEBUTTONUP:
+                break;
+            
+            /* Touche clavier */
+            case SDL_KEYDOWN:
                 break;
                 
             default:
@@ -372,48 +444,119 @@ void gestionTouche(Jeu *jeu, SDL_Event *e)
 
 void gestionClic(Jeu *jeu, SDL_Event *e)
 {
-	int type;
 	Point coordClique;
 	calculerCoordonneesEchelle(&coordClique, e->button.x, e->button.y, jeu->image->dim);
 
 	/* */
-	type = toucheVersTypeTour(jeu->joueur->memTouche);
+	gestionConstruction(jeu->joueur, jeu->cite, jeu->carte, &coordClique);
+}
+
+void gestionConstruction(Joueur *joueur, Cite *cite, Carte *carte, Point *coordClique)
+{
+	int type, coutAchat;
+	int argentJoueur;
+	int gainPoints, gainArgent, pertePoints, perteArgent;
+	/* réinitialiser les gains, pertes */
+	gainPoints = gainArgent = pertePoints = perteArgent = 0;
+	/* copie protective */
+	argentJoueur = joueur->argent;
+	type = toucheVersTypeTour(joueur->memTouche);
 	if( type != -1)
 	{
-		if( construireTour(jeu->cite, jeu->carte->chemins, jeu->carte->nombreNoeuds, type, &coordClique) )
+		/* si ajout d'un bâtiment (tour pour l'instant) */
+		coutAchat = calculerCout(type);
+		if( argentJoueur >= (int)coutAchat )
 		{
-			printf("Tour construite en ");
-			afficherPoint(&coordClique);
-
+			if( construireTour(cite, carte->chemins, carte->nombreNoeuds, type, coordClique) )
+			{
+				perteArgent = coutAchat;
+				printf("Tour construite en ");
+				afficherPoint(coordClique);
+			}
+			else
+			{
+				printf("Échec de construction : Espace occupé en");
+				afficherPoint(coordClique);
+			}
+		}
+		else
+		{
+			printf("Échec de construction : ressources insuffisantes pour tour %d. (coût = %u)\n", type, coutAchat);
 		}
 	}
+	else
+	{
+		/* modification, suppression d'un bâtiment ? */
+	}
+	/* on soustrait (ou ajoute, dans le cas d'une suppression) l'argent  au joueur */
+	traitementJoueur(joueur, gainPoints, gainArgent, pertePoints, perteArgent);
 }
 
-void afficherJoueur(Joueur *joueur)
+int calculerRang(Joueur *joueur)
 {
-	afficherTouche(joueur->memTouche);
+	int rang;
+	rang = (int)joueur->pointage/PALIER_RANG;
+	if( rang > NB_RANGS)
+		rang = NB_RANGS-1;
+	return rang;
 }
+
+void afficherJoueur(Joueur *joueur, Dimensions *dimImage)
+{
+	afficherPointage(joueur->pointage, dimImage);
+	afficherArgent(joueur->argent, dimImage);
+	afficherTouche(joueur->memTouche, dimImage);
+}
+
+void afficherJoueurFin(Joueur *joueur, Dimensions *dimImage)
+{
+	/* pour l'écran de fin */
+	afficherPointage(joueur->pointage, dimImage);
+}
+
+
 
 void afficherJeu(Jeu *jeu)
 
 {
+	glClear(GL_COLOR_BUFFER_BIT);
+	Ressources *ressources = jeu->ressources;
    /* l'arrière-plan s'il existe */
 	if( jeu->carte->possedeArrierePlan )
 	{
-		 afficherCarte(jeu->affichageArrierePlan, jeu->image->dim);
+		 afficherCarte(ressources->affichageArrierePlan, jeu->image->dim);
 	}
     //peut-être mettre en arguments le score et l'argent et changer le type d'argu que la fonction attend : afficher Carte(jeu->pointage, jeu->argent);
   	
   	/* on afficher la cité, la chaîne de monstres */
-    afficherCite(jeu->cite, jeu->banqueAffichage, jeu->listeDim, jeu->image->dim);
+    afficherCite(jeu->cite, ressources->banqueAffichage, ressources->listeDim, jeu->image->dim);
 
-    afficherChaine(jeu->chaine, jeu->banqueAffichage, jeu->listeDim, jeu->image->dim);
+    afficherChaine(jeu->chaine, ressources->banqueAffichage, ressources->listeDim, jeu->image->dim);
 
     	///TEXTES 
 
    // vBitmapOutput( -95, 65, "Argent du joueur : ", GLUT_BITMAP_HELVETICA_18);
     //vBitmapOutput( -95, 40, "Temps restant : ", GLUT_BITMAP_HELVETICA_18);
 	//afficheTouche(txtP, touchecode);
+}
+
+void afficherJeuFin(Jeu *jeu)
+{
+	int rang;
+	Ressources *ressources = jeu->ressources;
+	/* l'écran de fin */
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	/* calcul du rang à chaque boucle, lourd
+	* mais pas grave.
+	*/
+	rang = calculerRang(jeu->joueur);
+	afficherNiveau(jeu->niveau, jeu->image->dim);
+	/* LE TEXTE DU RANG ET SON IMAGE */
+	afficherRang(rang, jeu->image->dim);
+	afficherImageRang(rang, ressources->rangAffichage[rang], &POSITION_IMAGE_RANG, &DIM_IMAGE_RANG, jeu->image->dim);
+	/* */
+	afficherJoueurFin(jeu->joueur, jeu->image->dim);
 }
 
 void libererJeu(Jeu *jeu)
@@ -428,10 +571,11 @@ void libererJeu(Jeu *jeu)
 	libererCite(jeu->cite);
 	PPM_libererImage(jeu->image);
 	/** l'affichage aussi **/
-	libererRessourcesAffichage(jeu->arrierePlan, &(jeu->affichageArrierePlan), &(jeu->textureArrierePlan), jeu->lutins, jeu->banqueAffichage, jeu->banqueTextures);
+	libererRessources(jeu->ressources);
 	fermerAffichage(jeu->scene);
 	free(jeu);
 }
+
 
 
 void debug(void)

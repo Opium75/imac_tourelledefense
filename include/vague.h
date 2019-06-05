@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <time.h>
 
 #include "carte.h"
@@ -30,7 +31,7 @@
 */
 
 #define TAILLE_VAGUE_BASE 20
-#define TEMPS_PAUSE_BASE 0.001 /*en secondes*/
+#define TEMPS_PAUSE_BASE 0.2 /*en secondes*/
 
 /* une constante de temps entre cle moment où la dernière vague s'achêve
 * et la prochaine vague se lance */
@@ -79,7 +80,9 @@ int accesIndiceDeploiement(Vague *vague);
 
 /** VAGUE comme CHAÎNE **/
 
-bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, unsigned char *niveau, int *pointage, int *argent);
+bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, unsigned char *niveau, int *perteTotalePoints, int *perteTotaleArgent);
+
+void avancerVague(Vague *vague,  clock_t deltaT, Carte *carte, Cite *cite, int *perteTotalePoints, int *perteTotaleArgent);
 
 int longueurChaine(Vague *vague);
 
