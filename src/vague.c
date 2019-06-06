@@ -150,8 +150,8 @@ void avancerVague(Vague *vague,  clock_t deltaT, Carte *carte, Cite *cite, int *
 
 bool traitementChaine(Chaine *chaine, clock_t deltaT, Carte *carte, Cite *cite, unsigned char *niveau, int *perteTotalePoints, int *perteTotaleArgent)
 {
-	int k, j;
-	bool  estSorti, conditionEntracte;
+	int j;
+	bool  conditionEntracte;
 	double tempsEntracte;
 
 	Vague *vague;

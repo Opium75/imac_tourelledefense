@@ -114,7 +114,7 @@ TypeMonstre calculerTypeMonstre(void)
 {
 	/* J'aimerai donner des arguments à la fonction,
 	* histoire qu'on ait pas une probabilité uniforme
-	/* on pourrait améliorer l'aléatoire (on a bien mieux que rand()) */
+	* on pourrait améliorer l'aléatoire (on a bien mieux que rand()) */
 	int type = rand()%NB_TYPES_MONSTRE;
 	return (TypeMonstre) type;
 }

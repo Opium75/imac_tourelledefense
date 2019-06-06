@@ -16,9 +16,6 @@
 
 #define MAX_TAILLE_MOTCLEF 15
 
-#define CODE_COM '#'
-#define CODE_SAUT_LIGNE '\n' /*ne pas modifier*/
-
 static const char REP_DONNEES_CARTE[] = "./data"; /*répertoire des fichiers .itd*/
 static const char REP_DONNEES_IMAGE[] = "./images/carte";
 

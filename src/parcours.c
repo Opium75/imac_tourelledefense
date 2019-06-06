@@ -12,7 +12,7 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 	int entierProba;
 
 	Noeud *noeud;
-	int distanceMin, indiceSortieMin, nombreEtapesMin;
+	int distanceMin, indiceSortieMin;
 	/* On récupère les indices des précédents par l'algorithme de dijkstra */
 	/* L'algorithme déterminera la sortie la plus proche ? */
 	int *distances = creerVecteurEntier(carte->nombreNoeuds, -1);
@@ -40,9 +40,6 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 	** En fait, le monstre ne peut pas accéder à toutes ces sorties
 	** mais le calcul des précédents piochera la sortie parmi ces sorties-là.
 	**/
-	/* on récupère l'indice d'entrée du monstre */
-	int indiceEntree = correspondanceIndicesEntrees(monstre->indiceEntree, carte->indicesEntrees, carte->nombreEntrees);
-	/* */
 
 	/** ON RÉCUPÈRE LES SORTIES ACCESSIBLES PAR LE MONSTRE **/
 	extraireSorties(noeud0, &indicesSortiesNoeud, &nombreSortiesNoeud, carte->nombreNoeuds);
@@ -50,8 +47,6 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 
 	distanceMin = -1;
 	indiceSortieMin = -1;
-	nombreEtapesMin = -1;
-	//afficherVecteurEntier(indicesPrecedents, carte->nombreNoeuds);
 
 	/* déterminer l'indice de la sortie la plus proche (minimum des distances) */
 	/** AVEC PROBABILITÉ DE NE PAS LA PRENDRE, ET UNE AUTRE AU HASARD **/
@@ -103,7 +98,6 @@ int* plusCourtChemin(Monstre *monstre, Carte *carte, Cite *cite, int *nombreEtap
 		indice = indicesPrecedents[indice];
 	}
 	libererVecteurEntier(indicesPrecedents);
-	//afficherVecteurEntier(parcours, *nombreEtapes);
 	return parcours;
 }
 

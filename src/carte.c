@@ -27,7 +27,6 @@ void libererCarte(Carte *carte)
 void terminalCarte(Carte *carte)
 {
 	MotClef MC_lu;
-	OPT_MotClef OPT_lue;
 	printf("\n--- AFFICHAGE CARTE ---\n");
 	/*** Version ***/
 	printf("Version carte : %d\n", carte->version);

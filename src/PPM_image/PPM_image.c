@@ -3,9 +3,16 @@
 PPM_Image* PPM_creerImage(unsigned int largeur,unsigned int hauteur) 
 {
 	int i;
+
 	unsigned long int taille_canal = largeur*hauteur*sizeof(unsigned char);
+	if( !taille_canal )
+	{
+		printf("Image -- Échec de l'allocation dynamique pour la taille !\n");
+		exit(EXIT_FAILURE);
+	}
+
 	PPM_Image *img = malloc(sizeof(PPM_Image));
-	if(!img) 
+	if( !img ) 
 	{
 		printf("Image -- Échec de l'allocation dynamique pour l'Image !\n");
 		exit(EXIT_FAILURE);
@@ -19,6 +26,7 @@ PPM_Image* PPM_creerImage(unsigned int largeur,unsigned int hauteur)
 			exit(EXIT_FAILURE);
 		}
 	}
+
 	img->dim = creerPoint(largeur, hauteur);
 	return img;
 }
@@ -62,8 +70,10 @@ bool PPM_lireImage(FILE *src, PPM_Image **img)
 {
 	int valide;
 	unsigned int largeur,hauteur;
-	if( valide = PPM_lireEntete(src, &largeur, &hauteur) )
+	valide = PPM_lireEntete(src, &largeur, &hauteur);
+	if( valide )
 	{
+
 		*img = PPM_creerImage(largeur, hauteur);
 		PPM_lireCanaux(src, *img);
 	}

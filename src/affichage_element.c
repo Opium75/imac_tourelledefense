@@ -165,9 +165,8 @@ void afficherTour(Tour *tour, GLuint idAffichage, Dimensions *dimLutin, Dimensio
 void afficherImageRang(int rang, GLuint idAffichage, Point *coordRang, Dimensions *dimRang, Dimensions *dimImage)
 {
     double posX, posY;
-    double mPosX, mPosY;
-    /*  */
     double propX, propY;
+    /*  */
     Point coordEchelle;
     Point dimEchelle;
     calculerCoordonneesPourcentage(&coordEchelle, coordRang, dimImage);

@@ -10,11 +10,11 @@
 
 #include "couleur.h"
 #include "point.h"
+#include "fichier.h"
 #include "graphe.h"
 #include "carte.h"
 
 
-#define MAX_TAILLE_CODE 10 /*on prévoit large, dans le cads où le code est incorrect.*/
 
 /*On n'autorise maintenant qu'une seule sortie */
 
@@ -30,8 +30,8 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins);
 bool lireCarte(FILE *fichierCarte, Carte *carte); /*avec structure Carte*/
 /**/
 
-MotClef correspondanceMotClef(char motClef[], int version);
-OPT_MotClef correspondanceOption(char option[]);
+int correspondanceMotClef(char motClef[], int version);
+int correspondanceOption(char option[]);
 
 /*Fonction de formatage*/
 void sautLigne(FILE *fichierCarte);

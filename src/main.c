@@ -27,11 +27,8 @@ int main(int argc, char *argv[])
 		printf("Jeu -- Échec de préparation.\n");
 		return EXIT_FAILURE;
 	}
-	//terminalCarte(jeu->carte);
-	/***Lancement du jeu ***/
-	printf("Lancement du jeu...");
+	printf("Chargement du jeu...");
 	chargerJeu(jeu);
-	//terminalVague(jeu->chaine);
 	printf(" Fait !\n");
 	printf("\n--- TRAITEMENT ---\n");
 	/*printf("Il était une fois\n");

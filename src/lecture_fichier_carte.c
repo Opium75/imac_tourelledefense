@@ -87,8 +87,8 @@ bool lireParametres(FILE *fichierCarte, Carte *carte)
 	long int pos;
 
 	char chaineMotClef[MAX_TAILLE_MOTCLEF];
-	MotClef MC_lu;
-	OPT_MotClef OPT_lue;
+	int MC_lu;
+	int OPT_lue;
 	int aEteLu[ NB_PARAM_PAR_VERSION[version-1] ]; /*tableau de booléen qui permettra de savoir si on a lu les mot-clefs*/
 
 	for(i=0; i < NB_PARAM_PAR_VERSION[version-1]; i++) /*amorcé à 0*/
@@ -257,9 +257,9 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 			return false;
 		}
 
-		/**** Vérifs paramètres ***.
-		/*indice du noeud est compris entre 0 et nombreNoeuds-1*/
-		/* PAS NÉCESSAIREMENT, IL FAUDRA FAIRE UNE VÉRIF EN PLUS
+		/**** Vérifs paramètres ****/
+		/*indice du noeud est compris entre 0 et nombreNoeuds-1
+		* PAS NÉCESSAIREMENT, IL FAUDRA FAIRE UNE VÉRIF EN PLUS
 		*/
 		/* On impose pas d'ordre.*/
 		if( indice < 0 || indice >= *nombreNoeuds )
@@ -330,7 +330,7 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 }
 
 
-MotClef correspondanceMotClef(char motClef[], int version)
+int correspondanceMotClef(char motClef[], int version)
 {
 	int i;
 	for(i=0; i<NB_PARAM_PAR_VERSION[version-1]; i++)
@@ -343,7 +343,7 @@ MotClef correspondanceMotClef(char motClef[], int version)
 	return -1; /*valeur -1 traitée comme un échec*/
 }
 
-OPT_MotClef correspondanceOption(char option[])
+int correspondanceOption(char option[])
 {
 	int i;
 	for( i=0; i<NB_PARAM_OPTION; i++ )
@@ -356,32 +356,3 @@ OPT_MotClef correspondanceOption(char option[])
 	return -1; /* idem */
 }
 
-void sautLigne(FILE *fichierCarte)
-{
-	while( fgetc(fichierCarte) != CODE_SAUT_LIGNE || feof(fichierCarte) )
-	{
-					/*rien à faire ici */
-	}
-}
-
-int lireEntier(FILE *fichierCarte, char position[],int ligne, int *e)
-{
-	int format = fscanf(fichierCarte, "%d", e);
-	if( !format )
-	{
-		printf("%s -- Ligne n°%d, erreur de formatage : entier attendu.\n", position, ligne);
-		return 0;	
-	}
-	return format;
-}
-
-int lireChaine(FILE *fichierCarte, char position[],int ligne, char chaine[])
-{
-	int format = fscanf(fichierCarte, "%s", chaine);
-	if( !format )
-	{
-		printf("%s -- Ligne n°%d, erreur de formatage : chaîne de caractères attendue.\n", position, ligne);
-		return 0;
-	}
-	return format;
-}

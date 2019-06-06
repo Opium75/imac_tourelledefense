@@ -29,7 +29,6 @@ void PPM_libererImage(PPM_Image *img);
 void PPM_lireCanaux(FILE *src, PPM_Image *img);
 bool PPM_lireImage(FILE *src, PPM_Image **img);
 
-bool PPM_lireImage(FILE *src, PPM_Image **img);
 void PPM_ecrireCanaux(FILE *dest, PPM_Image *img);
 
 bool PPM_ecrireImage(FILE*dest, PPM_Image*img);
