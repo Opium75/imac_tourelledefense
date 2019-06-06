@@ -37,7 +37,7 @@ bool lireCarte(FILE *fichierCarte, Carte *carte)
 	}
 	/***********/
 
-	/** étape supplémentaire : lister les entrées (pour vagues de monstres) et LA SEULE sortie **/
+	/** étape supplémentaire : lister les entrées (pour vagues de monstres) et les sorties **/
 	//extraireEntreeSortie(&indicesEntrees, &nombreEntrees, &indiceSortie, nombreNoeuds, chemins);
 
 	
@@ -99,7 +99,7 @@ bool lireParametres(FILE *fichierCarte, Carte *carte)
 		pos = ftell(fichierCarte);
 		if( fgetc(fichierCarte) == CODE_COM )
 		{
-			/*gestion des commetaire ?*/
+			/*gestion des commetaires ?*/
 			/*On ignore le commentaire, on passe à la ligne suivante*/
 			sautLigne(fichierCarte);
 			i--; /*on  décrémente le compteur pour qu'il revienne à sa valeur initiale au début de la prochaine itération*/
@@ -193,7 +193,7 @@ bool lireParametres(FILE *fichierCarte, Carte *carte)
 				i--;
 			}
 			else
-				aEteLu[MC_lu] = 1; /*On lu le mot-clef sans erreurs*/
+				aEteLu[MC_lu] = 1; /*On a lu le mot-clef sans erreurs*/
 			/*On passe à la ligne suivante*/
 			sautLigne(fichierCarte);
 		}
@@ -239,7 +239,7 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 	*chemins = allouerGraphe(*nombreNoeuds);
 	grapheMat = allouerGrapheMatrice(*nombreNoeuds);
 
-	/*On passe à la liste des noeud en sautant de ligne.*/
+	/*On passe à la liste des noeuds en sautant de ligne.*/
 	sautLigne(fichierCarte);
 	
 	for(k=0; k<*nombreNoeuds; k++)
@@ -278,7 +278,7 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 			entreeExiste = true;
 		if( type == sortie )
 		{
-			/* nous acceptions maintenant plusieurs sorties */
+			/* nous acceptons maintenant plusieurs sorties */
 			sortieExiste = true;
 		}
 		/**/
@@ -293,7 +293,7 @@ bool lireChemins(FILE *fichierCarte, int *nombreNoeuds, Graphe **chemins)
 			
 		/*** Décompte du nombre de successeurs. ***/
 		/*Si on est au dernier noeud, il faut s'assurer que l'on n'est pas arrivé à la fin du fichier.*/
-		/*le SAUT DE LIGNE est automatisé par la conditon de boucle.*/
+		/*le SAUT DE LIGNE est automatisé par la condition de boucle.*/
 		while( fgetc(fichierCarte) != CODE_SAUT_LIGNE || (k == *nombreNoeuds-1 && feof(fichierCarte)) )
 		{
 			fseek(fichierCarte,-sizeof(char),SEEK_CUR);
@@ -340,7 +340,7 @@ MotClef correspondanceMotClef(char motClef[], int version)
 			return (MotClef) i;
 		}
 	}
-	return -1; /*valeur -1 taitée comme un échec*/
+	return -1; /*valeur -1 traitée comme un échec*/
 }
 
 OPT_MotClef correspondanceOption(char option[])
