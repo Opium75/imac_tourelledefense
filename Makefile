@@ -1,6 +1,6 @@
 CC		= gcc
 CFLAGS	= -Wall #-O2 -g
-LDFLAGS	= -lSDL -lSDL_image -lGLU -lGL -lm -lglut
+LDFLAGS	= -lSDL -lSDL_image -lGLU -lGL -lm -lglut -lSDL_mixer
 
 ## RÉPERTOIRES
 BINREP	= bin/

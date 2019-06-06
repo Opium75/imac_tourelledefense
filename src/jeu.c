@@ -209,7 +209,7 @@ void traitementJeu(Jeu* jeu, time_t deltaT)
 	{
 		case nonLance :
 			break;
-		case lance :
+		case lance :			
 			/* les vagues de monstres */
 			traitementChaine(&(jeu->chaine), deltaT, jeu->carte, jeu->cite, &(jeu->niveau), &pertePoints, &perteArgent);
 			/* la vague, les monstres ont été mis à jour.

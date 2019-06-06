@@ -17,7 +17,6 @@ void libererRessources(Ressources *ressources)
     free(ressources);
 }
 
-
 void lancerAffichage(SDL_Surface **scene)
 {
     /* Initialisation SDL*/
