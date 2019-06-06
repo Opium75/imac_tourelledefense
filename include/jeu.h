@@ -66,11 +66,14 @@ Jeu* allouerJeu(void);
 bool preparerJeu(Jeu *jeu, char *nomDonnees);
 
 void chargerJeu(Jeu *jeu);
-void relancerJeu(Jeu *jeu);
+void lancerJeu(Jeu *jeu);
+void finirJeu(Jeu *jeu);
+void recommencerJeu(Jeu *jeu);
 void quitterJeu(Jeu *jeu);
 
 /** JOUEUR **/
 Joueur* allouerJoueur(void);
+void reinitialiserJoueur(Joueur *joueur);
 void libererJoueur(Joueur *joueur);
 
 int calculerRang(Joueur *joueur);

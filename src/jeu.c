@@ -122,13 +122,40 @@ bool preparerJeu(Jeu *jeu, char *nomDonnees)
 	return true;
 }
 
-void relancerJeu(Jeu *jeu)
+void reinitialiserJoueur(Joueur *joueur)
 {
-	/** VAGUE DE MONSTRES **/
-	lancerVague(jeu->chaine, jeu->carte, jeu->cite);
+	/* valeurs de départ */
+	joueur->pointage = 0;
+	joueur->argent = ARGENT_DEPART;
+	joueur->memTouche = '\0';
 
+}
+
+void recommencerJeu(Jeu *jeu)
+{
+	
+
+	/* On repart au premier niveau */
+	jeu->niveau = 0;
+	/* on réinitialise le joueur */
+	reinitialiserJoueur(jeu->joueur);
+	/* oN RÉALLOUE LA CITÉ */
+	jeu->cite = allouerCite();
+	/* on revient au menu */
+	jeu->etat = nonLance;
 	/** affichage **/
 	////
+}
+
+void lancerJeu(Jeu *jeu)
+{
+	/** VAGUE DE MONSTRES **/
+	/* première itération */
+	Vague *vague = creerVague(jeu->niveau, jeu->carte);
+	jeu->chaine = vague;
+	lancerVague(jeu->chaine, jeu->carte, jeu->cite);
+	/* */
+	jeu->etat = lance;
 }
 
 void chargerJeu(Jeu *jeu)
@@ -145,22 +172,28 @@ void chargerJeu(Jeu *jeu)
 	lancerAffichage(&scene);
 	jeu->scene = scene;
 
-	/** VAGUE DE MONSTRES **/
-	/* première itération */
-	Vague *vague = creerVague(jeu->niveau, jeu->carte);
-	jeu->chaine = vague;
-	lancerVague(jeu->chaine, jeu->carte, jeu->cite);
-	/* */
+	
 	/* chargement des ressources */
 	char *nomArrierePlan = jeu->carte->nomArrierePlan;
 	bool possedeArrierePlan = jeu->carte->possedeArrierePlan;
 	chargerRessourcesAffichage(jeu->ressources, jeu->image->dim, possedeArrierePlan, nomArrierePlan);
-	/* on lance le jeu en bonne et due forme */
 }
 
 void quitterJeu(Jeu *jeu)
 {
 	libererJeu(jeu);
+}
+
+void finirJeu(Jeu *jeu)
+{
+	/* On libère les vagues et la cité */
+	libererChaine(jeu->chaine, NULL);
+	libererCite(jeu->cite);
+	/* ON OUBLIE PAS DE RÉINITIALISER LES POINTEURS LIBÉRÉS*/
+	jeu->chaine = NULL;
+	jeu->cite = NULL;
+	/* */
+	jeu->etat = fini;
 }
 
 void traitementJeu(Jeu* jeu, time_t deltaT)
@@ -187,7 +220,7 @@ void traitementJeu(Jeu* jeu, time_t deltaT)
 			fin = false;
 			fin = traitementJoueur(jeu->joueur, gainPoints, gainArgent, pertePoints, perteArgent);
 			if( fin )
-				jeu->etat = fini;
+				finirJeu(jeu);
 			break;
 		case enPause :
 			break;
@@ -366,6 +399,7 @@ void gestionClic(Jeu *jeu, SDL_Event *e)
 			/* on autorisera pas la construction pendant la pause ? */
 			break;
 		case fini :
+			gestionFin(jeu, &coordClique);
 			break;
 	}
 	/* */
@@ -385,7 +419,25 @@ void gestionMenu(Jeu *jeu, Point *coordClique)
 	if( estClique )
 	{
 		/* on lance le jeu */
-		jeu->etat = lance;
+		lancerJeu(jeu);
+	}
+}
+
+void gestionFin(Jeu *jeu, Point *coordClique)
+{
+	/* le bouton correspondra au texte */
+	bool estClique;
+	Point coordBouton;
+	Dimensions dimBoutonRecom;
+	/* premier calcul de la position du bouton de menu */
+	calculerCoordonneesPourcentage(&coordBouton, &POSITION_BOUTON_RECOM, jeu->image->dim);
+	calculerDimensionsPourcentage(&dimBoutonRecom, &DIM_BOUTON_RECOM, jeu->image->dim);
+	/* est-ce que l'on a cliqué sur le bouton ?*/
+	estClique = boutonEstClique(&coordBouton, &dimBoutonRecom, coordClique, jeu->image->dim);
+	if( estClique )
+	{
+		/* on revient au  */
+		recommencerJeu(jeu);
 	}
 }
 
@@ -516,15 +568,21 @@ void afficherJeu(Jeu *jeu)
 
 void libererJeu(Jeu *jeu)
 {
+	/* ICI ON NE SE PRÉOCCUPE PAS DE RÉINITIALISER LES CIBLES
+	* ON DONNE DONC NULL À libererChaine
+	*/
+	
+	libererChaine(jeu->chaine, NULL);
+	if( jeu->cite )
+		libererCite(jeu->cite);
+
+	/* */
+
 	/* on libère tout */
 	libererJoueur(jeu->joueur);
 	libererCarte(jeu->carte);
-	/* LIBÉRER LA CHAÎNE AVANT LA CITÉ
-	* CAR LA CHAÎNE RÉINITIALISE LES CIBLES DES TOURS
-	*/
-	libererChaine(jeu->chaine, jeu->cite->listeTour);
-	libererCite(jeu->cite);
 	PPM_libererImage(jeu->image);
+	
 	/** l'affichage aussi **/
 	libererRessources(jeu->ressources);
 	fermerAffichage(jeu->scene);

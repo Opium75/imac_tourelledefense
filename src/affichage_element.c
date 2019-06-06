@@ -258,7 +258,6 @@ void afficherTexteRang(int rang, Dimensions *dimImage)
         **** À CORRIGER
         ****/
         strcpy(texteRang, TEXTE_RANG);
-        strcat(texteRang, NOM_RANGS[rang]);
         afficherTexte( texteRang, &POSITION_TEXTE_RANG, COULEUR_TEXTE_RANG, dimImage);
     libererTexte(texteRang);
 }
@@ -309,8 +308,8 @@ void afficherCredits(Dimensions *dimImage)
     Point *coordCredits =  copiePoint(&POSITION_CREDITS);
         for( i=0; i<NB_CREDITS; i++ )
         {
-            coordCredits->y += DECALAGE_TEXTES_CREDITS;
-            strcpy(texteCredits, TEXTES_CREDITS[i]);;
+            coordCredits->y += DECALAGE_TEXTE_CREDITS;
+            strcpy(texteCredits, TEXTE_CREDITS[i]);;
             afficherTexte( texteCredits, coordCredits, COULEUR_TEXTE_CREDITS, dimImage);
         }
     libererPoint(coordCredits);
