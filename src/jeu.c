@@ -410,8 +410,8 @@ void gestionMenu(Jeu *jeu, Point *coordClique)
 	Point coordBouton;
 	Dimensions dimBoutonMenu;
 	/* premier calcul de la position du bouton de menu */
-	calculerCoordonneesPourcentage(&coordBouton, &POSITION_BOUTON_MENU, jeu->image->dim);
-	calculerDimensionsPourcentage(&dimBoutonMenu, &DIM_BOUTON_MENU, jeu->image->dim);
+	calculerCoordonneesPourcentage(&coordBouton, &POSITION_BOUTONS[BOUT_menu], jeu->image->dim);
+	calculerDimensionsPourcentage(&dimBoutonMenu, &DIM_BOUTONS[BOUT_menu], jeu->image->dim);
 	/* est-ce que l'on a cliqué sur le bouton ?*/
 	estClique = boutonEstClique(&coordBouton, &dimBoutonMenu, coordClique, jeu->image->dim);
 	if( estClique )
@@ -428,8 +428,8 @@ void gestionFin(Jeu *jeu, Point *coordClique)
 	Point coordBouton;
 	Dimensions dimBoutonRecom;
 	/* premier calcul de la position du bouton de menu */
-	calculerCoordonneesPourcentage(&coordBouton, &POSITION_BOUTON_RECOM, jeu->image->dim);
-	calculerDimensionsPourcentage(&dimBoutonRecom, &DIM_BOUTON_RECOM, jeu->image->dim);
+	calculerCoordonneesPourcentage(&coordBouton, &POSITION_BOUTONS[BOUT_redem], jeu->image->dim);
+	calculerDimensionsPourcentage(&dimBoutonRecom, &DIM_BOUTONS[BOUT_redem], jeu->image->dim);
 	/* est-ce que l'on a cliqué sur le bouton ?*/
 	estClique = boutonEstClique(&coordBouton, &dimBoutonRecom, coordClique, jeu->image->dim);
 	if( estClique )

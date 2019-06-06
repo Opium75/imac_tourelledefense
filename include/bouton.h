@@ -43,22 +43,22 @@ static const char TEXTE_TOUCHE[] = "Touche : ";
 /*** BOUTONS ***/
 
 /** MENU **/
-static const Point POSITION_BOUTON_MENU = {50, 70};
+//static const Point POSITION_BOUTON_MENU = {50, 70};
 /* en pourcentage de l'écran */
-static const Dimensions DIM_BOUTON_MENU = {40, 20};
+//static const Dimensions DIM_BOUTON_MENU = {40, 20};
 /* */
 
 /** RECOMMENCER **/
-static const Point POSITION_BOUTON_RECOM = {50, 70};
-static const Dimensions DIM_BOUTON_RECOM = {20, 10};
+//static const Point POSITION_BOUTON_RECOM = {50, 70};
+//static const Dimensions DIM_BOUTON_RECOM = {20, 10};
 
 /** TOTAL **/
-static const Point POSITION_BOUTONS[NB_BOUTONS] = { POSITION_BOUTON_MENU, 
-													POSITION_BOUTON_RECOM
+static const Point POSITION_BOUTONS[NB_BOUTONS] = { {50, 70}, 
+													{50, 70}
 													};
 
-static const Dimensions DIM_BOUTONS[NB_BOUTONS] = { DIM_BOUTON_MENU,
-													DIM_BOUTON_RECOM
+static const Dimensions DIM_BOUTONS[NB_BOUTONS] = { {40, 20},
+													{20, 10}
 													};
 
 
