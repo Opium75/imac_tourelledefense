@@ -5,12 +5,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
-#include "../lecture_fichier_carte.h"
+#include "../couleur.h"
 #include "../fichier.h"
 
 #define CODE_COM_PPM '#'
 #define CODE_SAUT_LIGNE_PPM '\n'
+
+#define MAX_TAILLE_CODE_PPM 3
 static const char CODE_PPM[] = "P6";
 
 

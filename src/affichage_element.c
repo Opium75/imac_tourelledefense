@@ -7,23 +7,17 @@ void afficherCarte(GLuint idAffichage, Dimensions *dimImage)
 }
 
 
-void afficherAide(GLuint idAffichage, Dimensions *dimImage)
-{
-    /* l'aide remplace la carte */
-    afficherElement(idAffichage);
-}
-
-void afficherImageMenu(GLuint idAffichage, Point *coordMenu, Dimensions *dimMenu, Dimensions *dimImage)
+void afficherImagePourcentage(GLuint idAffichage, Point *coordPourcentage, Dimensions *dimPourcentage, Dimensions *dimImage)
 {
     double posX, posY;
     double propX, propY;
     Point coord;
     Dimensions dimEchelle;
     /* calcul coordonnées virtuelles */
-    calculerCoordonneesPourcentage(&coord, coordMenu, dimImage);
+    calculerCoordonneesPourcentage(&coord, coordPourcentage, dimImage);
     calculerCoordonneesVirtuelles(&coord, &posX, &posY, dimImage);
     /* calcul de l'échelle */
-    calculerDimensionsPourcentage(&dimEchelle, dimMenu, dimImage);
+    calculerDimensionsPourcentage(&dimEchelle, dimPourcentage, dimImage);
     calculerDimensionsEchelleImage(&propX, &propY, &dimEchelle, dimImage);
     /* on  affiche le menu  */
         glPushMatrix();
@@ -32,6 +26,12 @@ void afficherImageMenu(GLuint idAffichage, Point *coordMenu, Dimensions *dimMenu
             glScalef(propX, propY, 1.);
             afficherElement(idAffichage);
         glPopMatrix();
+}
+
+void afficherBouton(TypeBouton type, GLuint boutonAffichage[], Dimensions *dimImage)
+{
+    GLuint idAffichage = boutonAffichage[type];
+    afficherImagePourcentage(idAffichage, &POSITION_BOUTONS[type], &DIM_BOUTONS[type], dimImage);
 }
 
 
@@ -219,7 +219,7 @@ void afficherNiveau(unsigned char niveau, Dimensions *dimImage)
         **** À CORRIGER
         ****/
         sprintf(texteNiveau, "%s%hhu", TEXTE_NIVEAU, niveau);
-        afficherTexte( texteNiveau, &POSITION_TEXTE_NIVEAU, COULEUR_TEXTE_NIVEAU,  dimImage);
+        afficherTexte( texteNiveau, GLUT_BITMAP_HELVETICA_18, &POSITION_TEXTE_NIVEAU, COULEUR_TEXTE_NIVEAU,  dimImage);
     libererTexte(texteNiveau);
 }
 
@@ -232,7 +232,7 @@ void afficherPointage(int pointage, Dimensions *dimImage)
         **** À CORRIGER
         ****/
         sprintf(textePointage, "%s%d", TEXTE_POINTAGE, pointage);
-        afficherTexte( textePointage, &POSITION_TEXTE_POINTAGE, COULEUR_TEXTE_POINTAGE, dimImage);
+        afficherTexte( textePointage, GLUT_BITMAP_HELVETICA_18, &POSITION_TEXTE_POINTAGE, COULEUR_TEXTE_POINTAGE, dimImage);
     libererTexte(textePointage);
 }
 
@@ -245,7 +245,7 @@ void afficherArgent(int argent, Dimensions *dimImage)
         **** À CORRIGER
         ****/
         sprintf(texteArgent, "%s%d", TEXTE_ARGENT, argent);
-        afficherTexte( texteArgent, &POSITION_TEXTE_ARGENT, COULEUR_TEXTE_ARGENT, dimImage);
+        afficherTexte( texteArgent, GLUT_BITMAP_HELVETICA_18, &POSITION_TEXTE_ARGENT, COULEUR_TEXTE_ARGENT, dimImage);
     libererTexte(texteArgent);
 }
 
@@ -257,8 +257,8 @@ void afficherTexteRang(int rang, Dimensions *dimImage)
         **** à la sortie du programme
         **** À CORRIGER
         ****/
-        strcpy(texteRang, TEXTE_RANG);
-        afficherTexte( texteRang, &POSITION_TEXTE_RANG, COULEUR_TEXTE_RANG, dimImage);
+        strcpy(texteRang, TEXTE_RANG[rang]);
+        afficherTexte( texteRang, GLUT_BITMAP_HELVETICA_10, &POSITION_TEXTE_RANG, COULEUR_TEXTE_RANG, dimImage);
     libererTexte(texteRang);
 }
 
@@ -271,7 +271,7 @@ void afficherEtatJeu(int etatJeu, Dimensions *dimImage)
         **** À CORRIGER
         ****/
         strcpy(texteEtat, TEXTES_ETAT_JEU[etatJeu]);
-        afficherTexte( texteEtat, &POSITION_TEXTE_ETAT_JEU, COULEUR_TEXTE_ETAT_JEU, dimImage);
+        afficherTexte( texteEtat, GLUT_BITMAP_HELVETICA_18, &POSITION_TEXTE_ETAT_JEU, COULEUR_TEXTE_ETAT_JEU, dimImage);
     libererTexte(texteEtat);
 }
 
@@ -284,22 +284,10 @@ void afficherTitreMenu(Dimensions *dimImage)
         **** À CORRIGER
         ****/
         strcpy(texteTitre, TEXTE_TITRE_MENU);
-        afficherTexte( texteTitre, &POSITION_TEXTE_TITRE_MENU, COULEUR_TEXTE_TITRE_MENU, dimImage);
+        afficherTexte( texteTitre, GLUT_BITMAP_HELVETICA_18, &POSITION_TEXTE_TITRE_MENU, COULEUR_TEXTE_TITRE_MENU, dimImage);
     libererTexte(texteTitre);
 }
 
-void afficherTexteBoutonMenu(Dimensions *dimImage)
-{
-    char *texteBouton = allouerTexte(MAX_TAILLE_TEXTE);
-        /**** PROVOQUE PARFOIS UNE ERREUR D'ALLOCATION, 
-        **** ou corrupted size vs. prev_size
-        **** à la sortie du programme
-        **** À CORRIGER
-        ****/
-        strcpy(texteBouton, TEXTE_BOUTON_MENU);
-        afficherTexte( texteBouton, &POSITION_TEXTE_BOUTON_MENU, COULEUR_TEXTE_BOUTON_MENU, dimImage);
-    libererTexte(texteBouton);
-}
 
 void afficherCredits(Dimensions *dimImage)
 {
@@ -310,7 +298,7 @@ void afficherCredits(Dimensions *dimImage)
         {
             coordCredits->y += DECALAGE_TEXTE_CREDITS;
             strcpy(texteCredits, TEXTE_CREDITS[i]);;
-            afficherTexte( texteCredits, coordCredits, COULEUR_TEXTE_CREDITS, dimImage);
+            afficherTexte( texteCredits, GLUT_BITMAP_HELVETICA_18, coordCredits, COULEUR_TEXTE_CREDITS, dimImage);
         }
     libererPoint(coordCredits);
     libererTexte(texteCredits);
@@ -326,19 +314,18 @@ void afficherTouche(char toucheCode, Dimensions *dimImage)
         strcpy(texteTouche, TEXTE_TOUCHE);
         strncat(texteTouche, &toucheCode, 1);
         //sprintf(texteTouche, "%s : %c", TEXTE_TOUCHE, toucheCode);
-        afficherTexte( texteTouche, &POSITION_TEXTE_TOUCHE, COULEUR_TEXTE_TOUCHE, dimImage);
+        afficherTexte( texteTouche, GLUT_BITMAP_HELVETICA_18, &POSITION_TEXTE_TOUCHE, COULEUR_TEXTE_TOUCHE, dimImage);
     libererTexte(texteTouche);
 }
 
-
-void afficherTexte(char *texte, Point *origine, unsigned char couleurTexte[], Dimensions *dimImage)
+void afficherTexte(char *texte, void *police, Point *origine, unsigned char couleurTexte[], Dimensions *dimImage)
 {
     GL_changerCouleurTrait(couleurTexte);
-        GLUT_afficherTexte(texte, origine, GLUT_BITMAP_HELVETICA_18, dimImage);
+        GLUT_afficherTexte(texte, police, origine, dimImage);
     GL_changerCouleurTrait(COULEUR_PARDEFAUT);
 }
 
-void GLUT_afficherTexte(char *texte, Point *origine, void *police, Dimensions *dimImage)
+void GLUT_afficherTexte(char *texte, void *police, Point *origine,  Dimensions *dimImage)
 {
     double posX, posY;
     Point origineEchelle;

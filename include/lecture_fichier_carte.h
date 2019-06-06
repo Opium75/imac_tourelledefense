@@ -8,6 +8,7 @@
 
 #include <stdbool.h>
 
+#include "couleur.h"
 #include "point.h"
 #include "graphe.h"
 #include "carte.h"

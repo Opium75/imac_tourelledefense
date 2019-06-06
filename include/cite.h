@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <time.h>
+
+#include "point.h"
+#include "graphe.h"
+#include "carte.h"
 #include "tour.h"
 
 

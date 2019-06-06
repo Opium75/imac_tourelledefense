@@ -6,8 +6,8 @@
 #include <math.h>
 #include <time.h>
 
-#include "carte.h"
 #include "graphe.h"
+#include "carte.h"
 #include "monstre.h"
 #include "tour.h"
 #include "cite.h"

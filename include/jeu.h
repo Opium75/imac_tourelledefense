@@ -6,30 +6,31 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "jeu.h"
+
+#include "point.h"
 #include "./PPM_image/PPM_image.h"
 #include "carte.h"
 #include "lecture_fichier_carte.h"
 #include "verif_carte.h"
-#include "tour.h"
 #include "cite.h"
 #include "vague.h"
 #include "gestion_affichage.h"
 #include "affichage_element.h"
+
 #include "bouton.h"
-#include "point.h"
-#include "jeu.h"
-
 #include "rang.h"
-/* l'argent dont dispose le joueur en début de partie */
 
+/* l'argent dont dispose le joueur en début de partie */
 #define ARGENT_DEPART 50
+
 
 typedef struct {
 	int pointage, argent;
 	char memTouche;
 } Joueur;
 
-typedef enum { nonLance, lance, enPause, fini} EtatJeu;
+typedef enum {nonLance, lance, enPause, fini} EtatJeu;
 
 /* Mega-structure qui comprend toutes les autres */
 typedef struct {
@@ -56,6 +57,9 @@ static const char TOUCHE_PAUSE = 'p';
 /** OPENGL **/
 void afficherJeu(Jeu *jeu);
 void afficherJoueur(Joueur *joueur, EtatJeu etat, Dimensions *dimImage);
+
+void afficherMenu(Ressources *ressources, Dimensions *dimImage);
+void afficherFin(Jeu *jeu);
 /** **/
 
 void boucleJeu(Jeu *jeu);
@@ -79,6 +83,10 @@ void libererJoueur(Joueur *joueur);
 int calculerRang(Joueur *joueur);
 /** **/
 
+void afficherArrierePlan(EtatJeu etat, Ressources *ressources, Dimensions *dimImage);
+/* pour savoir quel arrière-plan afficher */
+int correspondanceEtatJeuArrierePlan(EtatJeu etat);
+
 /** SDL **/
 /**/
 
@@ -89,6 +97,7 @@ void gestionConstruction(Joueur *joueur, Cite *cite, Carte *carte, Point *coordC
 void gestionTouche(Jeu *jeu, SDL_Event *e);
 
 void gestionMenu(Jeu *jeu, Point *coordClique);
+void gestionFin(Jeu *jeu, Point *coordClique);
 
 /** TRAITEMENT **/
 void traitementJeu(Jeu* jeu, time_t deltaT);

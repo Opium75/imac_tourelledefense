@@ -13,7 +13,6 @@ Ressources* allouerRessources()
 
 void libererRessources(Ressources *ressources)
 {
-    /* qqc */
     libererRessourcesAffichage(ressources);
     free(ressources);
 }
@@ -46,7 +45,7 @@ void fermerAffichage(SDL_Surface *scene)
     SDL_Quit();
 }
 
-void chargerRessourcesAffichage(Ressources *ressources, Dimensions *dimImage, bool possedeArrierePlan, char nomArrierePlan[])
+void chargerRessourcesAffichage(Ressources *ressources, Dimensions *dimImage, bool possedeDecor, char nomDecor[])
 {
     
     /* création des listes des types de lutins, et dimensions */
@@ -59,26 +58,24 @@ void chargerRessourcesAffichage(Ressources *ressources, Dimensions *dimImage, bo
     /* chargement des textures */
     chargerTextureLutins(ressources->lutins, ressources->banqueTextures);
     chargerAffichageLutins(ressources->banqueAffichage, ressources->banqueTextures);
-    if( possedeArrierePlan )
+    if( possedeDecor )
     {
-        chargerTextureArrierePlan(&(ressources->arrierePlan), &(ressources->textureArrierePlan), nomArrierePlan);
-        chargerAffichageArrierePlan(&(ressources->affichageArrierePlan), ressources->textureArrierePlan, dimImage);
+        chargerTextureDecor(&(ressources->decor), &(ressources->textureDecor), nomDecor);
+        chargerAffichageArrierePlan(&(ressources->affichageDecor), ressources->textureDecor, dimImage);
     }
     /* */
 
-    /* chargement du menu */
-    chargerTextureArrierePlan(&(ressources->menu), &(ressources->textureMenu), NOM_IMAGE_MENU);
-    chargerAffichageArrierePlan(&(ressources->affichageMenu), ressources->textureMenu, dimImage);
+    /* chargement des arrière-plans */
+    chargerTextureArrierePlans(ressources->arrierePlans, ressources->arrierePlanTextures);
+    chargerAffichageArrierePlans(ressources->arrierePlanAffichage,  ressources->arrierePlanTextures, dimImage);
 
-
-    /* chargement de l'écran d'aide */
-    chargerTextureArrierePlan(&(ressources->aide), &(ressources->textureAide), NOM_ARRIEREPLAN_AIDE);
-    chargerAffichageArrierePlan(&(ressources->affichageAide), ressources->textureAide, dimImage);
+    /* les boutons */
+    chargerTextureBoutons(ressources->boutons, ressources->boutonTextures);
+    chargerAffichageBoutons(ressources->boutonAffichage,  ressources->boutonTextures);
 
     /* chargement des rangs */
     chargerTextureRangs(ressources->rangs, ressources->rangTextures);
-    chargerAffichageRangs(ressources->rangAffichage, ressources->rangTextures);
-    /* */
+    chargerAffichageRangs(ressources->rangAffichage,  ressources->rangTextures);
 }
 
 void chargerAffichage(GLuint *idAffichage, GLuint idTexture)
@@ -96,6 +93,16 @@ void  chargerAffichageArrierePlan(GLuint *idAffichage, GLuint idTexture, Dimensi
     chargerAffichage(idAffichage, idTexture);
 }
 
+void chargerAffichageArrierePlans(GLuint arrierePlanAffichage[], GLuint arrierePlanTextures[], Dimensions *dimImage)
+{
+     int k;
+    /* on crée la liste d'affichage pour leS lutinS */
+   
+    for( k=0; k<NB_ARRIERE_PLANS; k++)
+    {
+        chargerAffichageArrierePlan( &(arrierePlanAffichage[k]), arrierePlanTextures[k], dimImage);
+    }
+}
 
 void chargerAffichageLutins(GLuint banqueAffichage[], GLuint banqueTextures[])
 {
@@ -110,11 +117,19 @@ void chargerAffichageLutins(GLuint banqueAffichage[], GLuint banqueTextures[])
 
 void chargerAffichageRangs(GLuint rangAffichage[], GLuint rangTextures[])
 {
-     int k;
-   
+    int k;
     for( k=0; k<NB_RANGS; k++)
     {
        chargerAffichage( &(rangAffichage[k]), rangTextures[k]);
+    }
+}
+
+void chargerAffichageBoutons(GLuint boutonAffichage[], GLuint boutonTextures[])
+{
+    int k;
+    for( k=0; k<NB_BOUTONS; k++)
+    {
+       chargerAffichage( &(boutonAffichage[k]), boutonTextures[k]);
     }
 }
 
@@ -164,19 +179,34 @@ void chargerTextureLutins(SDL_Surface *lutins[], GLuint banqueTextures[])
         lutins[k]  = chargerTextureLutin( &(banqueTextures[k]), &type );
     }
 }
+
+void chargerTextureBoutons(SDL_Surface *boutons[], GLuint boutonTextures[])
+{
+    int k;
+    glGenTextures( (GLsizei) NB_BOUTONS, boutonTextures);
+    for( k=0; k<NB_BOUTONS; k++ )
+    {
+        boutons[k]  = chargerTextureBouton( &(boutonTextures[k]), k );
+    }
+}
  
 void chargerTextureRangs(SDL_Surface *rangs[], GLuint rangTextures[])
 {
     int k;
-    GLuint banqueRang[NB_RANGS];
-    glGenTextures( (GLsizei) NB_RANGS, banqueRang);
+    glGenTextures( (GLsizei) NB_RANGS, rangTextures);
     for( k=0; k<NB_RANGS; k++ )
     {
-        rangs[k]  = chargerTextureRang( &(banqueRang[k]), k);
+        rangs[k]  = chargerTextureRang( &(rangTextures[k]), k);
     }
-    for( k=0; k<NB_RANGS; k++ )
+}
+
+void chargerTextureArrierePlans(SDL_Surface *arrierePlans[], GLuint arrierePlanTextures[])
+{
+    int k;
+    glGenTextures( (GLsizei) NB_ARRIERE_PLANS, arrierePlanTextures);
+    for( k=0; k<NB_ARRIERE_PLANS; k++ )
     {
-        rangTextures[k] = banqueRang[k];
+        arrierePlans[k]  = chargerTextureArrierePlan( &(arrierePlanTextures[k]), k);
     }
 }
 
@@ -194,13 +224,43 @@ SDL_Surface* chargerTextureRang(GLuint *idTexture, int indice)
     return rang;
 }
 
-void chargerTextureArrierePlan(SDL_Surface **arrierePlan, GLuint *idTexture, char nomArrierePlan[])
+
+
+SDL_Surface* chargerTextureArrierePlan(GLuint *idTexture, int indice)
+{
+    SDL_Surface *arrierePlan;
+    /** CHEMIN **/
+    char cheminArrierePlan[MAX_TAILLE_CHEMIN_FICHIER];
+    /* on construit le chemin du lutin */
+    correspondanceCheminArrierePlan(cheminArrierePlan, indice);
+    /** VÉRIF **/
+    printf("Chemin arrière-plan : %s\n", cheminArrierePlan);
+    /** CHARGEMENT MÉMOIRE VIVE **/
+    chargerTexture(&arrierePlan, idTexture, cheminArrierePlan);
+    return arrierePlan;
+}
+
+SDL_Surface* chargerTextureBouton(GLuint *idTexture, int indice)
+{
+    SDL_Surface *bouton;
+    /** CHEMIN **/
+    char cheminBouton[MAX_TAILLE_CHEMIN_FICHIER];
+    /* on construit le chemin du lutin */
+    correspondanceCheminBouton(cheminBouton, indice);
+    /** VÉRIF **/
+    printf("Chemin bouton : %s\n", cheminBouton);
+    /** CHARGEMENT MÉMOIRE VIVE **/
+    chargerTexture(&bouton, idTexture, cheminBouton);
+    return bouton;
+}
+
+void chargerTextureDecor(SDL_Surface **decor, GLuint *idTexture, char nomDecor[])
 {
     /* CHEMIN */
-    char cheminArrierePlan[MAX_TAILLE_CHEMIN_FICHIER];
-    sprintf(cheminArrierePlan,"%s/%s",REP_ARRIEREPLAN_CARTE, nomArrierePlan);
-    printf("Chemin arrière-plan : %s\n", cheminArrierePlan);
-    chargerTexture(arrierePlan, idTexture, cheminArrierePlan);
+    char cheminDecor[MAX_TAILLE_CHEMIN_FICHIER];
+    sprintf(cheminDecor,"%s%s",REP_DECOR_CARTE, nomDecor);
+    printf("Chemin décor : %s\n", cheminDecor);
+    chargerTexture(decor, idTexture, cheminDecor);
 }
 
 
@@ -223,15 +283,31 @@ void libererRessourcesAffichage(Ressources *ressources)
 {
     int k;
     /* ON LIBÈRE LES TEXTURES PUIS LES IMAGES */
-    if( ressources->arrierePlan )
+    if( ressources->decor )
     {
-        glDeleteTextures(1, &(ressources->textureArrierePlan));
-        glDeleteLists(ressources->affichageArrierePlan, 1);
+        glDeleteTextures(1, &(ressources->textureDecor));
+        glDeleteLists(ressources->affichageDecor, 1);
 
-        SDL_FreeSurface(ressources->arrierePlan);
+        SDL_FreeSurface(ressources->decor);
     }
-  
+    /* les arrière-plan */
+    glDeleteTextures(NB_ARRIERE_PLANS, ressources->arrierePlanTextures);
+    glDeleteLists(ressources->arrierePlanAffichage[0], NB_ARRIERE_PLANS);
     /* */
+    for( k=0; k<NB_ARRIERE_PLANS; k++ )
+    {
+        SDL_FreeSurface(ressources->arrierePlans[k]);
+    }
+
+    /* les boutons */
+    glDeleteTextures(NB_BOUTONS, ressources->boutonTextures);
+    glDeleteLists(ressources->boutonAffichage[0], NB_BOUTONS);
+    for( k=0; k<NB_BOUTONS; k++ )
+    {
+        SDL_FreeSurface(ressources->boutons[k]);
+    }
+
+    /* les lutins */
     glDeleteTextures(NB_LUTINS, ressources->banqueTextures);
     glDeleteLists(ressources->banqueAffichage[0], NB_LUTINS);
     /* */
@@ -239,14 +315,14 @@ void libererRessourcesAffichage(Ressources *ressources)
     {
         SDL_FreeSurface(ressources->lutins[k]);
     }
-
+    /* les rangs */
     glDeleteTextures(NB_RANGS, ressources->rangTextures);
     glDeleteLists(ressources->rangAffichage[0], NB_RANGS);
+    /* */
     for( k=0; k<NB_RANGS; k++ )
     {
         SDL_FreeSurface(ressources->rangs[k]);
     }
-    
 }
 
 void remplirListeType(TypeLutin listeType[])
@@ -425,6 +501,22 @@ void correspondanceCheminRang(char *cheminRang, int indice)
     strcpy(cheminRang, REP_RANG);
     strcat(cheminRang, NOM_IMAGE_RANG[indice]);
     strncat(cheminRang, EXTENSION, MAX_TAILLE_NOM_FICHIER);
+}
+
+void correspondanceCheminBouton(char *cheminBouton, int indice)
+{
+    /* on construit le chemin du RANG */
+    strcpy(cheminBouton, REP_BOUTON);
+    strcat(cheminBouton, NOM_IMAGE_BOUTON[indice]);
+    strncat(cheminBouton, EXTENSION, MAX_TAILLE_NOM_FICHIER);
+}
+
+void correspondanceCheminArrierePlan(char *cheminArrierePlan, int indice)
+{
+    /* on construit le chemin du RANG */
+    strcpy(cheminArrierePlan, REP_ARRIEREPLAN);
+    strcat(cheminArrierePlan, NOM_ARRIEREPLAN[indice]);
+    strncat(cheminArrierePlan, EXTENSION, MAX_TAILLE_NOM_FICHIER);
 }
 
 void redimensionner(SDL_Surface** surface, unsigned int largeur, unsigned int hauteur)
