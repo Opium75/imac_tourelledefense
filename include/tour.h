@@ -23,10 +23,10 @@
 #define PORTEE_BASE 200 /*en pixels*/
 #define COUT_BASE 5 /*PIÈCES*/
 
-static const unsigned int PUISSANCE_TYPE[NB_TYPES_TOUR] = {4, 1, 2, 2};
-static const unsigned int PORTEE_TYPE[NB_TYPES_TOUR] = {2, 1, 8, 2};
-static const double TEMPS_TIR_TYPE[NB_TYPES_TOUR] = {1, 4, 2, 2};
-static const unsigned int COUT_TYPE[NB_TYPES_TOUR] = {2, 2, 2, 2};
+static const unsigned int PUISSANCE_TYPE[NB_TYPES_TOUR] = {4, 2, 2, 2};
+static const unsigned int PORTEE_TYPE[NB_TYPES_TOUR] = {2, 4, 8, 2};
+static const double TEMPS_TIR_TYPE[NB_TYPES_TOUR] = {4, 2, 8, 2};
+static const unsigned int COUT_TYPE[NB_TYPES_TOUR] = {3, 2, 3, 1};
 
 typedef enum {T_rouge, T_vert, T_bleu, T_jaune} TypeTour; 
 

@@ -25,8 +25,6 @@ Monstre* creerMonstre(TypeMonstre type, unsigned char niveau, Noeud *depart)
 	monstre->nombreEtapes = 0;
 	monstre->indiceEtape = -1;
 
-	monstre->indiceEntree = depart->indice;
-
 	return monstre;
 }
 

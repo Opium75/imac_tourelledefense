@@ -237,10 +237,13 @@ int calculerDistancePonderee(Noeud *noeud, Noeud *voisin, Tour *listeTour )
 	Tour *tour = listeTour;
 	while( tour )
 	{
-		//printf("ON RECALCULE LE CHEMIN LE PLUS COURT !!!!\n");
-		distanceTour = calculerDistanceSegment( tour->coord, noeud->coord, voisin->coord );
-		if( distanceTour <= (int)tour->portee )
-			compteurToursPortee++;
+		/* on vérifie d'abord que la tour peut être projetée sur le segment */
+		if( estProjeteSegment(tour->coord, noeud->coord, voisin->coord) )
+		{
+			distanceTour = calculerDistanceSegment( tour->coord, noeud->coord, voisin->coord );
+			if( distanceTour <= (int)tour->portee )
+				compteurToursPortee++;
+		}
 		tour = tour->suivante;
 	}
 	distanceNoeud = calculerDistance(noeud->coord, voisin->coord);
