@@ -56,7 +56,7 @@ typedef enum {  MC_chemin,
       } MotClef;
 
 typedef enum {
-	OPT_arrierePlan
+	OPT_decor
 } OPT_MotClef;
 
 static const char *MOTCLEFS[] = 
@@ -72,7 +72,7 @@ static const char *MOTCLEFS[] =
 
 static const char *OPT_MOTCLEFS[] =
 {
-	"arriereplan"
+	"decor"
 };
 
 typedef struct {
@@ -80,8 +80,8 @@ typedef struct {
 	unsigned int energie;
 	char nomImage[MAX_TAILLE_NOM_FICHIER];
 	/* POUR L'AFFICHAGE UN PEU PLUS JOLI */
-	bool possedeArrierePlan;
-	char nomArrierePlan[MAX_TAILLE_NOM_FICHIER];
+	bool possedeDecor;
+	char nomDecor[MAX_TAILLE_NOM_FICHIER];
 	unsigned char couleurClef[NB_COULEURS_CLEFS][NB_COULEURS];
 	int nombreNoeuds;
 	Graphe *chemins;

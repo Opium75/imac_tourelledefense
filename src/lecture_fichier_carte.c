@@ -171,11 +171,11 @@ bool lireParametres(FILE *fichierCarte, Carte *carte)
 				OPT_lue = correspondanceOption(chaineMotClef);
 				switch( OPT_lue )
 				{
-					case OPT_arrierePlan :
-						if( !lireChaine(fichierCarte, "Paramètre", i, carte->nomArrierePlan) )
+					case OPT_decor :
+						if( !lireChaine(fichierCarte, "Paramètre", i, carte->nomDecor) )
 							return false;
-						/* la carte possède un arrière-plan */
-						carte->possedeArrierePlan = true;
+						/* la carte possède un décor  */
+						carte->possedeDecor = true;
 						break;
 					case -1 : /*Valeur de renvoi pour mot-clef non reconnu*/
 						printf("Paramètre -- Ligne n°%d, mot-clef non reconnu : %s (version %d).\n", i, chaineMotClef, version);

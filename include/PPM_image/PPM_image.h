@@ -6,9 +6,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "../couleur.h"
 #include "../point.h"
-#include "PPM_entete.h"
 #include "../fichier.h"
+
+#include "PPM_entete.h"
 
 /*Si l'image est en NDG, seul le canal rouge (=gris) est utilisé.*/
 /*J'ai choisi d'intégrer les moyennes de luminosité à la structure par commodité, ça mange pas de pain.*/

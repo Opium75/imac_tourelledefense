@@ -427,10 +427,11 @@ void libererSortiesVague(int nombreEntreesVague, Noeud ***sorties, int *nombreSo
 void libererVague(Vague *vague, ListeTour liste)
 {
 	/* les tours abandonnent leur cible */
-	reinitialiserCibles(liste);
+	
+	if( liste )
+		reinitialiserCibles(liste);
 	/* on libère les monstres */
 	libererMonstresVague(vague->nombreMonstres, vague->monstres);
-
 	/* libérer entrées ?*/
 	libererEntreesVague(vague->nombreEntrees, vague->entrees);
 	libererSortiesVague(vague->nombreEntrees, vague->sorties, vague->nombreSorties);

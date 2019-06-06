@@ -6,11 +6,12 @@
 #include <stdlib.h>
 #include <stdlib.h>
 
+#include "point.h"
+#include "graphe.h"
+#include "carte.h"
 #include "monstre.h"
 #include "tour.h"
 #include "cite.h"
-#include "graphe.h"
-#include "carte.h"
 
 #define PROBA_ECART 0.2
 #define INVERSE_PROBA_ECART (int)(1/PROBA_ECART)

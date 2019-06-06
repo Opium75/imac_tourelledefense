@@ -3,7 +3,7 @@
 
 bool PPM_lireEntete(FILE *src, unsigned int *largeur, unsigned int *hauteur)
 {
-	char chaineFormat[MAX_TAILLE_CODE];
+	char chaineFormat[MAX_TAILLE_CODE_PPM];
 	int valCouleur;
 	if( !lireChaine(src, "Image", 0, chaineFormat) )
 		return false;

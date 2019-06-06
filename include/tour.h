@@ -21,7 +21,7 @@
 #define PUISSANCE_BASE 1 /*relatif aux points de vie et résistance des monstres.*/
 #define TEMPS_TIR_BASE 0.1 /*en secondes*/
 #define PORTEE_BASE 200 /*en pixels*/
-#define COUT_BASE 1 /*PIÈCES*/
+#define COUT_BASE 5 /*PIÈCES*/
 
 static const unsigned int PUISSANCE_TYPE[NB_TYPES_TOUR] = {4, 1, 2, 2};
 static const unsigned int PORTEE_TYPE[NB_TYPES_TOUR] = {2, 1, 8, 2};

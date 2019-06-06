@@ -122,13 +122,40 @@ bool preparerJeu(Jeu *jeu, char *nomDonnees)
 	return true;
 }
 
-void relancerJeu(Jeu *jeu)
+void reinitialiserJoueur(Joueur *joueur)
 {
-	/** VAGUE DE MONSTRES **/
-	lancerVague(jeu->chaine, jeu->carte, jeu->cite);
+	/* valeurs de départ */
+	joueur->pointage = 0;
+	joueur->argent = ARGENT_DEPART;
+	joueur->memTouche = '\0';
 
+}
+
+void recommencerJeu(Jeu *jeu)
+{
+	
+
+	/* On repart au premier niveau */
+	jeu->niveau = 0;
+	/* on réinitialise le joueur */
+	reinitialiserJoueur(jeu->joueur);
+	/* oN RÉALLOUE LA CITÉ */
+	jeu->cite = allouerCite();
+	/* on revient au menu */
+	jeu->etat = nonLance;
 	/** affichage **/
 	////
+}
+
+void lancerJeu(Jeu *jeu)
+{
+	/** VAGUE DE MONSTRES **/
+	/* première itération */
+	Vague *vague = creerVague(jeu->niveau, jeu->carte);
+	jeu->chaine = vague;
+	lancerVague(jeu->chaine, jeu->carte, jeu->cite);
+	/* */
+	jeu->etat = lance;
 }
 
 void chargerJeu(Jeu *jeu)
@@ -145,22 +172,28 @@ void chargerJeu(Jeu *jeu)
 	lancerAffichage(&scene);
 	jeu->scene = scene;
 
-	/** VAGUE DE MONSTRES **/
-	/* première itération */
-	Vague *vague = creerVague(jeu->niveau, jeu->carte);
-	jeu->chaine = vague;
-	lancerVague(jeu->chaine, jeu->carte, jeu->cite);
-	/* */
+	
 	/* chargement des ressources */
-	char *nomArrierePlan = jeu->carte->nomArrierePlan;
-	bool possedeArrierePlan = jeu->carte->possedeArrierePlan;
-	chargerRessourcesAffichage(jeu->ressources, jeu->image->dim, possedeArrierePlan, nomArrierePlan);
-	/* on lance le jeu en bonne et due forme */
+	char *nomDecor = jeu->carte->nomDecor;
+	bool possedeDecor = jeu->carte->possedeDecor;
+	chargerRessourcesAffichage(jeu->ressources, jeu->image->dim, possedeDecor, nomDecor);
 }
 
 void quitterJeu(Jeu *jeu)
 {
 	libererJeu(jeu);
+}
+
+void finirJeu(Jeu *jeu)
+{
+	/* On libère les vagues et la cité */
+	libererChaine(jeu->chaine, NULL);
+	libererCite(jeu->cite);
+	/* ON OUBLIE PAS DE RÉINITIALISER LES POINTEURS LIBÉRÉS*/
+	jeu->chaine = NULL;
+	jeu->cite = NULL;
+	/* */
+	jeu->etat = fini;
 }
 
 void traitementJeu(Jeu* jeu, time_t deltaT)
@@ -187,7 +220,7 @@ void traitementJeu(Jeu* jeu, time_t deltaT)
 			fin = false;
 			fin = traitementJoueur(jeu->joueur, gainPoints, gainArgent, pertePoints, perteArgent);
 			if( fin )
-				jeu->etat = fini;
+				finirJeu(jeu);
 			break;
 		case enPause :
 			break;
@@ -295,8 +328,6 @@ bool interfaceJeu(Jeu *jeu)
             /* Clic souris */
             case SDL_MOUSEBUTTONUP :
             	gestionClic(jeu, &e);
-                //printf("clic en (%d, %d)\n", e.button.x, e.button.y);
-                isItButton(e, jeu->image->dim);
                 break;
             
             /* Touche clavier */
@@ -366,6 +397,7 @@ void gestionClic(Jeu *jeu, SDL_Event *e)
 			/* on autorisera pas la construction pendant la pause ? */
 			break;
 		case fini :
+			gestionFin(jeu, &coordClique);
 			break;
 	}
 	/* */
@@ -376,16 +408,34 @@ void gestionMenu(Jeu *jeu, Point *coordClique)
 	/* le bouton correspondra au texte */
 	bool estClique;
 	Point coordBouton;
-	Dimensions dimTexteMenu;
+	Dimensions dimBoutonMenu;
 	/* premier calcul de la position du bouton de menu */
-	calculerCoordonneesPourcentage(&coordBouton, &POSITION_TEXTE_BOUTON_MENU, jeu->image->dim);
-	calculerDimensionsPourcentage(&dimTexteMenu, &DIM_TEXTE_BOUTON_MENU, jeu->image->dim);
+	calculerCoordonneesPourcentage(&coordBouton, &POSITION_BOUTON_MENU, jeu->image->dim);
+	calculerDimensionsPourcentage(&dimBoutonMenu, &DIM_BOUTON_MENU, jeu->image->dim);
 	/* est-ce que l'on a cliqué sur le bouton ?*/
-	estClique = texteEstClique(&coordBouton, &dimTexteMenu, coordClique, jeu->image->dim);
+	estClique = boutonEstClique(&coordBouton, &dimBoutonMenu, coordClique, jeu->image->dim);
 	if( estClique )
 	{
 		/* on lance le jeu */
-		jeu->etat = lance;
+		lancerJeu(jeu);
+	}
+}
+
+void gestionFin(Jeu *jeu, Point *coordClique)
+{
+	/* le bouton correspondra au texte */
+	bool estClique;
+	Point coordBouton;
+	Dimensions dimBoutonRecom;
+	/* premier calcul de la position du bouton de menu */
+	calculerCoordonneesPourcentage(&coordBouton, &POSITION_BOUTON_RECOM, jeu->image->dim);
+	calculerDimensionsPourcentage(&dimBoutonRecom, &DIM_BOUTON_RECOM, jeu->image->dim);
+	/* est-ce que l'on a cliqué sur le bouton ?*/
+	estClique = boutonEstClique(&coordBouton, &dimBoutonRecom, coordClique, jeu->image->dim);
+	if( estClique )
+	{
+		/* on revient au  */
+		recommencerJeu(jeu);
 	}
 }
 
@@ -459,28 +509,66 @@ void afficherJoueur(Joueur *joueur, EtatJeu etat, Dimensions *dimImage)
 	
 }
 
+void afficherArrierePlan(EtatJeu etat, Ressources *ressources, Dimensions *dimImage)
+{
+	/* on détermine l'arrière-plan à afficher */
+	int indice = correspondanceEtatJeuArrierePlan(etat);
+	if( indice == -1 )
+	{
+		/* on affiche rien */
+
+		return;
+	}
+	GLuint affichageArrierePlan = ressources->arrierePlanAffichage[indice];
+    /* l'arrière-plan remplace la carte */
+    afficherElement(affichageArrierePlan);
+}
+
+void afficherMenu(Ressources *ressources, Dimensions *dimImage)
+{
+	/* les textes */
+	afficherTitreMenu(dimImage);
+	afficherCredits(dimImage);
+	/* le bouton de menu */
+  	afficherBouton(BOUT_menu, ressources->boutonAffichage, dimImage);
+}
+
+void afficherFin(Jeu *jeu)
+{
+	int rang;
+	Ressources *ressources = jeu->ressources;
+	rang = calculerRang(jeu->joueur);
+	afficherNiveau(jeu->niveau, jeu->image->dim);
+	/* LE TEXTE DU RANG ET SON IMAGE */
+	afficherImageRang(rang, ressources->rangAffichage[rang], &POSITION_IMAGE_RANG, &DIM_IMAGE_RANG, jeu->image->dim);
+	afficherTexteRang(rang, jeu->image->dim);
+	/* */
+	afficherJoueur(jeu->joueur, jeu->etat, jeu->image->dim);
+	afficherCredits(jeu->image->dim);
+	/* le bouton pour recommencer */
+	afficherBouton(BOUT_redem, ressources->boutonAffichage, jeu->image->dim);
+}
+
 
 void afficherJeu(Jeu *jeu)
 
 {
-	int rang;
 	Ressources *ressources = jeu->ressources;
 	/* on efface l'écran précédent */
 	glClear(GL_COLOR_BUFFER_BIT);
- 
+ 	
+ 	/* l'arrière-plan en premier */
+ 	afficherArrierePlan(jeu->etat, jeu->ressources, jeu->image->dim);
   	switch( jeu->etat )
   	{
   		case nonLance :
-  			afficherImageMenu(jeu->ressources->affichageMenu, &POSITION_IMAGE_MENU, &DIM_IMAGE_MENU, jeu->image->dim);
-  			afficherTitreMenu(jeu->image->dim);
-  			afficherTexteBoutonMenu(jeu->image->dim);
-  			afficherCredits(jeu->image->dim);
+  			afficherMenu(ressources, jeu->image->dim);
   			break;
   		case lance :
   			/* l'arrière-plan s'il existe */
-			if( jeu->carte->possedeArrierePlan )
+			if( jeu->carte->possedeDecor )
 			{
-				 afficherCarte(ressources->affichageArrierePlan, jeu->image->dim);
+				afficherCarte(ressources->affichageDecor, jeu->image->dim);
 			}
   			/* on afficher la cité, la chaîne de monstres */
 		    afficherCite(jeu->cite, ressources->banqueAffichage, ressources->listeDim, jeu->image->dim);
@@ -493,20 +581,11 @@ void afficherJeu(Jeu *jeu)
 		    break;
 		case enPause :
 			/* on affiche l'aide */
-			afficherAide(jeu->ressources->affichageAide, jeu->image->dim);
-
 			afficherNiveau(jeu->niveau, jeu->image->dim);
 		    afficherJoueur(jeu->joueur, jeu->etat, jeu->image->dim);
 			break;
 		case fini :
-			rang = calculerRang(jeu->joueur);
-			afficherNiveau(jeu->niveau, jeu->image->dim);
-			/* LE TEXTE DU RANG ET SON IMAGE */
-			afficherImageRang(rang, ressources->rangAffichage[rang], &POSITION_IMAGE_RANG, &DIM_IMAGE_RANG, jeu->image->dim);
-			afficherTexteRang(rang, jeu->image->dim);
-			/* */
-			afficherJoueur(jeu->joueur, jeu->etat, jeu->image->dim);
-			afficherCredits(jeu->image->dim);
+			afficherFin(jeu);
 			break;
   	}
   	/* on affiche l'état du jeu quoi qu'il arrive */
@@ -516,15 +595,21 @@ void afficherJeu(Jeu *jeu)
 
 void libererJeu(Jeu *jeu)
 {
+	/* ICI ON NE SE PRÉOCCUPE PAS DE RÉINITIALISER LES CIBLES
+	* ON DONNE DONC NULL À libererChaine
+	*/
+	
+	libererChaine(jeu->chaine, NULL);
+	if( jeu->cite )
+		libererCite(jeu->cite);
+
+	/* */
+
 	/* on libère tout */
 	libererJoueur(jeu->joueur);
 	libererCarte(jeu->carte);
-	/* LIBÉRER LA CHAÎNE AVANT LA CITÉ
-	* CAR LA CHAÎNE RÉINITIALISE LES CIBLES DES TOURS
-	*/
-	libererChaine(jeu->chaine, jeu->cite->listeTour);
-	libererCite(jeu->cite);
 	PPM_libererImage(jeu->image);
+	
 	/** l'affichage aussi **/
 	libererRessources(jeu->ressources);
 	fermerAffichage(jeu->scene);
@@ -552,4 +637,28 @@ int toucheVersTypeTour(char touche)
 			return (TypeTour) i;
 	}
 	return -1;
+}
+
+int correspondanceEtatJeuArrierePlan(EtatJeu etat)
+{
+	int type;
+	switch(etat)
+	{
+		case nonLance :
+			type = ARR_menu;
+			break;
+		case enPause :
+			type = ARR_aide;
+			break;
+		case fini :
+			type = ARR_fin;
+			break;
+		case lance :
+		default :
+			/* on affiche alors rien */
+			type = -1;
+			break;
+
+	}
+	return type;
 }

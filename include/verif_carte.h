@@ -6,10 +6,11 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "couleur.h"
 #include "point.h"
 #include "graphe.h"
 #include "carte.h"
-#include "couleur.h"
+
 #include "PPM_image/PPM_image.h"
 
 

@@ -41,9 +41,9 @@ void terminalCarte(Carte *carte)
 		printf("Couleur %s : ", MOTCLEFS[MC_lu]);
 		afficherCouleur(carte->couleurClef[MC_lu]);
 	}
-	if( carte->possedeArrierePlan )
+	if( carte->possedeDecor )
 	{
-		printf("(*) Arrière-plan : %s\n", carte->nomArrierePlan);
+		printf("(*) Décor : %s\n", carte->nomDecor);
 	}
 
 	/*** Chemins ***/
