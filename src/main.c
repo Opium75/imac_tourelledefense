@@ -32,8 +32,7 @@ int main(int argc, char *argv[])
 
 	Mix_Music* musicJeu;
 
-    /* On initialise le son */
-    SDL_Init(SDL_INIT_AUDIO);
+    
 
     /* On ouvre un device audio */
     //Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);
@@ -48,7 +47,7 @@ int main(int argc, char *argv[])
     musicJeu = Mix_LoadMUS("./images/music.mp3");
     printf("musiiiiiiic\n");
 
-    Mix_PlayMusic(musicJeu, 1);
+    Mix_PlayMusic(musicJeu, -1);
 
 	/////* fin musique *////
 

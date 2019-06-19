@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "vecteur.h"
 #include "point.h"
 #include "carte.h"
 #include "monstre.h"
@@ -18,36 +19,46 @@
 #define RAYON_TOUR 80 /* en pixel, rond */
 
 /*attibuts unitaires*/
-#define PUISSANCE_BASE 1 /*relatif aux points de vie et résistance des monstres.*/
-#define TEMPS_TIR_BASE 0.1 /*en secondes*/
+#define PUISSANCE_BASE 2 /*relatif aux points de vie et résistance des monstres.*/
+#define TEMPS_TIR_BASE 0.05 /*en secondes*/
 #define PORTEE_BASE 200 /*en pixels*/
 #define COUT_BASE 5 /*PIÈCES*/
+#define NB_CIBLES_MAX_BASE 1 /* nombre de cibles maximal possible */
 
 static const unsigned int PUISSANCE_TYPE[NB_TYPES_TOUR] = {4, 2, 2, 2};
 static const unsigned int PORTEE_TYPE[NB_TYPES_TOUR] = {2, 4, 8, 2};
 static const double TEMPS_TIR_TYPE[NB_TYPES_TOUR] = {4, 2, 8, 2};
 static const unsigned int COUT_TYPE[NB_TYPES_TOUR] = {3, 2, 3, 1};
+static const unsigned int NOMBRE_CIBLES_MAX_TYPE[NB_TYPES_TOUR] = { 1, 1, 1, 4};
 
 typedef enum {T_rouge, T_vert, T_bleu, T_jaune} TypeTour; 
 
 typedef struct _TOUR {
 	TypeTour type;
-	unsigned int puissance, portee, coutAchat;
+	unsigned int puissance, portee, coutAchat, nombreCiblesMax;
 	/* MAINTENANT on a un temps de tir,
 	* qui correspond à l'intervalle de temps entre deux tirs
 	*/
 	time_t tempsTir;
-	time_t tempsTir_acc;
+	/* ON REPORTE L'ACCUMULATEUR DANS LES CIBLES
+	* AINSI LA TOUR TIRE SELON LA CIBLE */
 	Point *coord;
 	/* permettra d'enregistrer le monstre ciblé
 	* pour le garder en mémoire tant qu'il ne change pas.
 	*/
-	Monstre *cible;
+	/* on a maintenant créé une structure adapatée en liste chaînée */
+	Cible *cible;
 	/* J'ai changé la structure en liste chaînée
 	* comme ça on peut en supprimer comme on veut
 	*/
 	struct _TOUR *suivante;
 } Tour, *ListeTour;
+
+typedef struct _CIBLE {
+	Monstre *monstre;
+	time_t tempsTir_acc;
+	struct __CIBLE *suivante;
+} Cible, *Mire;
 
 Tour* creerTour(TypeTour type, unsigned int x, unsigned int y);
 void libererTour(Tour *tour);
@@ -61,7 +72,7 @@ bool doitChangerCible(Tour *tour);
 
 
 /*** LISTETOUR ***/
-/* en pratique, on utilisera pas ces fonctions directement,
+/* en pratique, on n'utilisera pas ces fonctions directement,
 * on passera par le pendant de chacune pour la cité
 */
 int longueurListe(ListeTour liste );
@@ -85,7 +96,7 @@ void traitementListe(ListeTour *liste, clock_t deltaT,  Monstre **monstres, int 
 bool verifierEmplacementTour(ListeTour liste, Point *coordClique);
 
 /* Une fonction de MONSTRE
-* on préfère que Monstre contrôle les dégats qu'il reçoie
+* on préfère que Monstre contrôle les dégats qu'il reçoit
 * pour qu'il sache qu'il doit disparaître
 */
 bool recevoirDegats(Monstre *monstre, Tour *tour, int *gainPoints, int *gainArgent);
@@ -104,6 +115,7 @@ int calculerIndiceCible(int *indicesMonstres, int *distancesMonstres, int nombre
 unsigned int calculerPuissance(TypeTour type);
 unsigned int calculerPortee(TypeTour type);
 unsigned int calculerCout(TypeTour type);
+unsigned int calculerNombreCiblesMax(TypeTour type);
 
 clock_t calculerTempsTir(TypeTour type);
 

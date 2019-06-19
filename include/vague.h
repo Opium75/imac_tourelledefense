@@ -6,6 +6,7 @@
 #include <math.h>
 #include <time.h>
 
+#include "vecteur.h"
 #include "graphe.h"
 #include "carte.h"
 #include "monstre.h"

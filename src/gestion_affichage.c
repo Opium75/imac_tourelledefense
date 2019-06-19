@@ -22,9 +22,11 @@ void lancerAffichage(SDL_Surface **scene)
     /* Initialisation SDL*/
     if( -1 == SDL_Init(SDL_INIT_VIDEO) )
     {
-        printf("Eh non en fait casse-toi\n");
+        printf("SDL_Init : échec de lancement de la vidéo.\n");
+        printf("SDL_Init : %s", SDL_GetError());
         exit(EXIT_FAILURE);
     }
+    /* initialisation du texte */
     int temp = 1;
     char *tempC[] = {"Coucou c'est un message, peut-être ?"};
     glutInit(&temp, tempC);
@@ -107,7 +109,6 @@ void chargerAffichageLutins(GLuint banqueAffichage[], GLuint banqueTextures[])
 {
     int k;
     /* on crée la liste d'affichage pour leS lutinS */
-   
     for( k=0; k<NB_LUTINS; k++)
     {
         chargerAffichage( &(banqueAffichage[k]), banqueTextures[k]);
@@ -171,7 +172,8 @@ void chargerTextureLutins(SDL_Surface *lutins[], GLuint banqueTextures[])
     ***/
     int k;
     TypeLutin type;
-    glGenTextures( (GLsizei) NB_LUTINS, banqueTextures);
+    /* on génère les id des textures à un autre endroit */
+   // glGenTextures( (GLsizei) NB_LUTINS, banqueTextures);
     for( k=0; k<NB_LUTINS; k++ )
     {
         type = correspondanceTypeLutin(k);
@@ -182,7 +184,8 @@ void chargerTextureLutins(SDL_Surface *lutins[], GLuint banqueTextures[])
 void chargerTextureBoutons(SDL_Surface *boutons[], GLuint boutonTextures[])
 {
     int k;
-    glGenTextures( (GLsizei) NB_BOUTONS, boutonTextures);
+    /* ON GÉNÉRE LES TEXTURES DANS chargerTexture */
+    //glGenTextures( (GLsizei) NB_BOUTONS, boutonTextures);
     for( k=0; k<NB_BOUTONS; k++ )
     {
         boutons[k]  = chargerTextureBouton( &(boutonTextures[k]), k );
@@ -192,7 +195,8 @@ void chargerTextureBoutons(SDL_Surface *boutons[], GLuint boutonTextures[])
 void chargerTextureRangs(SDL_Surface *rangs[], GLuint rangTextures[])
 {
     int k;
-    glGenTextures( (GLsizei) NB_RANGS, rangTextures);
+    /* ON GÉNÉRE LES TEXTURES DANS chargerTexture */
+    //glGenTextures( (GLsizei) NB_RANGS, rangTextures);
     for( k=0; k<NB_RANGS; k++ )
     {
         rangs[k]  = chargerTextureRang( &(rangTextures[k]), k);
@@ -202,7 +206,8 @@ void chargerTextureRangs(SDL_Surface *rangs[], GLuint rangTextures[])
 void chargerTextureArrierePlans(SDL_Surface *arrierePlans[], GLuint arrierePlanTextures[])
 {
     int k;
-    glGenTextures( (GLsizei) NB_ARRIERE_PLANS, arrierePlanTextures);
+    /* ON GÉNÉRE LES TEXTURES DANS chargerTexture */
+    //glGenTextures( (GLsizei) NB_ARRIERE_PLANS, arrierePlanTextures);
     for( k=0; k<NB_ARRIERE_PLANS; k++ )
     {
         arrierePlans[k]  = chargerTextureArrierePlan( &(arrierePlanTextures[k]), k);

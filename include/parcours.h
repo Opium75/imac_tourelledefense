@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdlib.h>
 
+#include "vecteur.h"
 #include "point.h"
 #include "graphe.h"
 #include "carte.h"

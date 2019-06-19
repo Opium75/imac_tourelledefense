@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "point.h"
+#include "vecteur.h"
 
 #define NB_MONSTRES_PAR_VAGUES
 
@@ -78,13 +79,7 @@ void libererIndicesEntrees(int* indicesEntrees);
 void libererIndicesSorties(int** indicesSorties, int nombreEntrees);
 /** **/
 
-/* utilisées dans la vérification de la Carte,
-* et l'algorithme du plus court chemin.
-* On utilise des valeurs 0,1,2 pour la vérification,
-* et 0, 1 pour l'agorithme*/
-int* creerVecteurEntier(int taille, int initial);
-void afficherVecteurEntier(int *vecteur, int taille);
-void libererVecteurEntier(int* vecteur);
+
 
 Graphe_MatAdj* allouerGrapheMatrice(int nombreNoeuds);
 /*Libère le graphe par matrice d'adjacence, avec la liste des noeuds, et avec ou sans les noeuds suivant avecContenuPoint*/

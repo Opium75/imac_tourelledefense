@@ -30,11 +30,13 @@ typedef struct {
 	char memTouche;
 } Joueur;
 
+#define NB_ETATS_JEU 4
+
 typedef enum {nonLance, lance, enPause, fini} EtatJeu;
 
 /* Mega-structure qui comprend toutes les autres */
 typedef struct {
-	unsigned char niveau;
+	unsigned chargerJeu niveau;
 	Joueur *joueur;
 	Carte *carte;
 	Cite *cite;
@@ -44,6 +46,8 @@ typedef struct {
 	SDL_Surface *scene;
 	Ressources *ressources;
 	EtatJeu etat;
+	/* la musique, avec SDL_Musique */
+	
 } Jeu;
 
 

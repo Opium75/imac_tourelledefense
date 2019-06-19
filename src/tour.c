@@ -15,6 +15,8 @@ Tour* creerTour(TypeTour type, unsigned int x, unsigned int y)
 	tour->portee = calculerPortee(type);
 	tour->coutAchat = calculerCout(type);
 
+	tour->nombreCiblesMax = calculerNombreCiblesMax(type);
+
 	tour->tempsTir = calculerTempsTir(type);
 	tour->tempsTir_acc = 0;
 
@@ -28,13 +30,17 @@ Tour* creerTour(TypeTour type, unsigned int x, unsigned int y)
 
 void terminalTour(Tour *tour)
 {
+	int k;
+	Cible *cible = tour->cible;
 	printf("Tour -> type : %d\n", tour->type);
 	printf("		-> position :");
 	afficherPoint(tour->coord);
-	if( tour->cible )
+	while( tour->cible )
 	{
-		printf("		-> cible :\n");
-		terminalMonstre(tour->cible);
+		printf("		-> cible %d:\n", k);
+		terminalMonstre(cible);
+		cible = cible->suivante;
+		k++;
 	}
 }
 
@@ -118,6 +124,88 @@ void attaquerCible(Tour *tour, clock_t deltaT, Monstre **monstres, int nombreMon
 	}
 }
 
+void ajouterCible(Mire *mire, Monstre *monstre)
+{
+	Cible *cible = *mire;
+	if( *mire )
+	{
+		/* ajout à la fin */
+		while( cible->suivante )
+		{
+			cible = cible->suivante;
+		}
+		cible->suivante = creerCible(monstre);
+	}
+	else
+	{
+		*mire = creerCible(monstre):
+	}
+}
+
+void enleverCible(Mire *mire, Cible *cible)
+{
+	Cible *transfert;
+	/* est-ce que l'on peut comparer des pointeurs comme ça ?
+	* je pense que oui. 
+	*/
+	/* En tout cas, est-ce que la cible que l'on enlève
+	* est la première cible de la liste ?
+	*/
+	if( !(*mire) )
+	{
+		/* on veut soustraire à une liste vide */
+		printf("Cible -- Tentative de soustraction à une liste chaînée vide !\n");
+		/* on ne sait jamais */
+		return;
+	}
+	if( !monstre )
+	{
+		printf("Cible -- Tentative de soustraction d'un monstre vide !\n");
+		return;
+	}
+	/* */
+	if( cible = *mire )
+	{
+		transfert = *mire;
+		*mire = (*mire)->suivante;
+		libererCible(transfert);
+	}
+	else
+	{
+		/* on ne fait rien dans le cas où la cible n'est pas dans la liste */
+		while( *mire )
+		{
+			if( (*mire)->suivante == cible )
+			{
+				transfert = (*mire)->suivante->suivante;
+				libererCible( (*mire)->suivante );
+				(*mire)->suivante = transfert;
+
+			}
+			else
+				*mire = (*mire)->suivante;
+		}
+	}
+}
+
+Cible* creerCible(Monstre *monstre)
+{
+	Cible *cible = malloc( sizeof(Cible) );
+	if( !cible )
+	{
+		printf("Cible -- Échce d'allocation dynamique.\n");
+		exit(EXIT_FAILURE);
+	}
+	cible->monstre = monstre;
+	cible->tempsTir_acc = 0;
+	return cible;
+}
+
+void libererCible(Cible *cible)
+{
+	free(cible);
+}
+
 void traitementListe(ListeTour *liste, clock_t deltaT, Monstre **monstres, int nombreMonstres, int *gainPointsTotal, int *gainArgentTotal)
 {
  	/** **/
@@ -184,6 +272,92 @@ bool doitChangerCible(Tour *tour)
 	return true;
 }
 
+bool verifierCibles(Tour *tour, int **indicesCibles, int *nombreCibles)
+{
+	int k;
+	Cible *cible = tour->cible;
+	int nombreCibles;
+	/* on commence par compter le nombre de cibles actuel de la tour
+	* et on vérifie qu'elle est à portée.
+	*/
+	while( cible )
+	{
+		if( estAPortee(tour, cible->monstre) )
+			nombreCibles++;
+		else
+		{
+			/* on le retire de la liste */
+			enleverCible( &(tour->cible), cible ); 
+		}
+		cible = cible->suivante;
+	}
+	/* on complète par les cibles possibles */
+	
+	for( k=0; k < (int)tour->nombreCiblesMax - nombreCibles; k++ )
+	{
+
+	}
+}
+
+bool ciblerMonstre(Tour *tour, Monstre **monstres, int nombreMonstres)
+{
+	int nombreMonstresCibles, k, j, d;
+	int indiceCible;
+	int *indicesMonstres, *distancesMonstres;
+	Point coordMonstre;
+	/* indexer les monstres pouvant être ciblés */
+	nombreMonstresCibles = 0;
+	for( k=0; k<nombreMonstres; k++ )
+	{
+		if( estAPortee(tour, monstres[k]) )
+			nombreMonstresCibles++;
+	}
+	/* Si aucun monstre n'est à la portée de la tour
+	* on renvoie faux, la tour n'a pas de cible
+	* elle cible donc sur NULL
+	*/
+	if(nombreMonstresCibles == 0)
+	{
+		tour->cible = NULL;
+		return false;
+	}
+
+	/* on en connaît maintenant le nombre, on recommence en enregistrant */
+	indicesMonstres = creerVecteurEntier(nombreMonstresCibles, -1);
+	distancesMonstres = creerVecteurEntier(nombreMonstresCibles, -1);
+	j=0;
+	for( k=0; k<nombreMonstres; k++ )
+	{
+		/* ici on récupère aussi la distance,
+		* donc pas possible d'utiliser estAPortee
+		*/
+		if( monstres[k]->etat == enMouvement )
+		{
+			calculerPositionMonstre(monstres[k], &coordMonstre);
+			d = calculerDistance(tour->coord, &coordMonstre);
+			if( d <= (int)tour->portee )
+			{
+				indicesMonstres[j] = k;
+				distancesMonstres[j] = d;
+				j++;
+			}
+		}
+	}
+	if( j!= nombreMonstresCibles )
+	{
+		printf("Tour -- J'ai un serpent dans ma botte !\n");
+		exit(EXIT_FAILURE);
+	}
+	/* On calcule l'indice du monstre ciblé */
+	indiceCible = calculerIndiceCible(indicesMonstres, distancesMonstres, nombreMonstresCibles);
+	/* la tour cible le monstre choisi */
+	tour->cible = monstres[indiceCible];
+	/* On libère les vecteurs utilisés */
+	libererVecteurEntier(indicesMonstres);
+	libererVecteurEntier(distancesMonstres);
+	/* La tour a trouvé une cible. */
+	return true;
+}
 
 bool ciblerMonstre(Tour *tour, Monstre **monstres, int nombreMonstres)
 {
@@ -425,4 +599,10 @@ unsigned int calculerCout(TypeTour type)
 {
 	unsigned int cout = COUT_BASE*COUT_TYPE[type];
 	return cout;
+}
+
+unsigned int calculerNombreCiblesMax(TypeTour type)
+{
+	unsigned int nombreCiblesMax = NB_CIBLES_MAX_BASE*NOMBRE_CIBLES_MAX_TYPE[type];
+	return nombreCiblesMax;
 }

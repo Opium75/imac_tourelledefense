@@ -22,7 +22,7 @@ vpath %.h $(ENTREP)
 # Fichiers principaux
 OBJ_MAIN = main.o
 ##
-OBJ_FICHIER = fichier.o
+OBJ_VECTEUR = vecteur.o
 OBJ_COULEUR = couleur.o
 OBJ_POINT = point.o
 OBJ_FICHIER = fichier.o
@@ -52,7 +52,7 @@ OBJ_AFFICHAGE_ELEMENT = affichage_element.o
 ## Bouton
 OBJ_BOUTON = bouton.o
 
-LISTE_OBJ = $(OBJREP)$(OBJ_FICHIER) $(OBJREP)$(OBJ_PPM_IMAGE) $(OBJREP)$(OBJ_PPM_ENTETE) \
+LISTE_OBJ = $(OBJREP)$(OBJ_VECTEUR) $(OBJREP)$(OBJ_FICHIER) $(OBJREP)$(OBJ_PPM_IMAGE) $(OBJREP)$(OBJ_PPM_ENTETE) \
 $(OBJREP)$(OBJ_POINT) $(OBJREP)$(OBJ_COULEUR) $(OBJREP)$(OBJ_GRAPHE)\
 $(OBJREP)$(OBJ_CARTE) $(OBJREP)$(OBJ_VERIF_CARTE) $(OBJREP)$(OBJ_LECTURE_CARTE) \
 $(OBJREP)$(OBJ_TOUR) $(OBJREP)$(OBJ_CITE) $(OBJREP)$(OBJ_MONSTRE) $(OBJREP)$(OBJ_VAGUE) $(OBJREP)$(OBJ_PARCOURS) \
@@ -61,10 +61,11 @@ $(OBJREP)$(OBJ_JEU)
 
 
 ### DÉPENDENCES ###
-$(OBJ_MAIN) : main.h
-$(OBJ_COULEUR) : couleur.h
-$(OBJ_POINT): point.h
-$(OBJ_FICHIER) : fichier.h
+$(OBJ_MAIN) :
+$(OBJ_VECTEUR) :
+$(OBJ_COULEUR) :
+$(OBJ_POINT):
+$(OBJ_FICHIER) :
 
 $(OBJ_PPM_ENTETE) : couleur.h fichier.h
 $(OBJ_PPM_IMAGE) : couleur.h point.h fichier.h $(REP_PPM)PPM_entete.h
@@ -75,11 +76,11 @@ $(OBJ_LECTURE_CARTE) : couleur.h point.h fichier.h graphe.h carte.h
 $(OBJ_VERIF_CARTE) : couleur.h point.h graphe.h carte.h
 
 $(OBJ_MONSTRE) : couleur.h point.h graphe.h
-$(OBJ_TOUR) : point.h carte.c monstre.h
+$(OBJ_TOUR) :  vecteur.h point.h carte.c monstre.h
 $(OBJ_CITE) : point.h carte.h graphe.h tour.h
 
-$(OBJ_PARCOURS) : point.h graphe.h carte.h monstre.h tour.h
-$(OBJ_VAGUE) : graphe.h carte.h monstre.h tour.h cite.h parcours.h
+$(OBJ_PARCOURS) : vecteur.h point.h graphe.h carte.h monstre.h tour.h
+$(OBJ_VAGUE) :  vecteur.h graphe.h carte.h monstre.h tour.h cite.h parcours.h
 
 $(OBJ_BOUTON) : point.h couleur.h
 
